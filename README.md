@@ -18,7 +18,7 @@ C++ library with following components:
     - **UNDEFINED**: represents uninitialized value, that can be changed in the future
     - **NONE**: represents NULL value, that can not be changed
 
-2. Simple test framework
+. Simple test framework
 
 3. Logger
 
@@ -26,7 +26,7 @@ C++ library with following components:
 
 ## Requirements
 
-It is mandatory to have **yajl** library for JSON paring (https://github.com/lloyd/yajl, version >= 2.0.4)
+It is mandatory to have **yajl** library for JSON paring (https://github.com/lloyd/yajl, version >= .0.4)
 
 If your C++ compiler does not support std::shared_ptr, then it is mandatory to have Boost library (http://boost.org, version >= 1.53)
 
