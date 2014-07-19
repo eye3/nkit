@@ -36,31 +36,27 @@ cd to/nkit/root
 
 This commands will configure, build and install debug version of nkit library (with non-system boost):
 
-    *./bootstrap.sh --prefix=/path/to/installation/folder --with-boost=/path/to/boost --with-yajl=/path/to/yajl --debug*
-
-    *make -C Debug-build*
-
-    *make -C Debug-build install*
+    ./bootstrap.sh --prefix=/path/to/installation/folder --with-boost=/path/to/boost \
+        --with-yajl=/path/to/yajl --debug
+    make -C Debug-build
+    make -C Debug-build install
 
 This commands will configure, build and install release version of nkit library (with system boost):
 
-    *./bootstrap.sh --prefix=/path/to/installation/folder --with-boost --with-yajl=/path/to/yajl --release*
-
-    *make -C Release-build*
-
-    *make -C Release-build install*
+    ./bootstrap.sh --prefix=/path/to/installation/folder --with-boost \
+        --with-yajl=/path/to/yajl --release
+    make -C Release-build
+    make -C Release-build install
 
 This commands will configure, build and install release-with-debug-version of nkit library (without boost, if C++ compiler supports std::shared_ptr):
 
-    *./bootstrap.sh --prefix=/path/to/installation/folder --with-yajl=/path/to/yajl --rdebug*
-
-    *make -C RelWithDebInfo-build*
-
-    *make -C RelWithDebInfo-build install*
+    ./bootstrap.sh --prefix=/path/to/installation/folder --with-yajl=/path/to/yajl --rdebug
+    make -C RelWithDebInfo-build
+    make -C RelWithDebInfo-build install
 
 For all configure options
 
-    *./bootstrap.sh --help*
+    ./bootstrap.sh --help
 
 ## Usage
 
