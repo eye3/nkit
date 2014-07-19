@@ -18,7 +18,7 @@ C++ library with following components:
     - **UNDEFINED**: represents uninitialized value, that can be changed in the future
     - **NONE**: represents NULL value, that can not be changed
 
-. Simple test framework
+2. Simple test framework
 
 3. Logger
 
@@ -26,7 +26,7 @@ C++ library with following components:
 
 ## Requirements
 
-It is mandatory to have **yajl** library for JSON paring (https://github.com/lloyd/yajl, version >= .0.4)
+It is mandatory to have **yajl** library for JSON paring (https://github.com/lloyd/yajl, version >= 2.0.4)
 
 If your C++ compiler does not support std::shared_ptr, then it is mandatory to have Boost library (http://boost.org, version >= 1.53)
 
@@ -36,31 +36,31 @@ cd to/nkit/root
 
 This commands will configure, build and install debug version of nkit library (with non-system boost):
 
-*./bootstrap.sh --prefix=/path/to/installation/folder --with-boost=/path/to/boost --with-yajl=/path/to/yajl --debug*
+    *./bootstrap.sh --prefix=/path/to/installation/folder --with-boost=/path/to/boost --with-yajl=/path/to/yajl --debug*
 
-*make -C Debug-build*
+    *make -C Debug-build*
 
-*make -C Debug-build install*
+    *make -C Debug-build install*
 
 This commands will configure, build and install release version of nkit library (with system boost):
 
-*./bootstrap.sh --prefix=/path/to/installation/folder --with-boost --with-yajl=/path/to/yajl --release*
+    *./bootstrap.sh --prefix=/path/to/installation/folder --with-boost --with-yajl=/path/to/yajl --release*
 
-*make -C Release-build*
+    *make -C Release-build*
 
-*make -C Release-build install*
+    *make -C Release-build install*
 
 This commands will configure, build and install release-with-debug-version of nkit library (without boost, if C++ compiler supports std::shared_ptr):
 
-*./bootstrap.sh --prefix=/path/to/installation/folder --with-yajl=/path/to/yajl --rdebug*
+    *./bootstrap.sh --prefix=/path/to/installation/folder --with-yajl=/path/to/yajl --rdebug*
 
-*make -C RelWithDebInfo-build*
+    *make -C RelWithDebInfo-build*
 
-*make -C RelWithDebInfo-build install*
+    *make -C RelWithDebInfo-build install*
 
-For all configure options type
+For all configure options
 
-*./bootstrap.sh --help*
+    *./bootstrap.sh --help*
 
 ## Usage
 
