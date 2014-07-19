@@ -62,6 +62,12 @@ For all configure options type
 
 *./bootstrap.sh --help*
 
+## Usage
+
+See **test/test_*.cpp** files for various use cases.
+
+User friendly usage info will be added here as soon as possible.
+
 ## Author
 
 Boris T. Darchiev (boris.darchiev <at> gmail.com)
@@ -79,3 +85,4 @@ Wrote all cmake build files and bootstrap.sh
 Participated in development of following parts of nkit:
 - TABLE data type in Dynamic class
 - Logger
+
