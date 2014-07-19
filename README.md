@@ -70,13 +70,13 @@ User friendly usage info will be added here as soon as possible.
 
 ## Author
 
-Boris T. Darchiev (boris.darchiev <at> gmail.com)
+Boris T. Darchiev (boris.darchiev at gmail.com)
 
 On github: https://github.com/eye3
 
 ## THANKS TO
 
-Vasiliy Soshnikov (dedok.mad <at> gmail.com):
+Vasiliy Soshnikov (dedok.mad at gmail.com):
 
 On github: https://github.com/dedok
 
