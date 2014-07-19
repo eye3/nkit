@@ -5,16 +5,16 @@
 C++ library with following components:
 
 1. **Dynamic data typing**. It is realized in **Dynamic class** (see src/nkit/dynamic.h) which supports following data types:
-    - **INTEGER**: represets integer values (implemented via int64_t type)
-    - **UNSIGNED_INTEGER**: represets unsigned integer values (implemented via uint64_t type)
-    - **FLOAT**: represets numbers with floating point (implemented via double type)
-    - **BOOL**: represets boolean values (implemented via bool type)
-    - **DATE_TIME**: represets simple date-time values with microseconds and 0 <= year <= 9999 (implemented via uint64_t type)
-    - **STRING**: represets string values (implemented via std::string)
-    - **LIST**: represets list of Dynamic values (implemented via std::vector<Dynamic>)
-    - **DICT**: represets map of string keys to Dynamic values (implemented via std::map<std::string, Dynamic>)
-    - **MONGODB_OID**: represets string values with limited behaviour for holding MongoDb ObjectID (implemented via std::string)
-    - **TABLE**: represets table of Dynamic values with support of multiple indexes, sorting and grouping by multiple fields
+    - **INTEGER**: represents integer values (implemented via int64_t type)
+    - **UNSIGNED_INTEGER**: represents unsigned integer values (implemented via uint64_t type)
+    - **FLOAT**: represents numbers with floating point (implemented via double type)
+    - **BOOL**: represents boolean values (implemented via bool type)
+    - **DATE_TIME**: represents simple date-time values with microseconds and 0 <= year <= 9999 (implemented via uint64_t type)
+    - **STRING**: represents string values (implemented via std::string)
+    - **LIST**: represents list of Dynamic values (implemented via std::vector<Dynamic>)
+    - **DICT**: represents map of string keys to Dynamic values (implemented via std::map<std::string, Dynamic>)
+    - **MONGODB_OID**: represents string values with limited behaviour for holding MongoDb ObjectID (implemented via std::string)
+    - **TABLE**: represents table of Dynamic values with support of multiple indexes, sorting and grouping by multiple fields
     - **UNDEFINED**: represents uninitialized value, that can be changed in the future
     - **NONE**: represents NULL value, that can not be changed
 
