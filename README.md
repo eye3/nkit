@@ -32,7 +32,7 @@ If your C++ compiler does not support std::shared_ptr, then it is mandatory to h
 
 ## Build & install
 
-cd to/nkit/root
+    cd to/nkit/root
 
 This commands will configure, build and install debug version of nkit library (with non-system boost):
 
