@@ -13,9 +13,9 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-# - Find yajl start from 2.X.X
+# Find yajl version 2.X.X
 #
-# TODO Add search in pgk config; add greater or equal in version comporation
+# TODO Add search in pgk config
 
 if (Yajl_FIND_VERSION_EXACT)
     if (${Yajl_FIND_VERSION_MAJOR} LESS 2)
@@ -24,20 +24,14 @@ if (Yajl_FIND_VERSION_EXACT)
     endif()
 endif()
 
-set(_INCLUDE_DIRS /usr/local/include /usr/include)
-set(_LIB_DIRS /usr/local/lib /usr/lib)
-
-if (DEFINED ENV{YAJL_ROOT})
-  set(YAJL_ROOT $ENV{YAJL_ROOT})
-endif()
-
-if (NOT "${YAJL_ROOT}" STREQUAL "")
+if (DEFINED YAJL_ROOT)
     set(_INCLUDE_DIRS ${YAJL_ROOT}/include)
     set(_LIB_DIRS ${YAJL_ROOT}/lib)
     set(_FIND_OPTS NO_CMAKE NO_CMAKE_SYSTEM_PATH)
+else()
+    set(_INCLUDE_DIRS /usr/local/include /usr/include)
+    set(_LIB_DIRS /usr/local/lib /usr/lib)
 endif()
-
-# message(STATUS "${_INCLUDE_DIRS} ${_LIB_DIRS} ${_FIND_OPTS}")
 
 find_path(YAJL NAMES yajl/ HINTS ${_INCLUDE_DIRS} ${_FIND_OPTS})
 
@@ -57,15 +51,7 @@ if (NOT ${YAJL} STREQUAL "YAJL-NOTFOUND")
 
     set(YAJL_VERSION "${YAJL_MAJOR}.${YAJL_MINOR}.${YAJL_MICRO}"
         CACHE INTERNAL "Yajl version")
-    if (Yajl_FIND_VERSION_EXACT)
-        if (NOT ${YAJL_MAJOR} EQUAL ${Yajl_FIND_VERSION_MAJOR} OR
-            NOT ${YAJL_MINOR} EQUAL ${Yajl_FIND_VERSION_MINOR} OR
-            NOT ${YAJL_MICRO} EQUAL ${Yajl_FIND_VERSION_PATCH})
-        message(SEND_ERROR
-          "Requested version ${Yajl_FIND_VERSION_MAJOR}.${Yajl_FIND_VERSION_MINOR}.${Yajl_FIND_VERSION_PATCH}, got ${YAJL_VERSION}")
-        endif()
-    endif()
-
+    
     if (WIN32 OR WIN64)
       set(YAJL_USE_DYN_LIBS 1)
     endif()
@@ -95,6 +81,6 @@ endif()
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(Yajl
-      DEFAULT_MSG YAJL_INCLUDE_DIR YAJL_LIBRARIES YAJL_VERSION)
+      REQUIRED_VARS YAJL_INCLUDE_DIR YAJL_LIBRARIES
+      VERSION_VAR YAJL_VERSION)
 mark_as_advanced(YAJL_INCLUDE_DIR YAJL_LIBRARIES YAJL_VERSION)
-

@@ -648,8 +648,6 @@ namespace nkit
     uint32_t microseconds() const;
     int64_t timestamp() const;
     bool leap() const;
-    //Dynamic date() const;
-    //Dynamic time() const;
     void AddDays(const int32_t dd);
     void AddHours(const int32_t hh);
     void AddMinutes(const int32_t mm);
@@ -818,7 +816,7 @@ namespace nkit
 
     /*
      * 'aggr' parameter is a string - comma delimited aggregator functions
-     * i.e. SUM(column_name), MAX(column_name), MIN(column_name), COUNT
+     * i.e. "SUM(column_name), MAX(column_name), MIN(column_name), COUNT"
      * */
     Dynamic Group(const std::string & index_def, const std::string & aggr,
       std::string * error);

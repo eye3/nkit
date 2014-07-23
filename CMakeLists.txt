@@ -48,14 +48,19 @@ enable_testing()
 
 find_package(Yajl 2.0.4 REQUIRED)
 
+if (DEFINED ENV{BOOST_VERSION})
+    set(BOOST_VERSION $ENV{BOOST_VERSION})
+else()
+    set(BOOST_VERSION 1.53)
+endif()
+
 if (DEFINED ENV{USE_BOOST}
   OR DEFINED USE_BOOST
   OR NOT DEFINED HAVE_STD_CXX_11)
     set(Boost_USE_STATIC_LIBS        ON)
     set(Boost_USE_MULTITHREADED      ON)
     set(Boost_USE_STATIC_RUNTIME    OFF)
-    find_package(Boost 1.53 REQUIRED COMPONENTS system)
-    message(STATUS ${Boost_LIBRARIES})
+    find_package(Boost ${BOOST_VERSION} REQUIRED COMPONENTS system)
     set(HAVE_BOOST 1 CACHE INTERNAL "boost found")
     set(USE_BOOST 1 CACHE INTERNAL "use boost in nkit backend")
 endif()

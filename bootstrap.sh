@@ -50,6 +50,7 @@ usage      :  $0 [-d|-rd|-r] [--with-boost=] [--use-boost]
 --rdebug | -rd          - set build type to release with debug info
 --with-[boost|yajl]=    - path to non-system Boost|yajl.
 --with-boost            - force to use system Boost (if any)
+--boost-version         - force to use concrete boost version
 --prefix=               - set install prefix[default '/usr/local']
 --cmake-flags=          - add cmake flag
 --with-cmake=           - set cmake
@@ -97,45 +98,48 @@ cleanup
 export USE_YAJL=1
 
 for option; do
-    case $option in
-        --help    | -h)
-          usage && exit_success
-          ;;
-        --debug   | --Debug)
-          BUILD_TYPE=Debug
-          ;;
-        --rdebug  | --RelWithDebInfo)
-          BUILD_TYPE=RelWithDebInfo
-          ;;
-        --release | --Release)
-          BUILD_TYPE=Release
-          ;;
-        --with-boost=*)
-          export BOOST_ROOT=`expr "x$option" : "x--with-boost=\(.*\)"`
-          export USE_BOOST=1
-          ;;
-        --with-yajl=*)
-          export YAJL_ROOT=`expr "x$option" : "x--with-yajl=\(.*\)"`
-          ;;
-        --with-boost)
-          export USE_BOOST=1
-          ;;
+	case $option in
+		--help    | -h)
+			usage && exit_success
+			;;
+		--debug   | --Debug)
+			BUILD_TYPE=Debug
+			;;
+		--rdebug  | --RelWithDebInfo)
+			BUILD_TYPE=RelWithDebInfo
+			;;
+		--release | --Release)
+			BUILD_TYPE=Release
+			;;
+		--with-boost=*)
+			export BOOST_ROOT=`expr "x$option" : "x--with-boost=\(.*\)"`
+			export USE_BOOST=1
+			;;
+		--with-yajl=*)
+			export YAJL_ROOT=`expr "x$option" : "x--with-yajl=\(.*\)"`
+			;;
+		--with-boost)
+			export USE_BOOST=1
+			;;
+		--boost-version=*)
+			export BOOST_VERSION=`expr "x$option" : "x--boost-version=\(.*\)"`
+			;;
         --prefix=*)
-          export PREFIX=`expr "x$option" : "x--prefix=\(.*\)"`
-          ;;
-        --cmake-flag=*)
-          CMAKE_FLAGS="$CMAKE_FLAGS `expr "x$option" : "x--cmake-flags=\(.*\)"`"
-          ;;
-        --with-cmake=*)
-          CMAKE=`expr "x$option" : "x--with-cmake=\(.*\)"`
-          ;;
-        --perf)
-          CMAKE_FLAGS="-DWITH_PERF=1 $CMAKE_FLAGS"
-          ;;
-        * )
-          die "unknown CLI parameter '$option', use --help|-h for help"
-          ;;
-    esac
+			export PREFIX=`expr "x$option" : "x--prefix=\(.*\)"`
+			;;
+		--cmake-flag=*)
+			CMAKE_FLAGS="$CMAKE_FLAGS `expr "x$option" : "x--cmake-flags=\(.*\)"`"
+			;;
+		--with-cmake=*)
+			CMAKE=`expr "x$option" : "x--with-cmake=\(.*\)"`
+			;;
+		--perf)
+			CMAKE_FLAGS="-DWITH_PERF=1 $CMAKE_FLAGS"
+			;;
+		* )
+			die "unknown CLI parameter '$option', use --help|-h for help"
+			;;
+	esac
 done
 
 CMAKE_FLAGS="$CMAKE_FLAGS -Wno-dev"

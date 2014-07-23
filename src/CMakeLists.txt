@@ -60,14 +60,13 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/nkit
         PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
                     GROUP_EXECUTE GROUP_READ)
 
-#install(FILES ${CMAKE_SOURCE_DIR}/cmake_modules/FindYajl.cmake
-#        ${CMAKE_SOURCE_DIR}/cmake_modules/FindNKit.cmake
-#        ${CMAKE_SOURCE_DIR}/cmake_modules/AddPrecompiledHeader.cmake
-#        ${CMAKE_SOURCE_DIR}/cmake_modules/Mercurial.cmake
-#        ${CMAKE_SOURCE_DIR}/cmake_modules/SetupCompilerOptions.cmake
-#        DESTINATION ${PREFIX}/share/cmake-2.8/Modules/nkit
-#        PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
-#                    GROUP_EXECUTE GROUP_READ)
+install(FILES ${CMAKE_SOURCE_DIR}/cmake_modules/FindYajl.cmake
+        ${CMAKE_SOURCE_DIR}/cmake_modules/nkit-config.cmake
+        ${CMAKE_SOURCE_DIR}/cmake_modules/AddPrecompiledHeader.cmake
+        ${CMAKE_SOURCE_DIR}/cmake_modules/Mercurial.cmake
+        ${CMAKE_SOURCE_DIR}/cmake_modules/SetupCompilerOptions.cmake
+        DESTINATION ${PREFIX}/lib/nkit
+        PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ)
 
 install(TARGETS ${PROJECT_NAME}
         RUNTIME DESTINATION ${PREFIX}/bin/

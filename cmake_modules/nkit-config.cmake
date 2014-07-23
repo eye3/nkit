@@ -13,18 +13,24 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-## - Find NKit
+## Find NKit
+
+## input : NKIT_ROOT, YAJL_ROOT
+## output: NKIT_VERSION_{MAJOR,MINOR,MICRO,BUILD}, NKIT_VERSION,
+##         NKIT_INCLUDE_DIR - nkit include dir
+##         NKIT_LIBRARY - nkit library
+##         NKIT_CMAKE_MODULE_PATH - path to custom nkit modules for cmake
+##         YAJL_INCLUDE_DIR - yajl include dirs
+##         YAJL_LIBRARIES - yajl libraries
+##         YAJL_VERSION_{MAJOR,MINOR,MICRO}, YAJL_VERSION - yajl versions
+##         NKIT_YAJL_INCLUDE_DIRS - nkit & yajl include dirs
+##         NKIT_YAJL_LIBRARIES - nkit & yajl libraries
+
 ## TODO
 ## 1) Handling all find_package args(for detail see cmake --help-command find_package)
 ## 2) Hand pkgconfig
 ##
 
-##
-## nkit_version__ - detect nkit version
-## input  : NKIT_INCLUDE_DIR
-## TODO: input NKIT_LIBRARY_DIR
-## outout : NKIT_VERSION_{MAJOR,MINOR,MICRO,BUILD}, NKIT_VERSION
-##
 macro(nkit_version__)
   file(READ ${NKIT_INCLUDE_DIR}/nkit/version.h cont__)
   string(REGEX REPLACE
@@ -59,49 +65,52 @@ if ((NKit_FIND_VERSION_MAJOR LESS 0) OR (NKit_FIND_VERSION_MAJOR EQUAL 0)
            "This module did not optimize for this version greater than 0.0.30.X")
 endif()
 
-set(NKit_DIR_PREFIX__    nkit/)
-set(NKit_INCLUDE_DIRS__ /usr/local/include /usr/include)
-set(NKit_LIB_DIRS__     /usr/local/lib /usr/lib)
-
-if (DEFINED ENV{NKIT_ROOT})
-  set(NKIT_ROOT $ENV{NKIT_ROOT})
-endif()
-
 if (DEFINED NKIT_ROOT)
-  set(NKit_INCLUDE_DIRS__ ${NKIT_ROOT}/include)
-  set(NKit_LIB_DIRS__     ${NKIT_ROOT}/lib)
-  set(NKit_FIND_OPTS__    NO_CMAKE NO_CMAKE_SYSTEM_PATH)
+  set(NKit_INCLUDE_DIRS__  ${NKIT_ROOT}/include)
+  set(NKit_LIB_DIRS__      ${NKIT_ROOT}/lib)
+  set(NKit_FIND_OPTS__     NO_CMAKE NO_CMAKE_SYSTEM_PATH)
+else()
+  set(NKit_INCLUDE_DIRS__  /usr/local/include /usr/include)
+  set(NKit_LIB_DIRS__      /usr/local/lib /usr/lib)
 endif()
 
-find_path(NKIT
-          NAMES ${NKit_DIR_PREFIX__}
+find_path(NKIT_INCLUDE_DIR
+          NAMES nkit/
           HINTS ${NKit_INCLUDE_DIRS__}
           ${NKit_FIND_OPTS__})
-
-if (NOT ${NKIT} STREQUAL "NKIT-NOTFOUND")
-  set(NKIT_INCLUDE_DIR ${NKIT} CACHE INTERNAL "nkit headers path")
-
-  ## Find dynamic nkit
-  if (DEFINED NKIT_USE_DYN_LIB)
-    
-    message(SEND_ERROR "NKIT_USE_DYN_LIB not supported yet!")
-
-  ## Find static nkit
-  else()
-    find_library(NKit_LIBRARY__ NAMES libnkit.a nkit.lib HINTS ${NKit_LIB_DIRS__})
-    if (NOT ${NKit_LIBRARY__} STREQUAL "NKIR_LIBRARY-NOTFOUND")
-      set(NKIT_LIBRARIES ${NKit_LIBRARY__} CACHE INTERNAL "nkit library")
-    else()
-      message(SEND_ERROR "Could not find 'libnkit.a' ('${NKit_LIB_DIRS__}')")
-    endif()
-
-  endif()
-  nkit_version__()
+if (${NKIT_INCLUDE_DIR} STREQUAL "NKIT_INCLUDE_DIR-NOTFOUND")
+  message(SEND_ERROR "Could not find nkit include directories")
 endif()
 
+set(NKIT_LIB_NAME  libnkit.a)
+
+find_path(NKIT_LIBRARY_DIR
+          NAMES ${NKIT_LIB_NAME}
+          HINTS ${NKit_LIB_DIRS__}
+          ${NKit_FIND_OPTS__})
+if (${NKIT_LIBRARY_DIR} STREQUAL "NKIT_LIBRARY_DIR-NOTFOUND")
+  message(SEND_ERROR "Could not find nkit lib directory")
+endif()
+
+find_library(NKIT_LIBRARY NAMES ${NKIT_LIB_NAME} HINTS ${NKIT_LIBRARY_DIR})
+if (${NKIT_LIBRARY} STREQUAL "NKIR_LIBRARY-NOTFOUND")
+  message(SEND_ERROR "Could not find '${NKIT_LIB_NAME}' ('${NKIT_LIBRARY_DIR}')")
+else()
+  set(NKIT_LIBRARIES ${NKIT_LIBRARY})
+endif()
+
+nkit_version__()
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(NKit
       DEFAULT_MSG NKIT_INCLUDE_DIR NKIT_LIBRARIES NKIT_VERSION)
 mark_as_advanced(NKIT_INCLUDE_DIR NKIT_LIBRARIES NKIT_VERSION)
+
+# yajl
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${NKIT_LIBRARY_DIR}/nkit)
+find_package(Yajl 2.0.4 REQUIRED)
+
+# nkit & yajl include dirs & libraries
+set(NKIT_YAJL_INCLUDE_DIRS ${NKIT_INCLUDE_DIR} ${YAJL_INCLUDE_DIR})
+set(NKIT_YAJL_LIBRARIES ${NKIT_LIBRARY} ${YAJL_LIBRARIES})
 

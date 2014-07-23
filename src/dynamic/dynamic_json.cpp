@@ -16,7 +16,6 @@
 
 #include <stack>
 #include <cstdlib>
-#include <fstream>
 #include <errno.h>
 
 #include <yajl/yajl_parse.h>
@@ -30,17 +29,6 @@ namespace nkit
   namespace detail
   {
     int json::xalloc = ::std::ios_base::xalloc();
-
-    bool text_file_to_string(const std::string & path, std::string * out)
-    {
-      std::ifstream is(path.c_str(), std::ios::in);
-      if (!is)
-        return false;
-      char buf[1024];
-      while (is.read(buf, sizeof(buf)).gcount() > 0)
-        out->append(buf, static_cast<size_t>(is.gcount()));
-      return true;
-    }
   } // namespace detail
 
   const std::string INT_64_MAX =
@@ -393,7 +381,7 @@ namespace nkit
   Dynamic DynamicFromJsonFile(const std::string & path, std::string * error)
   {
     std::string json;
-    if (!path.empty() && !detail::text_file_to_string(path, &json))
+    if (!path.empty() && !text_file_to_string(path, &json))
     {
       *error = "Could not open file: '" + path + "'";
       return Dynamic();

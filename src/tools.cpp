@@ -20,6 +20,7 @@
 #include <limits>
 #include <cstdio>
 #include <iomanip>
+#include <fstream>
 
 #include "nkit/tools.h"
 #include "nkit/constants.h"
@@ -542,6 +543,17 @@ static const time_t __FREQUENCY = 1000000000;
       abort_with_core("RotateLogger rename file error: errno = "
           + string_cast(errno));
     }
+  }
+
+  bool text_file_to_string(const std::string & path, std::string * out)
+  {
+    std::ifstream is(path.c_str(), std::ios::in);
+    if (!is)
+      return false;
+    char buf[1024];
+    while (is.read(buf, sizeof(buf)).gcount() > 0)
+      out->append(buf, static_cast<size_t>(is.gcount()));
+    return true;
   }
 
   static ToolsInitializer tools_initializer;

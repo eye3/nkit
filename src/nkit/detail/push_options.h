@@ -46,15 +46,15 @@
 #  define NKIT_HAVE_JSON_SUPPORT 1
 #endif // HAVE_YAJL
 
-#if defined(HAVE_STD_CXX_11) && !defined(NKIT_USE_BOOST)
+#if defined(HAVE_STD_CXX_11) && !defined(USE_BOOST)
 #  define NKIT_USE_STD_CXX_11 1
 #endif
 
-#if defined(HAVE_BOOST) || defined(NKIT_USE_BOOST)
-#  define NKIT_USE_BOOST 1
+#if defined(HAVE_BOOST) || defined(USE_BOOST)
+#  define USE_BOOST 1
 #endif
 
-#if !defined(NKIT_USE_BOOST) \
+#if !defined(USE_BOOST) \
     && !defined(NKIT_USE_STD_CXX_11)
 #  error "shared_ptr unknown implementation"
 #endif

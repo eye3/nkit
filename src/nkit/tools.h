@@ -157,6 +157,13 @@ namespace nkit
   bool simple_split(const std::string & src, const std::string & delimeter,
       std::string * key, std::string * value);
 
+  bool starts_with(const std::string & what, const std::string & with);
+  bool starts_with(const std::string & what, const char * with);
+  bool ends_with(const std::string & what, const std::string & with);
+  bool ends_with(const std::string & what, const char * with);
+
+  bool text_file_to_string(const std::string & path, std::string * out);
+
   //----------------------------------------------------------------------------
   template<typename T>
   void join(const T & container, const std::string & delimiter,
@@ -272,15 +279,6 @@ namespace nkit
 #endif
   void print(std::ostream & out, double v, std::string offset = "",
       bool newline = true);
-  //void print(std::ostream & out, const StringMap &, std::string offset = "");
-  //template <typename K, typename V>
-  //void print(std::ostream & out, const typename std::map<K, V> & ,
-  //    std::string offset = "");
-
-  bool starts_with(const std::string & what, const std::string & with);
-  bool starts_with(const std::string & what, const char * with);
-  bool ends_with(const std::string & what, const std::string & with);
-  bool ends_with(const std::string & what, const char * with);
 
   template <typename T>
   struct Printer

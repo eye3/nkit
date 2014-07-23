@@ -35,7 +35,7 @@
 #  define NKIT_FORMAT_U16 "%" PRIu16
 #  define NKIT_FORMAT_U32 "%" PRIu32
 #  define NKIT_FORMAT_U64 "%" PRIu64
-#  define NKIT_FORMAT_DOUBLE "%F"
+#  define NKIT_FORMAT_DOUBLE "%lg"
 
 #  define NKIT_SSCANF(buf, ...) \
   ::sscanf(buf, __VA_ARGS__)
@@ -131,7 +131,7 @@
 #  define NKIT_SHARED_PTR(T) ::std::shared_ptr<T >
 #  define NKIT_ENABLE_SHARED_FROM_THIS(T) ::std::enable_shared_from_this<T >
 
-#elif defined(NKIT_USE_BOOST)
+#elif defined(USE_BOOST)
 
 #  include <boost/shared_ptr.hpp>
 
