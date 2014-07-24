@@ -66,7 +66,7 @@ This commands will create Microsoft Visual C++ 2012 solution for nkit library (w
     cd c:\path\to\nkit\root
     mkdir win32
     cd win32
-    cmake -G "Visual Studio 11" -DPREFIX:PATH=c:\path\to\install\folder -DYAJL_ROOT=c:\path\to\yajl\root -DYAJL_USE_DYN_LIBS=1 ..
+    cmake -G "Visual Studio 11" -DPREFIX=c:/path/to/install/folder -DYAJL_ROOT=c:/path/to/yajl/root -DYAJL_USE_DYN_LIBS=1 ..
     
 
 ## Usage
