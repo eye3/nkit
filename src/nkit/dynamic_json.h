@@ -371,25 +371,6 @@ namespace nkit
   Dynamic DynamicFromJsonFile(const std::string & path,
       std::string * const error);
 
-  // Stream manipulators
-  inline std::ostream & json(std::ostream & ios)
-  {
-    ios.iword(detail::json::xalloc) = detail::JSON_HR_ONE_LINE;
-    return ios;
-  }
-
-  inline std::ostream & json_hr(std::ostream & ios)
-  {
-    ios.iword(detail::json::xalloc) = detail::JSON_HR_TABLE_AS_DICT;
-    return ios;
-  }
-
-  inline std::ostream & json_hr_table(std::ostream & ios)
-  {
-    ios.iword(detail::json::xalloc) = detail::JSON_HR_TABLE_AS_TABLE;
-    return ios;
-  }
-
   template <typename T>
   bool DynamicToJsonStream(std::ostream & os, const T & v)
   {
@@ -409,21 +390,9 @@ namespace nkit
   void print(std::ostream & out, const Dynamic & v,
       std::string offset = S_EMPTY_, bool newline = true);
 
-  inline std::ostream & operator << (std::ostream & os, const Dynamic & v)
-  {
-    DynamicToJsonStream(os, v);
-    return os;
-  }
-
   inline std::ostream & operator << (std::ostream & os, const struct tm & _tm)
   {
     os << Dynamic::DateTimeFromTm(_tm);
-    return os;
-  }
-
-  inline std::ostream & operator << (std::ostream & os, const DynamicVector & v)
-  {
-    DynamicToJsonStream(os, v);
     return os;
   }
 

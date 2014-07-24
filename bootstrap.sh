@@ -19,7 +19,6 @@ cleanup()
 {
     unset BOOST_ROOT
     unset YAJL_ROOT
-    unset USE_YAJL
     unset USE_BOOST
     unset PREFIX
 }
@@ -96,8 +95,6 @@ BUILD_PATH=$REPO_ROOT
 BUILD_TYPE=RelWithDebInfo
 cleanup
 
-export USE_YAJL=1
-
 for option; do
 	case $option in
 		--help    | -h)
@@ -137,7 +134,7 @@ for option; do
 		--with-cmake=*)
 			CMAKE=`expr "x$option" : "x--with-cmake=\(.*\)"`
 			;;
-				--perf)
+		--perf)
 			CMAKE_FLAGS="-DWITH_PERF=1 $CMAKE_FLAGS"
 			;;
 		* )

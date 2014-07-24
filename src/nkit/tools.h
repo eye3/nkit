@@ -19,6 +19,7 @@
 
 #include <iostream>
 #include <algorithm>
+#include <locale>
 
 #include <nkit/types.h>
 #include <nkit/detail/push_options.h>

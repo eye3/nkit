@@ -591,7 +591,11 @@ static int rnumbers[ITER_SIZE];
 //------------------------------------------------------------------------------
 void Init()
 {
+#ifdef NKIT_WINNT
+  srand ((unsigned int)time(NULL));
+#else
   srand (time(NULL));
+#endif
   for (size_t i = 0; i < ITER_SIZE; i++)
     rnumbers[i] = rand() % FACTOR + 1;
 }

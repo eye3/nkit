@@ -441,8 +441,10 @@ namespace nkit
           std::string * const error);
     static Dynamic DateTimeFromDefault(const std::string & str,
         std::string * const error);
+#ifndef NKIT_WINNT
     static Dynamic DateTimeFromString(const std::string & str,
         const char * format);
+#endif
 
     // create empty DICT
     static Dynamic Dict();
@@ -975,6 +977,16 @@ namespace nkit
     detail::DataVector current_data_;
     detail::DynamicTypeVector current_types_;
   };
+
+  //----------------------------------------------------------------------------
+  // Stream operators
+  std::ostream & operator << (std::ostream & os, const Dynamic & v);
+  std::ostream & operator << (std::ostream & os, const DynamicVector & v);
+
+  // Stream manipulators
+  std::ostream & json(std::ostream & ios);
+  std::ostream & json_hr(std::ostream & ios);
+  std::ostream & json_hr_table(std::ostream & ios);
 
   //----------------------------------------------------------------------------
   inline std::string operator + (const char * const str, const Dynamic & v)

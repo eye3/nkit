@@ -513,6 +513,7 @@ namespace nkit
     return result;
   }
 
+#ifndef NKIT_WINNT
   Dynamic Dynamic::DateTimeFromString(const std::string & str,
       const char * format)
   {
@@ -521,6 +522,7 @@ namespace nkit
       return Dynamic();
     return DateTimeFromTm(_tm);
   }
+#endif
 
   Dynamic Dynamic::List()
   {
@@ -1528,5 +1530,4 @@ namespace nkit
     assert(shared_table_ != NULL);
     return shared_table_->GetCellValue(row_it_, col_num);
   }
-
 }  // namespace nkit

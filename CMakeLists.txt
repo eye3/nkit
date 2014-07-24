@@ -54,12 +54,19 @@ else()
     set(BOOST_VERSION 1.53)
 endif()
 
+if (DEFINED BOOST_ROOT AND NOT DEFINED USE_BOOST)
+    set(USE_BOOST ON)
+endif()
+
 if (DEFINED ENV{USE_BOOST}
   OR DEFINED USE_BOOST
   OR NOT DEFINED HAVE_STD_CXX_11)
     set(Boost_USE_STATIC_LIBS        ON)
     set(Boost_USE_MULTITHREADED      ON)
     set(Boost_USE_STATIC_RUNTIME    OFF)
+    if (DEFINED BOOST_ROOT)
+        message(STATUS "Searching custom Boost library at ${BOOST_ROOT}")
+    endif()
     find_package(Boost ${BOOST_VERSION} REQUIRED COMPONENTS system)
     set(HAVE_BOOST 1 CACHE INTERNAL "boost found")
     set(USE_BOOST 1 CACHE INTERNAL "use boost in nkit backend")

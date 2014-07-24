@@ -478,6 +478,7 @@ namespace nkit_test
     NKIT_TEST_ASSERT(dt.GetString("%H:%M:%S") == "01:02:03");
   }
 
+#ifndef NKIT_WINNT
   //----------------------------------------------------------------------------
   NKIT_TEST_CASE(DynamicDateTimeFromString)
   {
@@ -491,6 +492,7 @@ namespace nkit_test
     dt = Dynamic::DateTimeFromString(wrong_string, FORMAT);
     NKIT_TEST_ASSERT(!dt.IsDateTime());
   }
+#endif
 
   //----------------------------------------------------------------------------
   inline bool operator ==(const Dynamic & dt, const struct tm * _tm)

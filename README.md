@@ -31,6 +31,7 @@ It is mandatory to have **yajl** library for JSON paring (https://github.com/llo
 If your C++ compiler does not support std::shared_ptr, then it is mandatory to have Boost library (http://boost.org, version >= 1.53)
 
 ## Build & install
+### Linux & Mac
 
     cd to/nkit/root
 
@@ -57,12 +58,74 @@ This commands will configure, build and install release-with-debug-version of nk
 For all configure options
 
     ./bootstrap.sh --help
+    
+### Windows
+
+This commands will create Microsoft Visual C++ 2012 solution for nkit library (without using boost):
+
+    cd c:\path\to\nkit\root
+    mkdir win32
+    cd win32
+    cmake -G "Visual Studio 11" -DPREFIX:PATH=c:\path\to\install\folder -DYAJL_ROOT=c:\path\to\yajl\root -DYAJL_USE_DYN_LIBS=1 ..
+    
 
 ## Usage
 
-See **test/test_*.cpp** files for various use cases.
+    #include "nkit/dynamic.h"
+    #include "nkit/logger_brief.h"
+    
+    void main(int argc, char ** argv)
+    {
+      using namespace nkit;
+    
+      // Creating int64 data type
+      Dynamic d_i64(1);
+      CINFO(d_i64);
+    
+      // Creating uint64 data type
+      Dynamic d_ui64 = Dynamic::UInt64(uint64_t(-1));
+      CINFO(d_ui64);
+    
+      // Creating 'boolean' data type
+      Dynamic d_true = Dynamic(true);
+      CINFO(d_true);
+    
+      // Creating 'string' data type
+      Dynamic d_str = Dynamic("string");
+      CINFO(d_str);
+    
+      // Creating 'datetime' data type
+      std::string error;
+      Dynamic d_datetime = Dynamic::DateTimeLocal();
+      CINFO(d_datetime);
+    
+      // Creating 'list' data type
+      Dynamic list = DLIST(d_i64 << d_ui64 << d_true << d_str << d_datetime);
+      CINFO(list);
+    
+      // Creating 'dictionary' data type
+      Dynamic dict = DDICT("key1" << "str"
+        << "key2" << d_i64
+        << "key3" << list
+        << "key4" << DLIST(d_i64 << d_ui64 << d_true << d_str << d_datetime)
+        << "key5" << d_true
+        << "key6" << d_str
+        << "key7" << d_datetime
+        << "key8" << DDICT("key in child dict" << "value in child dict")
+      );
+      CINFO(json_hr << dict);
+    
+      // Creating 'table' data type
+      Dynamic table = DTBL("col1, col2",
+        "11" << "12" <<
+        "21" << "22");
+      CINFO(json_hr_table << table);
+    }
 
-User friendly usage info will be added here as soon as possible.
+
+Additional user friendly examples will be added here as soon as possible.
+
+See **test/test_*.cpp** files for various use cases.
 
 ## Author
 

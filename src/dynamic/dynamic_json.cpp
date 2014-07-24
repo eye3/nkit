@@ -460,4 +460,33 @@ namespace nkit
       out << "DYNAMIC_UNDEF\n";
   }
 
+  std::ostream & operator << (std::ostream & os, const Dynamic & v)
+  {
+    DynamicToJsonStream(os, v);
+    return os;
+  }
+
+  std::ostream & operator << (std::ostream & os, const DynamicVector & v)
+  {
+    DynamicToJsonStream(os, v);
+    return os;
+  }
+
+  std::ostream & json(std::ostream & ios)
+  {
+    ios.iword(detail::json::xalloc) = detail::JSON_HR_ONE_LINE;
+    return ios;
+  }
+
+  std::ostream & json_hr(std::ostream & ios)
+  {
+    ios.iword(detail::json::xalloc) = detail::JSON_HR_TABLE_AS_DICT;
+    return ios;
+  }
+
+  std::ostream & json_hr_table(std::ostream & ios)
+  {
+    ios.iword(detail::json::xalloc) = detail::JSON_HR_TABLE_AS_TABLE;
+    return ios;
+  }
 }  // namespace nkit
