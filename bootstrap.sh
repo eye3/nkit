@@ -51,6 +51,7 @@ usage      :  $0 [-d|-rd|-r] [--with-boost=] [--use-boost]
 --with-[boost|yajl]=    - path to non-system Boost|yajl.
 --with-boost            - force to use system Boost (if any)
 --boost-version         - force to use concrete boost version
+--with-pic              - set -fPIC flag for gcc (to use libnkit.a in dynamic libraries (*.so)
 --prefix=               - set install prefix[default '/usr/local']
 --cmake-flags=          - add cmake flag
 --with-cmake=           - set cmake
@@ -127,13 +128,16 @@ for option; do
         --prefix=*)
 			export PREFIX=`expr "x$option" : "x--prefix=\(.*\)"`
 			;;
-		--cmake-flag=*)
+		--cmake-flags=*)
 			CMAKE_FLAGS="$CMAKE_FLAGS `expr "x$option" : "x--cmake-flags=\(.*\)"`"
+			;;
+		--with-pic*)
+			export CXXFLAGS="-fPIC $CXXFLAGS"
 			;;
 		--with-cmake=*)
 			CMAKE=`expr "x$option" : "x--with-cmake=\(.*\)"`
 			;;
-		--perf)
+				--perf)
 			CMAKE_FLAGS="-DWITH_PERF=1 $CMAKE_FLAGS"
 			;;
 		* )
