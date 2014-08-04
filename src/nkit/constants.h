@@ -28,6 +28,7 @@ namespace nkit
   extern const char * GMT_FORMAT_;               // "%a, %d %b %Y %H:%M:%S GMT"
   extern const char * Y_m_d_H_M_S_;              // "%Y-%m-%d %H:%M:%S"
   extern const char * DATE_TIME_DEFAULT_FORMAT_; // "%Y-%m-%d %H:%M:%S"
+
   extern uint64_t MAX_UINT64_VALUE;
   extern uint32_t MAX_UINT32_VALUE;
   extern uint16_t MAX_UINT16_VALUE;
@@ -44,6 +45,8 @@ namespace nkit
   NKIT_DECLARE_CONST_STRING(S_NULL_)
   NKIT_DECLARE_CONST_STRING(S_NAN_)
   NKIT_DECLARE_CONST_STRING(S_DOT_)
+
+  time_t timezone_offset();
 }  // namespace nkit
 
 #undef NKIT_DECLARE_CONST_STRING

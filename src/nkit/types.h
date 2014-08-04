@@ -25,6 +25,7 @@
 #  include <cstdio>
 #  include <unistd.h>
 #  include <pwd.h>
+#  include <string.h>
 
 #  define NKIT_FORMAT_I8  "%" PRIi8
 #  define NKIT_FORMAT_I16 "%" PRIi16

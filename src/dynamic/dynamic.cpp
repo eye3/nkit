@@ -31,7 +31,7 @@ namespace nkit
 
   Dynamic D_NONE(Dynamic::NONE_MARKER);
 
-  Dynamic::OperationsFiller Dynamic::operations_filler_;
+  Dynamic::NkitInitializer Dynamic::nkit_initializer_;
 
   namespace detail
   {
@@ -194,9 +194,10 @@ namespace nkit
 //------------------------------------------------------------------------------
 namespace nkit
 {
-  Dynamic::OperationsFiller::OperationsFiller()
+  Dynamic::NkitInitializer::NkitInitializer()
   {
     detail::FillOperations();
+    NKIT_FORCE_USED(timezone_offset());
   }
 
   // copy constructor

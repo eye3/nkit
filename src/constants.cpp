@@ -17,6 +17,7 @@
 #include <limits>
 
 #include "nkit/constants.h"
+#include "nkit/tools.h"
 
 #define NKIT_DEFINE_CONST_STRING(name, value) \
   const std::string name(value);
@@ -52,6 +53,21 @@ namespace nkit
   NKIT_DEFINE_CONST_STRING(S_NULL_, "null")
   NKIT_DEFINE_CONST_STRING(S_NAN_, "NaN")
   NKIT_DEFINE_CONST_STRING(S_DOT_, ".")
+
+  time_t timezone_offset()
+  {
+    static time_t TIMEZONE_OFFSET = 0;
+    if (unlikely(!TIMEZONE_OFFSET))
+    {
+      time_t t = time(NULL);
+      struct tm local_tm;
+      struct tm gmt_tm;
+      LOCALTIME_R(t, &local_tm);
+      GMTIME_R(t, &gmt_tm);
+      TIMEZONE_OFFSET = mktime(&gmt_tm) - mktime(&local_tm);
+    }
+    return TIMEZONE_OFFSET;
+  }
 }  // namespace nkit
 
 #undef NKIT_DEFINE_CONST_STRING

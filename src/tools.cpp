@@ -210,13 +210,13 @@ namespace nkit
 
     size_t delimeter_size = delimeter.size();
 
-    size_t comma_pos = src.find(delimeter, first_pos);
-    while (comma_pos != src.npos)
+    size_t pos = src.find(delimeter, first_pos);
+    while (pos != src.npos)
     {
-      size_t last_pos = skip_space_backward(src, comma_pos-1);
+      size_t last_pos = pos > 0 ? skip_space_backward(src, pos-1) : -1;
       dst->push_back(src.substr(first_pos, last_pos - first_pos + 1));
-      first_pos = skip_space_forward(src, comma_pos + delimeter_size, size);
-      comma_pos = src.find(delimeter, first_pos);
+      first_pos = skip_space_forward(src, pos + delimeter_size, size);
+      pos = src.find(delimeter, first_pos);
     }
 
     dst->push_back(src.substr(first_pos, size - first_pos));
@@ -237,8 +237,8 @@ namespace nkit
 
     size_t delimeter_size = delimeter.size();
 
-    size_t comma_pos = src.find(delimeter, first_pos);
-    if (comma_pos == src.npos)
+    size_t pos = src.find(delimeter, first_pos);
+    if (pos == src.npos)
     {
       size_t last_pos = skip_space_backward(src, size - 1);
       *key = src.substr(first_pos, last_pos - first_pos + 1);
@@ -246,9 +246,9 @@ namespace nkit
     }
     else
     {
-      size_t last_pos = skip_space_backward(src, comma_pos - 1);
+      size_t last_pos = pos > 0 ? skip_space_backward(src, pos-1) : -1;
       *key = src.substr(first_pos, last_pos - first_pos + 1);
-      first_pos = skip_space_forward(src, comma_pos + delimeter_size, size);
+      first_pos = skip_space_forward(src, pos + delimeter_size, size);
       if (first_pos < size)
       {
         last_pos = skip_space_backward(src, size - 1);

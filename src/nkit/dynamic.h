@@ -371,12 +371,12 @@ namespace nkit
     friend class GroupedTableBuilder;
 
     //--------------------------------------------------------------------------
-    struct OperationsFiller
+    struct NkitInitializer
     {
-      OperationsFiller();
+      NkitInitializer();
     };
 
-    static OperationsFiller operations_filler_;
+    static NkitInitializer nkit_initializer_;
 
   //----------------------------------------------------------------------------
   public: // constants

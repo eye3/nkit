@@ -40,6 +40,16 @@ if ((UNIX OR APPLE AND HAVE_SYSLOG_H) OR WIN32)
      ${CMAKE_CURRENT_SOURCE_DIR}/logger/rsyslog_logger.cpp)
 endif()
 
+if (EXPAT_FOUND)
+    set(VX_SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/dynamic/dynamic_xml.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/vx/vx.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/vx/encodings.cpp
+        )
+else()
+    set(VX_SOURCES "")
+endif()
+
 add_library(${PROJECT_NAME}
             STATIC
             ${CMAKE_CURRENT_SOURCE_DIR}/dynamic/dynamic.cpp
@@ -52,6 +62,7 @@ add_library(${PROJECT_NAME}
             ${CMAKE_CURRENT_SOURCE_DIR}/constants.cpp
             ${CMAKE_CURRENT_SOURCE_DIR}/version.cpp
             ${LOGGER_IMPL_SOURCES}
+            ${VX_SOURCES}
             )
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/nkit
