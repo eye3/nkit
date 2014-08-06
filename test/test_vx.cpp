@@ -8,8 +8,9 @@ namespace nkit_test
   using namespace nkit;
 
   //---------------------------------------------------------------------------
-  _NKIT_TEST_CASE(vx_list_of_lists)
+  NKIT_TEST_CASE(vx_list_of_lists)
   {
+    CINFO(__FILE__);
     std::string xml_path("./data/vx_sample.xml");
     std::string spec_file = "./data/list_of_lists.json";
     std::string xml;
@@ -55,14 +56,14 @@ namespace nkit_test
 
         DDICT("birthday" << Dynamic(1980, 2, 28, 0, 0, 0)
             << "phones" << DLIST("+122233344550" << "+122233344551")
-            << "isMerriedFirstTime" << "No") <<
+            << "isMerriedFirstTime" << false) <<
 
         DDICT("birthday" << Dynamic(1979, 5, 16, 0, 0, 0)
             << "phones" << DLIST("+122233344553" << "+122233344554")
-            << "isMerriedFirstTime" << "Yes")
+            << "isMerriedFirstTime" << true)
 
         );
-    CINFO(nkit::json_hr << var);
+    //CINFO(nkit::json_hr << var);
     NKIT_TEST_ASSERT(var == etalon);
   }
 #endif

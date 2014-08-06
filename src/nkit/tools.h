@@ -67,6 +67,10 @@ namespace nkit
   void rename(const std::string & from, const std::string & to);
 
   //----------------------------------------------------------------------------
+  bool bool_cast(const std::string & str);
+  bool bool_cast(const char * str);
+
+  //----------------------------------------------------------------------------
   std::string string_cast(int8_t i);
   std::string string_cast(uint8_t i);
   std::string string_cast(int16_t i);
@@ -83,6 +87,7 @@ namespace nkit
 #endif
   std::string string_cast(double v, size_t precision = 2);
 
+  //----------------------------------------------------------------------------
   inline uint64_t & operator << (uint64_t & uv, const std::string & s)
   {
     uv = NKIT_STRTOULL(s.c_str(), NULL, 10);

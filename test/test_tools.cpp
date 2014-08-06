@@ -5,6 +5,38 @@ namespace nkit_test
   using namespace nkit;
 
   //---------------------------------------------------------------------------
+  NKIT_TEST_CASE(tools_bool_cast)
+  {
+    NKIT_TEST_ASSERT(bool_cast("Yes"));
+    NKIT_TEST_ASSERT(bool_cast("yes"));
+    NKIT_TEST_ASSERT(bool_cast("True"));
+    NKIT_TEST_ASSERT(bool_cast("true"));
+    NKIT_TEST_ASSERT(!bool_cast("tru"));
+    NKIT_TEST_ASSERT(!bool_cast("Tru"));
+    NKIT_TEST_ASSERT(!bool_cast("false"));
+    NKIT_TEST_ASSERT(!bool_cast("False"));
+    NKIT_TEST_ASSERT(!bool_cast("no"));
+    NKIT_TEST_ASSERT(!bool_cast("No"));
+    NKIT_TEST_ASSERT(!bool_cast("N"));
+    NKIT_TEST_ASSERT(!bool_cast("n"));
+    NKIT_TEST_ASSERT(!bool_cast("fals"));
+    NKIT_TEST_ASSERT(!bool_cast("Fals"));
+    NKIT_TEST_ASSERT(!bool_cast("0"));
+    NKIT_TEST_ASSERT(bool_cast("1"));
+    NKIT_TEST_ASSERT(bool_cast("2"));
+    NKIT_TEST_ASSERT(bool_cast("3"));
+    NKIT_TEST_ASSERT(bool_cast("4"));
+    NKIT_TEST_ASSERT(bool_cast("5"));
+    NKIT_TEST_ASSERT(bool_cast("6"));
+    NKIT_TEST_ASSERT(bool_cast("7"));
+    NKIT_TEST_ASSERT(bool_cast("8"));
+    NKIT_TEST_ASSERT(bool_cast("9"));
+    NKIT_TEST_ASSERT(bool_cast("1a"));
+    NKIT_TEST_ASSERT(bool_cast("10"));
+    NKIT_TEST_ASSERT(!bool_cast("a2"));
+  }
+
+  //---------------------------------------------------------------------------
   NKIT_TEST_CASE(tools_simple_split_key_value)
   {
     std::string k("key"), v("value");

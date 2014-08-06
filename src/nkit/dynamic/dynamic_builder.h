@@ -22,6 +22,21 @@ namespace nkit
       object_ = nkit::Dynamic::List();
     }
 
+    void InitAsBoolean(std::string const & value)
+    {
+      object_ = nkit::Dynamic(bool_cast(value));
+    }
+
+    void InitAsBooleanFormat(std::string const & value, const std::string & )
+    {
+      InitAsBoolean(value);
+    }
+
+    void InitAsBooleanDefault()
+    {
+      InitAsBoolean(nkit::S_FALSE_);
+    }
+
     void InitAsString(std::string const & value)
     {
       object_ = nkit::Dynamic(value);
@@ -97,6 +112,7 @@ namespace nkit
       object_ = nkit::Dynamic::DateTimeFromTimestamp(0);
     }
 #endif
+
     void InitAsUndefined()
     {
       object_ = nkit::Dynamic();

@@ -691,6 +691,7 @@ namespace nkit
       static const std::string INTEGER_TYPE = "integer";
       static const std::string NUMBER_TYPE = "number";
       static const std::string DATETIME_TYPE = "datetime";
+      static const std::string BOOLEAN_TYPE = "boolean";
 
       nkit::StringVector spec_list;
       nkit::simple_split(target_spec, "|", &spec_list);
@@ -737,6 +738,17 @@ namespace nkit
           result = NumberTarget::Create(spec_list[1]);
         else
           result = NumberTarget::Create();
+      }
+      else if (type == BOOLEAN_TYPE)
+      {
+        typedef ScalarTarget<VarBuilder,
+            &VarBuilder::InitAsBoolean,
+            &VarBuilder::InitAsBooleanFormat,
+            &VarBuilder::InitAsBooleanDefault> BooleanTarget;
+        if (spec_list.size() >= 2)
+          result = BooleanTarget::Create(spec_list[1]);
+        else
+          result = BooleanTarget::Create();
       }
 #ifndef NKIT_WINNT
       else if (type == DATETIME_TYPE)
