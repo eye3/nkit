@@ -42,21 +42,12 @@
 #  define NKIT_HAS_LIKELY 1
 #endif // NKIT_HAS_LIKELY && __GNUC__
 
-#if defined(HAVE_YAJL)
-#  define NKIT_HAVE_JSON_SUPPORT 1
-#endif // HAVE_YAJL
-
-#if defined(HAVE_STD_CXX_11) && !defined(USE_BOOST)
+#if defined(USE_REF_COUNT_PTR)
+#  define NKIT_USE_REF_COUNT_PTR 1
+#elif defined(HAVE_STD_CXX_11) && !defined(USE_BOOST)
 #  define NKIT_USE_STD_CXX_11 1
-#endif
-
-#if defined(HAVE_BOOST) || defined(USE_BOOST)
-#  define USE_BOOST 1
-#endif
-
-#if !defined(USE_BOOST) \
-    && !defined(NKIT_USE_STD_CXX_11)
-#  error "shared_ptr unknown implementation"
+#elif defined(HAVE_BOOST)
+#  define NKIT_USE_BOOST 1
 #endif
 
 #if defined(_DEBUG) || defined(DEBUG)

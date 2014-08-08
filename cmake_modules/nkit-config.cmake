@@ -15,7 +15,7 @@
 
 ## Find NKit
 
-## input : NKIT_ROOT, YAJL_ROOT
+## input : NKIT_ROOT, YAJL_ROOT, EXPAT_ROOT
 ## output: NKIT_VERSION_{MAJOR,MINOR,MICRO,BUILD}, NKIT_VERSION,
 ##         NKIT_INCLUDE_DIR - nkit include dir
 ##         NKIT_LIBRARY - nkit library
@@ -23,8 +23,8 @@
 ##         YAJL_INCLUDE_DIR - yajl include dirs
 ##         YAJL_LIBRARIES - yajl libraries
 ##         YAJL_VERSION_{MAJOR,MINOR,MICRO}, YAJL_VERSION - yajl versions
-##         NKIT_YAJL_INCLUDE_DIRS - nkit & yajl include dirs
-##         NKIT_YAJL_LIBRARIES - nkit & yajl libraries
+##         NKIT_ALL_INCLUDE_DIRS - nkit & others include dirs
+##         NKIT_ALL_LIBRARIES - nkit & others libraries
 
 ## TODO
 ## 1) Handling all find_package args(for detail see cmake --help-command find_package)
@@ -64,6 +64,10 @@ if ((NKit_FIND_VERSION_MAJOR LESS 0) OR (NKit_FIND_VERSION_MAJOR EQUAL 0)
    message(SEND_ERROR
            "This module did not optimize for this version greater than 0.0.30.X")
 endif()
+
+message (STATUS "NKIT_ROOT: " ${NKIT_ROOT})
+message (STATUS "YAJL_ROOT: " ${YAJL_ROOT})
+message (STATUS "EXPAT_ROOT: " ${EXPAT_ROOT})
 
 if (DEFINED NKIT_ROOT)
   set(NKit_INCLUDE_DIRS__  ${NKIT_ROOT}/include)
@@ -110,7 +114,25 @@ mark_as_advanced(NKIT_INCLUDE_DIR NKIT_LIBRARIES NKIT_VERSION)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${NKIT_LIBRARY_DIR}/nkit)
 find_package(Yajl 2.0.4 REQUIRED)
 
-# nkit & yajl include dirs & libraries
-set(NKIT_YAJL_INCLUDE_DIRS ${NKIT_INCLUDE_DIR} ${YAJL_INCLUDE_DIR})
-set(NKIT_YAJL_LIBRARIES ${NKIT_LIBRARY} ${YAJL_LIBRARIES})
+# expat
+if (DEFINED EXPAT_ROOT)
+    if (WIN32 OR WIN64)
+        set(EXPAT_INCLUDE_DIRS "${EXPAT_ROOT}/include/expat")
+        set(EXPAT_LIBRARIES "${EXPAT_ROOT}/lib/libexpat.lib")
+    else()
+        set(EXPAT_INCLUDE_DIRS "${EXPAT_ROOT}/include")
+        set(EXPAT_LIBRARIES "${EXPAT_ROOT}/lib/libexpat.a")
+    endif()
+endif()
 
+# nkit & others include dirs & libraries
+set(NKIT_ALL_INCLUDE_DIRS
+    ${NKIT_INCLUDE_DIR}
+    ${YAJL_INCLUDE_DIR}
+    ${EXPAT_INCLUDE_DIRS}
+    )
+set(NKIT_ALL_LIBRARIES
+    ${NKIT_LIBRARY}
+    ${YAJL_LIBRARIES}
+    ${EXPAT_LIBRARIES}
+    )

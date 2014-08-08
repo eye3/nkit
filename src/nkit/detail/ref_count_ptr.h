@@ -21,109 +21,107 @@
 
 namespace nkit
 {
-namespace detail
-{
-  template <typename T>
-  class ref_count_ptr
+  namespace detail
   {
-    template <typename D> friend class ref_count_ptr;
-
-  public:
-    explicit ref_count_ptr()
-      : obj_(NULL)
-      , counter_(NULL)
-    {}
-
-    explicit ref_count_ptr(T * ptr)
-      : obj_(ptr)
-      , counter_(new uint64_t(1))
-    {}
-
-    ref_count_ptr(const ref_count_ptr<T> & from)
-      : obj_(from.obj_)
-      , counter_(from.counter_)
+    template<typename T>
+    class ref_count_ptr
     {
-      increment();
-    }
+      template<typename D> friend class ref_count_ptr;
 
-    // D is a class, derived from T
-    template <typename D>
-    ref_count_ptr(const ref_count_ptr<D> & from)
-      : obj_(static_cast<T*>(from.obj_))
-      , counter_(from.counter_)
-    {
-      increment();
-    }
+    public:
+      explicit ref_count_ptr() : obj_(NULL), counter_(NULL){}
 
-    ~ref_count_ptr()
-    {
-      reset();
-    }
+      explicit ref_count_ptr(T * ptr) : obj_(ptr), counter_(new uint64_t(1)) {}
 
-    void reset()
-    {
-      if (counter_ != NULL)
+      ref_count_ptr(const ref_count_ptr<T> & from)
+        : obj_(from.obj_)
+        , counter_(from.counter_)
       {
-        if (--(*counter_) == 0)
-        {
-          delete obj_;
-          delete counter_;
-        }
-        obj_ = NULL;
-        counter_ = NULL;
-      }
-    }
-
-    ref_count_ptr<T> & operator =(ref_count_ptr const & from)
-    {
-      if (&from != this)
-      {
-        reset();
-        obj_ = from.obj_;
-        counter_ = from.counter_;
         increment();
       }
-      return *this;
-    }
 
-    operator bool() const
-    {
-      return obj_ != NULL;
-    }
+      // D is a class, derived from T
+      template<typename D>
+      ref_count_ptr(const ref_count_ptr<D> & from)
+        : obj_(static_cast<T*>(from.obj_))
+        , counter_(from.counter_)
+      {
+        increment();
+      }
 
-    T * operator ->() const
-    {
-      return obj_;
-    }
+      ~ref_count_ptr()
+      {
+        reset();
+      }
 
-    T & operator *() const
-    {
-      return *obj_;
-    }
+      void reset()
+      {
+        if (counter_ != NULL)
+        {
+          if (--(*counter_) == 0)
+          {
+            delete obj_;
+            delete counter_;
+          }
+          obj_ = NULL;
+          counter_ = NULL;
+        }
+      }
 
-    bool operator == (ref_count_ptr const & rv) const
-    {
-      return obj_ == rv.obj_;
-    }
+      ref_count_ptr<T> & operator =(ref_count_ptr const & from)
+      {
+        if (&from != this)
+        {
+          reset();
+          obj_ = from.obj_;
+          counter_ = from.counter_;
+          increment();
+        }
+        return *this;
+      }
 
-    bool operator < (ref_count_ptr const & rv) const
-    {
-      return obj_ < rv.obj_;
-    }
+      operator bool() const
+      {
+        return obj_ != NULL;
+      }
 
-  private:
-    void increment()
-    {
-      if (counter_ != NULL)
-        ++(*counter_);
-    }
+      T * operator ->() const
+      {
+        return obj_;
+      }
 
-  private:
-    T * obj_;
-    uint64_t * counter_;
-  }; // class ref_count_ptr
+      T * get() const
+      {
+        return obj_;
+      }
 
-} // namespace detail
+      T & operator *() const
+      {
+        return *obj_;
+      }
+
+      bool operator ==(ref_count_ptr const & rv) const
+      {
+        return obj_ == rv.obj_;
+      }
+
+      bool operator <(ref_count_ptr const & rv) const
+      {
+        return obj_ < rv.obj_;
+      }
+
+    private:
+      void increment()
+      {
+        if (counter_ != NULL)
+          ++(*counter_);
+      }
+
+    private:
+      T * obj_;
+      uint64_t * counter_;
+    };  // class ref_count_ptr
+  }// namespace detail
 } // namespace nkit
 
 #endif // __NKIT__REF__COUNT__PTR__H__

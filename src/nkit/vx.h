@@ -124,10 +124,10 @@ namespace nkit
 
   //---------------------------------------------------------------------------
   template<typename VarBuilder>
-  class Target: boost::noncopyable
+  class Target: Uncopyable
   {
   public:
-    typedef boost::shared_ptr<Target<VarBuilder> > Ptr;
+    typedef NKIT_SHARED_PTR(Target<VarBuilder>) Ptr;
 
   public:
     virtual ~Target() {}
@@ -163,10 +163,10 @@ namespace nkit
 
   //---------------------------------------------------------------------------
   template<typename VarBuilder>
-  class TargetItem: boost::noncopyable
+  class TargetItem: Uncopyable
   {
   public:
-    typedef boost::shared_ptr<TargetItem<VarBuilder> > Ptr;
+    typedef NKIT_SHARED_PTR(TargetItem<VarBuilder>) Ptr;
 
   public:
     static Ptr Create(const Path & path, const std::string & key_name,
@@ -254,7 +254,7 @@ namespace nkit
   class ObjectTarget: public Target<VarBuilder>
   {
   public:
-    typedef boost::shared_ptr<ObjectTarget<VarBuilder> > Ptr;
+    typedef NKIT_SHARED_PTR(ObjectTarget<VarBuilder>) Ptr;
     typedef typename TargetItem<VarBuilder>::Ptr TargetItemPtr;
 
   public:
@@ -465,10 +465,10 @@ namespace nkit
 
   //---------------------------------------------------------------------------
   template<typename VarBuilder>
-  class PathNode: boost::noncopyable
+  class PathNode: Uncopyable
   {
   public:
-    typedef boost::shared_ptr<PathNode<VarBuilder> > Ptr;
+    typedef NKIT_SHARED_PTR(PathNode<VarBuilder>) Ptr;
 
   public:
     static Ptr CreateRoot()
@@ -575,7 +575,7 @@ namespace nkit
     friend class ExpatParser<Xml2VarBuilder<VarBuilder> > ;
 
   public:
-    typedef boost::shared_ptr<Xml2VarBuilder<VarBuilder> > Ptr;
+    typedef NKIT_SHARED_PTR(Xml2VarBuilder<VarBuilder>) Ptr;
 
   public:
     static Ptr Create(const std::string & taget_spec, std::string * error)

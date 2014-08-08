@@ -125,19 +125,27 @@
 #include <vector>
 #include <cassert>
 
-#if defined(NKIT_USE_STD_CXX_11)
+#if defined(NKIT_USE_REF_COUNT_PTR)
+
+#  include "nkit/detail/ref_count_ptr.h"
+
+#  define NKIT_SHARED_PTR(T) nkit::detail::ref_count_ptr<T >
+
+#elif defined(NKIT_USE_STD_CXX_11)
 
 #  include <memory>
 
 #  define NKIT_SHARED_PTR(T) ::std::shared_ptr<T >
-#  define NKIT_ENABLE_SHARED_FROM_THIS(T) ::std::enable_shared_from_this<T >
 
-#elif defined(USE_BOOST)
+#elif defined(NKIT_USE_BOOST)
 
 #  include <boost/shared_ptr.hpp>
 
 #  define NKIT_SHARED_PTR(T) ::boost::shared_ptr<T >
-#  define NKIT_ENABLE_SHARED_FROM_THIS(T) ::boost::enable_shared_from_this<T >
+
+#else
+
+#  error "NKIT_SHARED_PTR(T) unknown implementation"
 
 #endif
 
@@ -165,6 +173,18 @@ namespace nkit
   typedef std::set<size_t> SizeSet;
   typedef std::list<size_t> SizeList;
   typedef std::vector<size_t> SizeVector;
+
+  class Uncopyable
+  {
+  protected:
+    Uncopyable() {}
+    ~Uncopyable() {}
+  private:
+    // emphasize the following members are private
+    Uncopyable(const Uncopyable &);
+    const Uncopyable & operator=(const Uncopyable &);
+  };
+
 } // namespace nkit
 
 #endif // __NKIT__TYPES__H__
