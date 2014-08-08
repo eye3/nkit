@@ -30,7 +30,9 @@
 cmake_debug.sh
 cmake_debug_with_pic.sh
 cmake_rdebug.sh
+cmake_ddebug_with_pic.sh
 cmake_release.sh
+cmake_release_with_pic.sh
 *-build
 src/nkit/version.h
 src/version.cpp
