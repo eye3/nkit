@@ -71,7 +71,16 @@
 #  include <boost/cstdint.hpp>
 // pass
 #elif defined(NKIT_WINNT)
-#  error "int types unknown implemntation"
+
+  typedef int8_t __int8;
+  typedef int16_t __int16;
+  typedef int32_t __int32;
+  typedef int64_t __int64;
+  typedef uint8_t unsigned __int8;
+  typedef uint16_t unsigned __int16;
+  typedef uint32_t unsigned __int32;
+  typedef uint64_t unsigned __int64;
+
 #endif
 
 #if defined(NKIT_WINNT)
