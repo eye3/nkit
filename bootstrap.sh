@@ -19,7 +19,10 @@ cleanup()
 {
     unset BOOST_ROOT
     unset YAJL_ROOT
+    unset EXPAT_ROOT
     unset USE_BOOST
+    unset USE_REF_COUNT_PTR
+    unset USE_VX
     unset PREFIX
 }
 
@@ -50,6 +53,9 @@ usage      :  $0 [-d|-rd|-r] [--with-boost=] [--use-boost]
 --with-[boost|yajl]=    - path to non-system Boost|yajl.
 --with-boost            - force to use system Boost (if any)
 --boost-version         - force to use concrete boost version
+--use-refcount-ptr      - force NOT to use boost::shared_ptr or std::shared_ptr, use nkit::ref_count_ptr instead
+--with-vx               - add 'vx' functionality support (needs EXPAT library)
+--with-expat=           - path to non-system expat.
 --with-pic              - set -fPIC flag for gcc (to use libnkit.a in dynamic libraries (*.so)
 --prefix=               - set install prefix[default '/usr/local']
 --cmake-flags=          - add cmake flag
@@ -68,23 +74,26 @@ examples
 
 
 Some influential environment variables:
-  PREFIX      Install prefix[default /usr/local]
-  CC          C compiler command
-  CFLAGS      C compiler flags
-  LDFLAGS     linker flags, e.g. -L<lib dir> if you have libraries in a
-              nonstandard directory <lib dir>
-  LIBS        libraries to pass to the linker, e.g. -l<library>
-  CPPFLAGS    (Objective) C/C++ preprocessor flags, e.g. -I<include dir> if
-              you have headers in a nonstandard directory <include dir>
-  CXX         C++ compiler command
-  CXXFLAGS    C++ compiler flags
-  CPP         C preprocessor
-  CXXCPP      C++ preprocessor
+	PREFIX		Install prefix[default /usr/local]
+	CC			C compiler command
+	CFLAGS		C compiler flags
+	LDFLAGS		linker flags, e.g. -L<lib dir> if you have libraries in a
+				nonstandard directory <lib dir>
+	LIBS		libraries to pass to the linker, e.g. -l<library>
+	CPPFLAGS	C/C++ preprocessor flags, e.g. -I<include dir>,
+				if you have headers in a nonstandard directory <include dir>
+	CXX			C++ compiler command
+	CXXFLAGS	C++ compiler flags
+	CPP			C preprocessor
+	CXXCPP		C++ preprocessor
 
-  BOOST_ROOT     Path to boost library (by default searches in 'sysroot')
-  YAJL_ROOT      Path to YAJL library (by default searches in 'sysroot')
-  USE_BOOST      Force using boost instead of C++11 (if there is C++11 support)
-  CMAKE_FLAGS    cmake flags
+	BOOST_ROOT	      - Path to boost library (by default searches in 'sysroot')
+	YAJL_ROOT	      - Path to YAJL library (by default searches in 'sysroot')
+	EXPAT_ROOT	      - Path to EXPAT library (by default searches in 'sysroot')
+	USE_VX            - add 'vx' functionality support (needs EXPAT library)
+	USE_BOOST	      - Force using boost instead of C++11 (if there is C++11 support)
+	USE_REF_COUNT_PTR - Force NOT to use boost::shared_ptr or std::shared_ptr, use nkit::ref_count_ptr instead
+	CMAKE_FLAGS	      - cmake flags
 EOF
 }
 
@@ -118,6 +127,15 @@ for option; do
 			;;
 		--with-boost)
 			export USE_BOOST=1
+			;;
+		--use-refcount-ptr)
+			export USE_REF_COUNT_PTR=1
+			;;
+		--with-vx)
+			export USE_VX=1
+			;;
+		--with-expat=*)
+			export EXPAT_ROOT=`expr "x$option" : "x--with-expat=\(.*\)"`
 			;;
 		--boost-version=*)
 			export BOOST_VERSION=`expr "x$option" : "x--boost-version=\(.*\)"`
