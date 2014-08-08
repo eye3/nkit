@@ -48,29 +48,63 @@ enable_testing()
 
 find_package(Yajl 2.0.4 REQUIRED)
 
-if (DEFINED ENV{BOOST_VERSION})
-    set(BOOST_VERSION $ENV{BOOST_VERSION})
-else()
-    set(BOOST_VERSION 1.53)
+if (NOT DEFINED USE_REF_COUNT_PTR AND DEFINED ENV{USE_REF_COUNT_PTR})
+    set(USE_REF_COUNT_PTR $ENV{USE_REF_COUNT_PTR})
 endif()
 
-if (DEFINED BOOST_ROOT AND NOT DEFINED USE_BOOST)
-    set(USE_BOOST ON)
-endif()
-
-if (DEFINED ENV{USE_BOOST}
-  OR DEFINED USE_BOOST
-  OR NOT DEFINED HAVE_STD_CXX_11)
-    set(Boost_USE_STATIC_LIBS        ON)
-    set(Boost_USE_MULTITHREADED      ON)
-    set(Boost_USE_STATIC_RUNTIME    OFF)
-    if (DEFINED BOOST_ROOT)
-        message(STATUS "Searching custom Boost library at ${BOOST_ROOT}")
+if (NOT DEFINED USE_REF_COUNT_PTR)
+    if (DEFINED ENV{BOOST_VERSION})
+        set(BOOST_VERSION $ENV{BOOST_VERSION})
+    else()
+        set(BOOST_VERSION 1.53)
     endif()
-    find_package(Boost ${BOOST_VERSION} REQUIRED COMPONENTS system)
-    set(HAVE_BOOST 1 CACHE INTERNAL "boost found")
-    set(USE_BOOST 1 CACHE INTERNAL "use boost in nkit backend")
+    
+    if (DEFINED BOOST_ROOT AND NOT DEFINED USE_BOOST)
+        set(USE_BOOST ON)
+    endif()
+    
+    if (DEFINED ENV{USE_BOOST}
+      OR DEFINED USE_BOOST
+      OR NOT DEFINED HAVE_STD_CXX_11)
+        set(Boost_USE_STATIC_LIBS        ON)
+        set(Boost_USE_MULTITHREADED      ON)
+        set(Boost_USE_STATIC_RUNTIME    OFF)
+        if (DEFINED BOOST_ROOT)
+            message(STATUS "Searching custom Boost library at ${BOOST_ROOT}")
+        endif()
+        find_package(Boost ${BOOST_VERSION} REQUIRED COMPONENTS system)
+        set(HAVE_BOOST 1 CACHE INTERNAL "boost found")
+        set(USE_BOOST 1 CACHE INTERNAL "use boost in nkit backend")
+    endif()
 endif()
+
+if (NOT DEFINED USE_VX AND DEFINED ENV{USE_VX})
+    set(USE_VX $ENV{USE_VX})
+endif()
+
+if (NOT DEFINED EXPAT_ROOT AND DEFINED ENV{EXPAT_ROOT})
+    set(EXPAT_ROOT $ENV{EXPAT_ROOT})
+endif()
+
+message(STATUS "USE_VX: " ${USE_VX})
+message(STATUS "EXPAT_ROOT: " ${EXPAT_ROOT})
+
+if (DEFINED USE_VX)
+    if (DEFINED EXPAT_ROOT)
+        if (WIN32 OR WIN64)
+            set(EXPAT_INCLUDE_DIRS "${EXPAT_ROOT}/include/expat")
+            set(EXPAT_LIBRARIES "${EXPAT_ROOT}/lib/libexpat.lib")
+            set(EXPAT_FOUND 1)
+        else()
+            set(EXPAT_INCLUDE_DIRS "${EXPAT_ROOT}/include")
+            set(EXPAT_LIBRARIES "${EXPAT_ROOT}/lib/libexpat.a")
+            set(EXPAT_FOUND 1)
+        endif()
+    else()
+        find_package(EXPAT REQUIRED)
+    endif()
+endif()
+
 
 set(NKIT_VERSION_MAJOR 0)
 set(NKIT_VERSION_MINOR 9)
@@ -99,16 +133,22 @@ if (UNIX OR APPLE)
       ${EXTRA_SYS_LIB}
       ${YAJL_LIBRARIES}
       ${Boost_LIBRARIES}
+      ${EXPAT_LIBRARIES}
       pthread)
     if (NOT APPLE)
         set(EXTRA_SYS_LIB ${EXTRA_SYS_LIB} rt)
     endif()
 else()
-    set(EXTRA_SYS_LIB ${YAJL_LIBRARIES} ${Boost_LIBRARIES} "")
+    set(EXTRA_SYS_LIB ${YAJL_LIBRARIES} ${Boost_LIBRARIES} ${EXPAT_LIBRARIES} "")
 endif()
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src
-  ${YAJL_INCLUDE_DIR} ${Boost_INCLUDE_DIRS})
+include_directories(
+  ${CMAKE_CURRENT_SOURCE_DIR}/src
+  ${YAJL_INCLUDE_DIR}
+  ${Boost_INCLUDE_DIRS}
+  ${EXPAT_INCLUDE_DIRS}
+  )
+
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/perf)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/test)
