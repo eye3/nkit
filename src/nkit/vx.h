@@ -1,9 +1,6 @@
 #ifndef NKIT_VX_H
 #define NKIT_VX_H
 
-#include <boost/shared_ptr.hpp>
-#include <boost/foreach.hpp>
-
 #include "nkit/detail/str2id.h"
 #include "nkit/dynamic_json.h"
 #include "nkit/expat_parser.h"
@@ -32,11 +29,13 @@ namespace nkit
       nkit::simple_split(path_spec, "/@", &path_spec_wo_attr, &attr);
       nkit::StringVector path_spec_list;
       nkit::simple_split(path_spec_wo_attr, "/", &path_spec_list);
-      BOOST_FOREACH(const std::string & element, path_spec_list)
+      nkit::StringVector::const_iterator element = path_spec_list.begin(),
+          end = path_spec_list.end();
+      for (; element != end; ++element)
       {
-        if (!element.empty())
+        if (!element->empty())
         {
-          size_t id = str2id->GetId(element.c_str());
+          size_t id = str2id->GetId(element->c_str());
           elements_.push_back(id);
         }
       }
@@ -67,8 +66,10 @@ namespace nkit
     {
       assert(attribute_name_.empty());
       Path new_path(*this);
-      BOOST_FOREACH(size_t tail_element, tail.elements())
-        new_path.elements_.push_back(tail_element);
+      std::vector<size_t>::const_iterator tail_element_id =
+          tail.elements().begin(), end = tail.elements().end();
+      for (; tail_element_id != end; ++tail_element_id)
+        new_path.elements_.push_back(*tail_element_id);
       if (!tail.attribute_name_.empty())
         new_path.SetAttribute(tail.attribute_name());
       return new_path;
@@ -101,8 +102,10 @@ namespace nkit
     std::string ToString() const
     {
       std::string result;
-      BOOST_FOREACH(size_t element_id, elements_)
-        result.append("/" + nkit::string_cast(element_id));
+      std::vector<size_t>::const_iterator element_id = elements().begin(),
+          end = elements().end();
+      for (; element_id != end; ++element_id)
+        result.append("/" + nkit::string_cast(*element_id));
 
       if (!attribute_name_.empty())
         result.append("/@" + attribute_name_);
@@ -280,10 +283,12 @@ namespace nkit
 
     void OnExit()
     {
-      BOOST_FOREACH( const TargetItemPtr & target_item, target_items_ )
+      typename std::vector<TargetItemPtr>::iterator target_item =
+          target_items_.begin(), end = target_items_.end();
+      for (; target_item != end; ++target_item)
       {
-        target_item->SetOrInsertTo(Target<VarBuilder>::var_builder_);
-        target_item->Clear();
+        (*target_item)->SetOrInsertTo(Target<VarBuilder>::var_builder_);
+        (*target_item)->Clear();
       }
     }
 
@@ -479,11 +484,13 @@ namespace nkit
     static void MoveToChild(PathNode<VarBuilder> ** current, size_t element_id)
     {
       std::vector<PathNode<VarBuilder>::Ptr> & children = (**current).children_;
-      BOOST_FOREACH(PathNode< VarBuilder >::Ptr child, children)
+      typename std::vector<PathNode<VarBuilder>::Ptr>::iterator child =
+          children.begin(), end = children.end();
+      for (; child != end; ++child)
       {
-        if (child->element_id_ == element_id)
+        if ((*child)->element_id_ == element_id)
         {
-          *current = child.get();
+          *current = (*child).get();
           return;
         }
       }
@@ -503,34 +510,39 @@ namespace nkit
 
     void OnEnter(const char ** attrs)
     {
-      BOOST_FOREACH( typename TargetItem< VarBuilder >::Ptr & target_item,
-          target_items_ )
+      typename std::vector<typename TargetItem<VarBuilder>::Ptr>::iterator
+        target_item = target_items_.begin(), end = target_items_.end();
+      for (; target_item != end; ++target_item)
       {
         //CINFO(target_item->ToString());
-        target_item->OnEnter(attrs);
+        (*target_item)->OnEnter(attrs);
       }
     }
 
     void OnExit()
     {
-      BOOST_FOREACH( typename TargetItem< VarBuilder >::Ptr & target_item,
-          target_items_ )
-        target_item->OnExit();
+      typename std::vector<typename TargetItem<VarBuilder>::Ptr>::iterator
+        target_item = target_items_.begin(), end = target_items_.end();
+      for (; target_item != end; ++target_item)
+        (*target_item)->OnExit();
     }
 
     void OnText(const char * text, size_t len)
     {
-      BOOST_FOREACH( typename TargetItem< VarBuilder >::Ptr & target_item,
-          target_items_ )
-        target_item->OnText(text, len);
+      typename std::vector<typename TargetItem<VarBuilder>::Ptr>::iterator
+        target_item = target_items_.begin(), end = target_items_.end();
+      for (; target_item != end; ++target_item)
+        (*target_item)->OnText(text, len);
     }
 
     void PutTargetItem(typename TargetItem<VarBuilder>::Ptr const & target_item)
     {
       PathNode<VarBuilder> * current = this;
       const Path & path = target_item->fool_path();
-      BOOST_FOREACH(size_t element_id, path.elements())
-        MoveToChild(&current, element_id);
+      std::vector<size_t>::const_iterator element_id = path.elements().begin(),
+          end = path.elements().end();
+      for (; element_id != end; ++element_id)
+        MoveToChild(&current, *element_id);
       //CINFO(target_item->ToString());
       current->target_items_.push_back(target_item);
     }

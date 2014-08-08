@@ -6,9 +6,11 @@ namespace nkit
   //----------------------------------------------------------------------------
   std::ostream & operator <<(std::ostream & stream, const Path & path)
   {
-    BOOST_FOREACH(size_t element_id, path.elements_)
+    std::vector<size_t>::const_iterator element_id = path.elements().begin(),
+        end = path.elements().end();
+    for (; element_id != end; ++element_id)
     {
-      stream << element_id << " ";
+      stream << *element_id << " ";
     }
 
     return stream;

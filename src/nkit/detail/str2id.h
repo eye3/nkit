@@ -1,6 +1,10 @@
 #ifndef NKIT_VX_STR2ID_H
 #define NKIT_VX_STR2ID_H
 
+#include <string.h>
+
+#include <cstdlib>
+#include <string>
 #include <map>
 
 namespace nkit
