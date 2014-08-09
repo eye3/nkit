@@ -36,3 +36,5 @@ cmake_release_with_pic.sh
 *-build
 src/nkit/version.h
 src/version.cpp
+win
+src/nkit/detail/config.h
