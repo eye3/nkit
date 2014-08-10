@@ -27,6 +27,7 @@
 .cproject
 .project
 .pydevproject
+.DS_Store
 cmake_debug.sh
 cmake_debug_with_pic.sh
 cmake_rdebug.sh
