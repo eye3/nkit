@@ -203,7 +203,7 @@ namespace nkit
       var_builder.AppendToList(var());
     }
 
-    virtual typename VarBuilder::type const & var() const
+    virtual typename VarBuilder::type const & var()
     {
       return var_builder_.get();
     }
@@ -460,7 +460,6 @@ namespace nkit
 
     void OnExit(const char * NKIT_UNUSED(el))
     {
-      //CERR(target_item_->ToString());
       target_item_->AppendTo(Target<VarBuilder>::var_builder_);
       target_item_->Clear();
     }
@@ -474,7 +473,6 @@ namespace nkit
 
     std::string ToString() const
     {
-      //CERR(Target<VarBuilder>::var());
       return "list target";
     }
 
@@ -554,7 +552,6 @@ namespace nkit
 
     void OnExit(const char * NKIT_UNUSED(el))
     {
-      //CINFO(value_);
       if (likely(!use_default_value_))
       {
         if (format_.empty())
@@ -564,7 +561,6 @@ namespace nkit
               value_, format_);
       }
       value_.clear();
-      //CERR(Target<VarBuilder>::var());
     }
 
     void OnText(const char * text, size_t len)
@@ -593,7 +589,6 @@ namespace nkit
 
     std::string ToString() const
     {
-      //CERR("--" << Target<VarBuilder>::var());
       return "scalar target";
     }
 
@@ -652,10 +647,7 @@ namespace nkit
       TargetItemVectorIterator
         target_item = target_items_.begin(), end = target_items_.end();
       for (; target_item != end; ++target_item)
-      {
-        //CINFO(target_item->ToString());
         (*target_item)->OnEnter(attrs);
-      }
     }
 
     void OnExit(const char * el)
@@ -682,7 +674,6 @@ namespace nkit
           end = path.elements().end();
       for (; element_id != end; ++element_id)
         MoveToChild(&current, *element_id);
-      //CWARN(target_item->ToString());
       current->target_items_.push_back(target_item);
     }
 
