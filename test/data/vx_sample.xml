@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <any_name>
 	<person>
-		<name>Jack</name>
 		<phone>+122233344550</phone>
+		<name>Jack</name>
 		<phone>+122233344551</phone>
 		<age>33</age>
 		<married firstTime="No">Yes</married>
@@ -21,8 +21,8 @@
 		</address>
 	</person>
 	<person>
-		<name>Boris</name>
 		<phone>+122233344553</phone>
+		<name>Boris</name>
 		<phone>+122233344554</phone>
 		<age>34</age>
 		<married firstTime="Yes">Yes</married>

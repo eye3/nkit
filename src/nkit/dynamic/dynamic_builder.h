@@ -94,7 +94,7 @@ namespace nkit
       }
       object_ = nkit::Dynamic(d);
     }
-//#ifndef NKIT_WINNT
+
     void InitAsDatetime(const std::string & value)
     {
       object_ = nkit::Dynamic::DateTimeFromString(value,
@@ -111,7 +111,6 @@ namespace nkit
     {
       object_ = nkit::Dynamic::DateTimeFromTimestamp(0);
     }
-//#endif
 
     void InitAsUndefined()
     {
@@ -123,6 +122,13 @@ namespace nkit
     {
       assert(object_.IsDict());
       object_[key] = obj;
+    }
+
+    void SetDictKeyValue(const char * key,
+        const type & obj)
+    {
+      assert(object_.IsDict());
+      object_[std::string(key)] = obj;
     }
 
     void AppendToList(const type & obj)
