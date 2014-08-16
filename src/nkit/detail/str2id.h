@@ -8,6 +8,7 @@
 #include <map>
 
 #include "nkit/constants.h"
+#include "nkit/tools.h"
 
 namespace nkit
 {
@@ -78,7 +79,8 @@ namespace nkit
       Name2Id::const_iterator it = name2id_.begin(), end = name2id_.end();
       for (; it != end; ++it)
       {
-          str << it->first << ": " << it->second << '\n';
+          str << std::string(it->first) << std::string(": ") <<
+        		  string_cast(it->second) << '\n';
       }
       return str;
     }
