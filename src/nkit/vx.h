@@ -234,10 +234,8 @@ namespace nkit
       return Ptr(new TargetItem(path, target));
     }
 
-    Ptr CloneWithNewPathKey(Ptr self,
-        const Path & path, const std::string & key) const
+    Ptr CloneWithNewPathKey(const Path & path, const std::string & key) const
     {
-      assert(this == self.get());
       assert(!path.is_mask());
 
       if (!parent_target_)
@@ -822,8 +820,7 @@ namespace nkit
           if (mask_target_item->fool_path() == current_path_)
           {
             TargetItemPtr concret_target_item =
-                mask_target_item->CloneWithNewPathKey(
-                    mask_target_item, current_path_, el);
+                mask_target_item->CloneWithNewPathKey(current_path_, el);
             if (!concret_target_item)
               continue;
             current_node_->AppendTargetItem(concret_target_item);
