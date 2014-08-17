@@ -8,7 +8,7 @@
 
 namespace nkit
 {
-  //---------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   class Path
   {
   private:
@@ -21,7 +21,6 @@ namespace nkit
     Path(size_t element_id)
       : is_mask_(String2IdMap::STAR_ID == element_id)
     {
-
       elements_.push_back(element_id);
     }
 
@@ -52,7 +51,7 @@ namespace nkit
       attribute_name_ = attribute_name;
     }
 
-    // If one of the path is a mask (i.e. contains '*'), then make
+    // If one of the path is a mask (i.e. contains '*'), then make a
     // special compare: '*' is equal to any element name
     bool operator ==(const Path & another) const
     {
@@ -152,20 +151,20 @@ namespace nkit
     std::string attribute_name_;
   };
 
-  //---------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   std::ostream & operator <<(std::ostream & stream, const Path & path);
 
-  //---------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   const char * find_attribute_value(const char ** attrs,
       const char * attribute_name);
 
-  //---------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   template<typename VarBuilder>
   class TargetItem;
 
-  //---------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   template<typename VarBuilder>
-  class Target //: Uncopyable
+  class Target
   {
   public:
     typedef NKIT_SHARED_PTR(Target<VarBuilder>) Ptr;
@@ -181,10 +180,7 @@ namespace nkit
         NKIT_SHARED_PTR(TargetItem<VarBuilder>) NKIT_UNUSED(target_item))
     {}
 
-    virtual Ptr Clone()
-    {
-      return Ptr();
-    }
+    virtual Ptr Clone() const = 0;
 
     void SetOrInsertTo(const std::string & key_name,
         VarBuilder & var_builder)
@@ -217,7 +213,7 @@ namespace nkit
     VarBuilder var_builder_;
   };
 
-  //---------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   template<typename VarBuilder>
   class TargetItem
   {
@@ -244,9 +240,6 @@ namespace nkit
       assert(this == self.get());
       assert(!path.is_mask());
 
-      if (key_name_ == S_LT_)
-        return self;
-
       if (!parent_target_)
         return Ptr();
       Ptr result(new TargetItem(*this, path, key));
@@ -269,9 +262,10 @@ namespace nkit
 
     void SetParentTarget(Target<VarBuilder> * parent_target)
     {
-      //assert(!parent_target_);
       parent_target_ = parent_target;
     }
+
+    const std::string & key_name() const { return key_name_; }
 
     void SetKey(const std::string & key) { key_name_ = key; }
 
@@ -326,6 +320,7 @@ namespace nkit
     {
       return std::string("path: ") + path_.ToString() + "\nkey_name: "
           + key_name_ + "\ntarget: " + target_->ToString()
+          + "\nparent target: " + string_cast((uint64_t)parent_target_)
           + "\n----------------------------------";
     }
 
@@ -361,7 +356,7 @@ namespace nkit
     Target<VarBuilder> * parent_target_;
   };
 
-  //---------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   template<typename VarBuilder>
   class ObjectTarget: public Target<VarBuilder>
   {
@@ -369,7 +364,7 @@ namespace nkit
     typedef NKIT_SHARED_PTR(ObjectTarget<VarBuilder>) Ptr;
     typedef typename Target<VarBuilder>::Ptr TargetPtr;
     typedef typename TargetItem<VarBuilder>::Ptr TargetItemPtr;
-    typedef typename std::vector<TargetItemPtr>::iterator Iterator;
+    typedef typename std::vector<TargetItemPtr>::const_iterator Iterator;
 
   public:
     static Ptr Create()
@@ -383,6 +378,15 @@ namespace nkit
     {
       target_items_.push_back(target_item);
       target_item->SetParentTarget(this);
+    }
+
+    TargetPtr Clone() const
+    {
+      Ptr result(new ObjectTarget);
+      Iterator it = target_items_.begin(), end = target_items_.end();
+      for (; it != end; ++it)
+        result->PutTargetItem((*it)->Clone());
+      return result;
     }
 
   private:
@@ -420,7 +424,7 @@ namespace nkit
     std::vector<TargetItemPtr> target_items_;
   };
 
-  //---------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   template<typename VarBuilder>
   class ListTarget: public Target<VarBuilder>
   {
@@ -429,6 +433,7 @@ namespace nkit
 
   public:
     typedef typename TargetItem<VarBuilder>::Ptr TargetItemPtr;
+    typedef typename std::vector<TargetItemPtr>::const_iterator Iterator;
     typedef NKIT_SHARED_PTR(ListTarget<VarBuilder>) Ptr;
 
     static Ptr Create()
@@ -436,32 +441,39 @@ namespace nkit
       return Ptr(new ListTarget<VarBuilder>);
     }
 
-    ~ListTarget() { assert(target_item_); }
+    ~ListTarget() {}
 
-    void SetTargetItem(TargetItemPtr target_item)
+    void PutTargetItem(TargetItemPtr target_item)
     {
-      assert(!target_item_);
-      target_item_ = target_item;
-      target_item_->SetParentTarget(this);
-      Clear();
+      target_items_.push_back(target_item);
+      target_item->SetParentTarget(this);
     }
 
-    TargetPtr Clone()
+    TargetPtr Clone() const
     {
       Ptr result(new ListTarget);
-      result->SetTargetItem(target_item_->Clone());
+      Iterator it = target_items_.begin(), end = target_items_.end();
+      for (; it != end; ++it)
+        result->PutTargetItem((*it)->Clone());
       return result;
     }
 
   private:
-    ListTarget() {}
+    ListTarget() {
+      Clear();
+    }
 
     void OnEnter() {}
 
     void OnExit(const char * NKIT_UNUSED(el))
     {
-      target_item_->AppendTo(Target<VarBuilder>::var_builder_);
-      target_item_->Clear();
+      Iterator it = target_items_.begin(), end = target_items_.end();
+      for (; it != end; ++it)
+      {
+        TargetItemPtr target_item = (*it);
+        target_item->AppendTo(Target<VarBuilder>::var_builder_);
+        target_item->Clear();
+      }
     }
 
     void OnText(const char *, size_t) {}
@@ -477,10 +489,10 @@ namespace nkit
     }
 
   private:
-    TargetItemPtr target_item_;
+    std::vector<TargetItemPtr> target_items_;
   };
 
-  //---------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   template<typename VarBuilder,
     void (VarBuilder::*InitByString)(const std::string & value),
     void (VarBuilder::*InitByStringWithFormat)(const std::string & value,
@@ -571,7 +583,7 @@ namespace nkit
 
     void Clear() {}
 
-    TargetPtr Clone()
+    TargetPtr Clone() const
     {
       return TargetPtr(new ScalarTarget(*this));
     }
@@ -689,12 +701,12 @@ namespace nkit
 
     bool is_filled_from_mask_target_items() const
     {
-      return filled_from_target_items_;
+      return filled_from_mask_target_items_;
     }
 
     void MarkFilledFromMaskTargetItems()
     {
-      filled_from_target_items_ = true;
+      filled_from_mask_target_items_ = true;
     }
 
   protected:
@@ -704,7 +716,7 @@ namespace nkit
       , absolute_counter_(0)
       , relative_counter_(0)
       , path_(element_id)
-      , filled_from_target_items_(false)
+      , filled_from_mask_target_items_(false)
     {}
 
     PathNode(PathNode * parent, size_t element_id)
@@ -713,7 +725,7 @@ namespace nkit
       , absolute_counter_(0)
       , relative_counter_(0)
       , path_(parent->path_ / element_id)
-      , filled_from_target_items_(false)
+      , filled_from_mask_target_items_(false)
     {}
 
   private:
@@ -723,11 +735,11 @@ namespace nkit
     size_t absolute_counter_;
     size_t relative_counter_;
     Path path_;
-    bool filled_from_target_items_;
+    bool filled_from_mask_target_items_;
     TargetItemVector target_items_;
   };
 
-  //---------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   template <typename VarBuilder>
   class Xml2VarBuilder: public ExpatParser<Xml2VarBuilder<VarBuilder> >
   {
@@ -798,24 +810,27 @@ namespace nkit
 
       current_path_ /= element_id;
       PathNode<VarBuilder>::MoveToChild(&current_node_, element_id);
+
+      // fill from mask-target-items
       if (!current_node_->is_filled_from_mask_target_items())
       {
-        // fill from mask-target-items
-        current_node_->MarkFilledFromMaskTargetItems();
-        TargetItemVectorIterator mask_target_item = mask_target_items_.begin(),
+        TargetItemVectorIterator it = mask_target_items_.begin(),
             end = mask_target_items_.end();
-        for (; mask_target_item != end; ++mask_target_item)
+        for (; it != end; ++it)
         {
-          if ((*mask_target_item)->fool_path() == current_path_)
+          TargetItemPtr mask_target_item = (*it);
+          if (mask_target_item->fool_path() == current_path_)
           {
             TargetItemPtr concret_target_item =
-                (*mask_target_item)->CloneWithNewPathKey(
-                    (*mask_target_item), current_path_, el);
+                mask_target_item->CloneWithNewPathKey(
+                    mask_target_item, current_path_, el);
             if (!concret_target_item)
               continue;
             current_node_->AppendTargetItem(concret_target_item);
           }
         }
+
+        current_node_->MarkFilledFromMaskTargetItems();
       }
 
       current_node_->OnEnter(attrs);
@@ -865,7 +880,8 @@ namespace nkit
             "- number|optional_number_default\n"
             "- string|optional_string_default\n"
             "- boolean|optional_boolean_default\n"
-            "- datetime|mandatory_default_dateTime_value|mandatory_formatting_string";
+            "- datetime|mandatory_default_dateTime_value"
+            		"|mandatory_formatting_string";
         return TargetItemPtr();
       }
 
@@ -976,11 +992,13 @@ namespace nkit
       if (!child_target_item)
         return TargetItemPtr();
 
-      child_target_item->SetKey(S_LT_); // key '<' indicates list mapping
+      if (fool_path.is_mask())
+        child_target_item->SetParentTarget(target.get());
+      else if (!child_target_item->fool_path().is_mask())
+        target->PutTargetItem(child_target_item);
 
-      target->SetTargetItem(child_target_item);
-
-      TargetItemPtr target_item = TargetItem<VarBuilder>::Create(fool_path, S_LT_, target);
+      TargetItemPtr target_item = TargetItem<VarBuilder>::Create(fool_path,
+      		target);
       target_item->SetParentTarget(parent_target);
 
       if (fool_path.is_mask())
@@ -1061,14 +1079,15 @@ namespace nkit
         String2IdMap * str2id,
         std::string * error)
     {
+      TargetItemPtr target_item;
       if (target_spec.IsList())
-        return ParseListTargetSpec(parent_target, parent_path, target_spec,
+        target_item = ParseListTargetSpec(parent_target, parent_path, target_spec,
             path_tree, mask_target_items, str2id, error);
       else if (target_spec.IsDict())
-        return ParseObjectTargetSpec(parent_target, parent_path, target_spec,
+        target_item = ParseObjectTargetSpec(parent_target, parent_path, target_spec,
             path_tree, mask_target_items, str2id, error);
       else if (target_spec.IsString())
-        return ParseScalarTargetSpec(parent_target, parent_path,
+        target_item = ParseScalarTargetSpec(parent_target, parent_path,
             target_spec.GetConstString(), path_tree,
             mask_target_items, error);
       else
@@ -1076,6 +1095,9 @@ namespace nkit
         *error = "Child mapping can be dictionary (object), list or string";
         return TargetItemPtr();
       }
+
+      //CINFO(target_item->ToString());
+      return target_item;
     }
 
     //--------------------------------------------------------------------------
@@ -1090,20 +1112,22 @@ namespace nkit
 
       TargetItemPtr target_item;
       if (target_spec.IsList())
-        target_item = ParseListTargetSpec(NULL, empty_path, target_spec, path_tree,
-            mask_target_items, str2id, error);
+      target_item = ParseListTargetSpec(NULL, empty_path, target_spec,
+          path_tree, mask_target_items, str2id, error);
       else if (target_spec.IsDict())
-        target_item = ParseObjectTargetSpec(NULL, empty_path, target_spec, path_tree,
-            mask_target_items, str2id, error);
+      target_item = ParseObjectTargetSpec(NULL, empty_path, target_spec,
+          path_tree, mask_target_items, str2id, error);
       else
       {
-        *error = "Root mapping can not be scalar - only dictionary (object) or list";
+        *error =
+            "Root mapping can not be scalar - only dictionary (object) or list";
         return TargetPtr();
       }
 
       if (!target_item)
         return TargetPtr();
 
+      //CINFO(target_item->ToString());
       return target_item->target();
     }
 

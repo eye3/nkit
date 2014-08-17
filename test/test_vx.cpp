@@ -59,7 +59,7 @@ namespace nkit_test
     Dynamic etalon = DLIST(
            "+122233344550" << "+122233344551"
         << "+122233344553" << "+122233344554");
-    //CINFO(nkit::json_hr << var);
+    CINFO(nkit::json_hr << var);
     NKIT_TEST_ASSERT(var == etalon);
   }
 
@@ -142,7 +142,7 @@ namespace nkit_test
   }
 
   //---------------------------------------------------------------------------
-  _NKIT_TEST_CASE(vx_sandbox)
+  NKIT_TEST_CASE(vx_sandbox)
   {
     std::string xml_path("./data/vx_sample.xml");
     std::string xml;
