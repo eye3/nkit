@@ -37,7 +37,8 @@ namespace nkit
         result = false;
       }
 
-      Reset();
+      if (last)
+        Reset();
       return result;
     }
 
