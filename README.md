@@ -36,32 +36,51 @@ C++ library with following components:
 
 ## Requirements
 
-It is mandatory to have **yajl** library for JSON paring (https://github.com/lloyd/yajl, version >= 2.0.4)
+It is mandatory to have **yajl** library for JSON paring
+(https://github.com/lloyd/yajl, version >= 2.0.4)
 
-If your C++ compiler does not support std::shared_ptr, then it is mandatory to have Boost library (http://boost.org, version >= 1.53)
+If your whant to switch on XML support, then it is mandatory to have Expat
+SAX parser library.
+
+If your C++ compiler does not support std::shared_ptr, then it is mandatory
+to have Boost library
 
 ## Build & install
 ### Linux & Mac
 
     cd to/nkit/root
 
-This commands will configure, build and install debug version of nkit library (with non-system boost):
+This commands will configure, build and install debug version of nkit library
+(with non-system boost):
 
-    ./bootstrap.sh --prefix=/path/to/installation/folder --with-boost=/path/to/boost \
+    ./bootstrap.sh --prefix=/path/to/installation/folder \
+    	--with-boost=/path/to/boost \
         --with-yajl=/path/to/yajl --debug
     make -C Debug-build
     make -C Debug-build install
 
-This commands will configure, build and install release version of nkit library (with system boost):
+This commands will configure, build and install release version of nkit library
+(with system boost):
 
     ./bootstrap.sh --prefix=/path/to/installation/folder --with-boost \
         --with-yajl=/path/to/yajl --release
     make -C Release-build
     make -C Release-build install
 
-This commands will configure, build and install release-with-debug-version of nkit library (without boost, if C++ compiler supports std::shared_ptr):
+This commands will configure, build and install release-with-debug-version of
+nkit library (without boost, if C++ compiler supports std::shared_ptr):
 
-    ./bootstrap.sh --prefix=/path/to/installation/folder --with-yajl=/path/to/yajl --rdebug
+    ./bootstrap.sh --prefix=/path/to/installation/folder \
+    	--with-yajl=/path/to/yajl --rdebug
+    make -C RelWithDebInfo-build
+    make -C RelWithDebInfo-build install
+
+This commands will configure, build and install release of nkit library
+(with XML support, with YAJL, installed in system, and without boost,
+if C++ compiler supports std::shared_ptr):
+
+    ./bootstrap.sh --prefix=/path/to/installation/folder \
+    	--with-vx --release
     make -C RelWithDebInfo-build
     make -C RelWithDebInfo-build install
 
@@ -71,12 +90,13 @@ For all configure options
     
 ### Windows
 
-This commands will create Microsoft Visual C++ 2012 solution for nkit library (without using boost):
+This commands will create Microsoft Visual C++ 2012 solution for nkit library
+(without using boost):
 
     cd c:\path\to\nkit\root
-    mkdir win32
-    cd win32
-    cmake -G "Visual Studio 11" -DPREFIX=c:/path/to/install/folder -DYAJL_ROOT=c:/path/to/yajl/root -DYAJL_USE_DYN_LIBS=1 ..
+    mkdir win
+    cd win
+    cmake -G "Visual Studio 11" -DPREFIX=c:/path/to/install/folder -DYAJL_ROOT=c:/path/to/yajl/root -DYAJL_USE_DYN_LIBS=1 -DUSE_VX=1 -DEXPAT_ROOT=d:/path/to/expat/root ..
     
 
 ## Usage
