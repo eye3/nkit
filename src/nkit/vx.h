@@ -250,6 +250,8 @@ namespace nkit
 
     bool is_mask() const { return is_mask_; }
 
+    size_t size() const { return elements_.size(); }
+
     std::string ToString() const
     {
       std::string result;
@@ -302,23 +304,23 @@ namespace nkit
     virtual Ptr Clone() const = 0;
 
     void SetOrInsertTo(const std::string & key_name,
-        T & var_builder)
+        T & var_builder) const
     {
       var_builder.SetDictKeyValue(key_name, var());
     }
 
     void SetOrInsertTo(const char * key_name,
-        T & var_builder)
+        T & var_builder) const
     {
       var_builder.SetDictKeyValue(key_name, var());
     }
 
-    void AppendTo(T & var_builder)
+    void AppendTo(T & var_builder) const
     {
       var_builder.AppendToList(var());
     }
 
-    virtual typename T::type const & var()
+    virtual typename T::type const & var() const
     {
       return var_builder_.get();
     }
@@ -356,37 +358,33 @@ namespace nkit
     Ptr CloneWithNewPathKey(const Path & path, const std::string & key) const
     {
       assert(!path.is_mask());
-
-      if (!parent_target_)
-        return Ptr();
-      Ptr result(new TargetItem(*this, path, key));
-      parent_target_->PutTargetItem(result);
-      return result;
+      return Ptr(new TargetItem(*this, path, key));
     }
 
     Ptr Clone() const
     {
-      if (!parent_target_)
-        return Ptr();
-      Ptr result(new TargetItem(*this));
-      parent_target_->PutTargetItem(result);
-      return result;
+      return Ptr(new TargetItem(*this));
     }
 
     ~TargetItem() {}
 
-    TargetPtr target() { return target_; }
+    TargetPtr target() const { return target_; }
 
     void SetParentTarget(Target<T> * parent_target)
     {
       parent_target_ = parent_target;
     }
 
+    Target<T> * parent_target() const
+    {
+      return parent_target_;
+    }
+
     const std::string & key_name() const { return key_name_; }
 
     void SetKey(const std::string & key) { key_name_ = key; }
 
-    void SetOrInsertTo(const char * el, T & var_builder)
+    void SetOrInsertTo(const char * el, T & var_builder) const
     {
       if (likely(key_name_ != S_STAR_))
         target_->SetOrInsertTo(key_name_, var_builder);
@@ -394,7 +392,7 @@ namespace nkit
         target_->SetOrInsertTo(el, var_builder);
     }
 
-    void AppendTo(T & var_builder)
+    void AppendTo(T & var_builder) const
     {
       target_->AppendTo(var_builder);
     }
@@ -445,12 +443,10 @@ namespace nkit
     TargetItem(const TargetItem & another, const Path & path,
         const std::string & key)
       : path_(path)
+      , key_name_(key)
       , target_(another.target_->Clone())
       , parent_target_(another.parent_target_)
-    {
-      if (key_name_.empty() || key_name_ == S_STAR_)
-        key_name_ = key;
-    }
+    {}
 
     TargetItem(const Path & path, const std::string & key_name,
         TargetPtr target)
@@ -481,7 +477,9 @@ namespace nkit
     typedef NKIT_SHARED_PTR(ObjectTarget<T>) Ptr;
     typedef typename Target<T>::Ptr TargetPtr;
     typedef typename TargetItem<T>::Ptr TargetItemPtr;
-    typedef typename std::vector<TargetItemPtr>::const_iterator Iterator;
+    typedef typename TargetItem<T>::Vector TargetItemVector;
+    typedef typename TargetItemVector::iterator Iterator;
+    typedef typename TargetItemVector::const_iterator ConstIterator;
 
   public:
     static Ptr Create()
@@ -493,14 +491,14 @@ namespace nkit
 
     void PutTargetItem(TargetItemPtr target_item)
     {
-      target_items_.push_back(target_item);
-      target_item->SetParentTarget(this);
+      if (AppendTargetItem(target_item))
+        target_item->SetParentTarget(this);
     }
 
     TargetPtr Clone() const
     {
       Ptr result(new ObjectTarget);
-      Iterator it = target_items_.begin(), end = target_items_.end();
+      ConstIterator it = target_items_.begin(), end = target_items_.end();
       for (; it != end; ++it)
         result->PutTargetItem((*it)->Clone());
       return result;
@@ -510,6 +508,34 @@ namespace nkit
     ObjectTarget()
     {
       Clear();
+    }
+
+    bool AppendTargetItem(TargetItemPtr const & target_item)
+    {
+      // key must not exists
+      const std::string & key_name = target_item->key_name();
+      Iterator it = target_items_.begin(),
+          end = target_items_.end();
+      for (; it != end; ++it)
+        if ((*it)->key_name() == key_name)
+          return false;
+
+      size_t size = target_item->fool_path().size();
+
+      it = target_items_.begin(),
+          end = target_items_.end();
+      for (; it != end; ++it)
+      {
+        if (size < (*it)->fool_path().size())
+          break;
+      }
+
+      if (it == end)
+        target_items_.push_back(target_item);
+      else
+        target_items_.insert(it, target_item);
+
+      return true;
     }
 
     void OnEnter() {}
@@ -538,7 +564,7 @@ namespace nkit
     }
 
   private:
-    std::vector<TargetItemPtr> target_items_;
+    TargetItemVector target_items_;
   };
 
   //----------------------------------------------------------------------------
@@ -550,7 +576,9 @@ namespace nkit
 
   public:
     typedef typename TargetItem<T>::Ptr TargetItemPtr;
-    typedef typename std::vector<TargetItemPtr>::const_iterator Iterator;
+    typedef typename TargetItem<T>::Vector TargetItemVector;
+    typedef typename TargetItemVector::iterator Iterator;
+    typedef typename TargetItemVector::const_iterator ConstIterator;
     typedef NKIT_SHARED_PTR(ListTarget<T>) Ptr;
 
     static Ptr Create()
@@ -562,22 +590,43 @@ namespace nkit
 
     void PutTargetItem(TargetItemPtr target_item)
     {
-      target_items_.push_back(target_item);
+      AppendTargetItem(target_item);
       target_item->SetParentTarget(this);
     }
 
     TargetPtr Clone() const
     {
-      Ptr result(new ListTarget);
-      Iterator it = target_items_.begin(), end = target_items_.end();
+      ListTarget::Ptr result(new ListTarget);
+      ConstIterator it = target_items_.begin(), end = target_items_.end();
       for (; it != end; ++it)
-        result->PutTargetItem((*it)->Clone());
+      {
+        TargetItemPtr target_item = (*it)->Clone();
+        result->PutTargetItem(target_item);
+      }
       return result;
     }
 
   private:
     ListTarget() {
       Clear();
+    }
+
+    void AppendTargetItem(TargetItemPtr const & target_item)
+    {
+      size_t size = target_item->fool_path().size();
+
+      Iterator it = target_items_.begin(),
+          end = target_items_.end();
+      for (; it != end; ++it)
+      {
+        if (size < (*it)->fool_path().size())
+          break;
+      }
+
+      if (it == end)
+        target_items_.push_back(target_item);
+      else
+        target_items_.insert(it, target_item);
     }
 
     void OnEnter() {}
@@ -606,7 +655,7 @@ namespace nkit
     }
 
   private:
-    std::vector<TargetItemPtr> target_items_;
+    TargetItemVector target_items_;
   };
 
   //----------------------------------------------------------------------------
@@ -736,7 +785,8 @@ namespace nkit
     typedef NKIT_SHARED_PTR(PathNode<T>) Ptr;
     typedef typename TargetItem<T>::Ptr TargetItemPtr;
     typedef typename TargetItem<T>::Vector TargetItemVector;
-    typedef typename TargetItemVector::iterator TargetItemVectorIterator;
+    typedef typename TargetItemVector::iterator Iterator;
+    typedef typename TargetItemVector::const_iterator ConstIterator;
 
   public:
     static Ptr CreateRoot()
@@ -773,24 +823,21 @@ namespace nkit
 
     void OnEnter(const char ** attrs)
     {
-      TargetItemVectorIterator
-        target_item = target_items_.begin(), end = target_items_.end();
+      Iterator target_item = target_items_.begin(), end = target_items_.end();
       for (; target_item != end; ++target_item)
         (*target_item)->OnEnter(attrs);
     }
 
     void OnExit(const char * el)
     {
-      TargetItemVectorIterator
-        target_item = target_items_.begin(), end = target_items_.end();
+      Iterator target_item = target_items_.begin(), end = target_items_.end();
       for (; target_item != end; ++target_item)
         (*target_item)->OnExit(el);
     }
 
     void OnText(const char * text, size_t len)
     {
-      TargetItemVectorIterator
-        target_item = target_items_.begin(), end = target_items_.end();
+      Iterator target_item = target_items_.begin(), end = target_items_.end();
       for (; target_item != end; ++target_item)
         (*target_item)->OnText(text, len);
     }
@@ -803,12 +850,24 @@ namespace nkit
           end = path.elements().end();
       for (; element_id != end; ++element_id)
         MoveToChild(&current, *element_id);
-      current->target_items_.push_back(target_item);
+      current->AppendTargetItem(target_item);
     }
 
     void AppendTargetItem(TargetItemPtr const & target_item)
     {
-      target_items_.push_back(target_item);
+      size_t size = target_item->fool_path().size();
+
+      Iterator it = target_items_.begin(), end = target_items_.end();
+      for (; it != end; ++it)
+      {
+        if (size < (*it)->fool_path().size())
+          break;
+      }
+
+      if (it == end)
+        target_items_.push_back(target_item);
+      else
+        target_items_.insert(it, target_item);
     }
 
     const Path & fool_path() const
@@ -942,6 +1001,9 @@ namespace nkit
                 mask_target_item->CloneWithNewPathKey(current_path_, el);
             if (!concret_target_item)
               continue;
+            if (concret_target_item->parent_target())
+              concret_target_item->parent_target()->PutTargetItem(
+                concret_target_item);
             current_node_->AppendTargetItem(concret_target_item);
           }
         }
@@ -955,8 +1017,8 @@ namespace nkit
 
     bool OnEndElement(const char * el)
     {
-      current_path_.BubbleUp();
       current_node_->OnExit(el);
+      current_path_.BubbleUp();
       PathNode<T>::MoveToParent(&current_node_);
       return true;
     }
@@ -976,7 +1038,7 @@ namespace nkit
     static TargetItemPtr ParseScalarTargetSpec(
         Target<T> * parent_target,
         Path parent_path,
-        const std::string & target_spec,
+        const std::string & mapping,
         PathNodePtr path_tree,
         TargetItemVector * mask_target_items,
         std::string * error)
@@ -988,7 +1050,7 @@ namespace nkit
       static const std::string BOOLEAN_TYPE = "boolean";
 
       nkit::StringVector spec_list;
-      nkit::simple_split(target_spec, "|", &spec_list);
+      nkit::simple_split(mapping, "|", &spec_list);
       if (spec_list.size() < 1)
       {
         *error = "Type definition for scalar must be of following format:\n"
@@ -1068,8 +1130,7 @@ namespace nkit
         return TargetItemPtr();
       }
 
-      TargetItemPtr target_item =
-          TargetItem<T>::Create(parent_path, target);
+      TargetItemPtr target_item = TargetItem<T>::Create(parent_path, target);
       target_item->SetParentTarget(parent_target);
 
       if (parent_path.is_mask())
@@ -1084,26 +1145,30 @@ namespace nkit
     static TargetItemPtr ParseListTargetSpec(
         Target<T> * parent_target,
         Path parent_path,
-        const nkit::Dynamic & target_spec,
+        const nkit::Dynamic & mapping,
         PathNodePtr path_tree,
         TargetItemVector * mask_target_items,
         String2IdMap * str2id,
         std::string * error)
     {
-      if (target_spec.size() != 2)
+      size_t count = mapping.size();
+      if (count != 2)
       {
-        *error = "List mapping must have exactly two elements";
+        *error = "List mapping must have two elements: "
+          "path/to/xml/element/with/data and sub-mapping";
         return TargetItemPtr();
       }
 
       typename ListTarget<T>::Ptr target =
           ListTarget<T>::Create();
 
-      Path path(target_spec.GetByIndex(0).GetString(), str2id);
+      Path path(mapping.GetByIndex(0).GetString(), str2id);
+      const Dynamic & sum_mapping = mapping.GetByIndex(1);
+
       Path fool_path(parent_path / path);
 
       TargetItemPtr child_target_item =
-          ParseTargetSpec(target.get(), fool_path, target_spec.GetByIndex(1),
+          ParseTargetSpec(target.get(), fool_path, sum_mapping,
               path_tree, mask_target_items, str2id, error);
       if (!child_target_item)
         return TargetItemPtr();
@@ -1129,7 +1194,7 @@ namespace nkit
     static TargetItemPtr ParseObjectTargetSpec(
         Target<T> * parent_target,
         Path parent_path,
-        const nkit::Dynamic & target_spec,
+        const nkit::Dynamic & mapping,
         PathNodePtr path_tree,
         TargetItemVector * mask_target_items,
         String2IdMap * str2id,
@@ -1138,7 +1203,7 @@ namespace nkit
       typename ObjectTarget<T>::Ptr target =
           ObjectTarget<T>::Create();
 
-      DDICT_FOREACH(pair, target_spec)
+      DDICT_FOREACH(pair, mapping)
       {
         std::string path_spec, key;
         nkit::simple_split(pair->first, "->", &path_spec, &key);
@@ -1189,22 +1254,22 @@ namespace nkit
     static TargetItemPtr ParseTargetSpec(
         Target<T> * parent_target,
         Path parent_path,
-        const nkit::Dynamic & target_spec,
+        const nkit::Dynamic & mapping,
         PathNodePtr path_tree,
         TargetItemVector * mask_target_items,
         String2IdMap * str2id,
         std::string * error)
     {
       TargetItemPtr target_item;
-      if (target_spec.IsList())
+      if (mapping.IsList())
       target_item = ParseListTargetSpec(parent_target, parent_path,
-          target_spec, path_tree, mask_target_items, str2id, error);
-      else if (target_spec.IsDict())
+          mapping, path_tree, mask_target_items, str2id, error);
+      else if (mapping.IsDict())
       target_item = ParseObjectTargetSpec(parent_target, parent_path,
-          target_spec, path_tree, mask_target_items, str2id, error);
-      else if (target_spec.IsString())
+          mapping, path_tree, mask_target_items, str2id, error);
+      else if (mapping.IsString())
       target_item = ParseScalarTargetSpec(parent_target, parent_path,
-          target_spec.GetConstString(), path_tree, mask_target_items, error);
+          mapping.GetConstString(), path_tree, mask_target_items, error);
       else
       {
         *error = "Child mapping can be dictionary (object), list or string";
@@ -1217,7 +1282,7 @@ namespace nkit
 
     //--------------------------------------------------------------------------
     static TargetPtr ParseRootTargetSpec(
-        const nkit::Dynamic & target_spec,
+        const nkit::Dynamic & mapping,
         PathNodePtr path_tree,
         TargetItemVector * mask_target_items,
         String2IdMap * str2id,
@@ -1226,11 +1291,11 @@ namespace nkit
       Path empty_path;
 
       TargetItemPtr target_item;
-      if (target_spec.IsList())
-      target_item = ParseListTargetSpec(NULL, empty_path, target_spec,
+      if (mapping.IsList())
+      target_item = ParseListTargetSpec(NULL, empty_path, mapping,
           path_tree, mask_target_items, str2id, error);
-      else if (target_spec.IsDict())
-      target_item = ParseObjectTargetSpec(NULL, empty_path, target_spec,
+      else if (mapping.IsDict())
+      target_item = ParseObjectTargetSpec(NULL, empty_path, mapping,
           path_tree, mask_target_items, str2id, error);
       else
       {

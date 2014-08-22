@@ -33,7 +33,7 @@ namespace nkit
     String2IdMap()
       : max_element_id_(1)
     {
-      name2id_[strdup(S_STAR_.c_str())] = STAR_ID;
+      name2id_[NKIT_STRDUP(S_STAR_.c_str())] = STAR_ID;
     }
 
     String2IdMap(const String2IdMap & from)
@@ -61,7 +61,7 @@ namespace nkit
       if (it != end)
         return it->second;
       size_t element_id = max_element_id_++;
-      name2id_.insert(std::make_pair(strdup(str), element_id));
+      name2id_.insert(std::make_pair(NKIT_STRDUP(str), element_id));
       return element_id;
     }
 
@@ -103,7 +103,7 @@ namespace nkit
       Name2Id::const_iterator it = from.name2id_.begin(), end =
           from.name2id_.end();
       for (; it != end; ++it)
-        name2id_.insert(std::make_pair(strdup(it->first), it->second));
+        name2id_.insert(std::make_pair(NKIT_STRDUP(it->first), it->second));
     }
 
   private:
