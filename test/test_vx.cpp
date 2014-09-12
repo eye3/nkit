@@ -98,9 +98,8 @@ namespace nkit_test
 
     Dynamic fields_mapping = //DLIST("/person" << DDICT("/*" << "string") );
         DLIST("/person" << DDICT(
-            "/birthday" << "datetime|Fri, 22 Aug 2014 13:59:06 +0000|%a, %d %b %Y %H:%M:%S %z"
-            << "/*" << "string"
-            << "/married/@firstTime -> is" << "boolean")
+              "/photos/* -> photos" << DLIST("/" << "string")
+            )
         );
 
     std::string error;

@@ -358,7 +358,8 @@ namespace nkit
     Ptr CloneWithNewPathKey(const Path & path, const std::string & key) const
     {
       assert(!path.is_mask());
-      return Ptr(new TargetItem(*this, path, key));
+      return Ptr(new TargetItem(*this, path,
+          key_name_.empty() ? key: key_name_));
     }
 
     Ptr Clone() const
