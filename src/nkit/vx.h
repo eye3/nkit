@@ -522,7 +522,7 @@ namespace nkit
 
     void OnEnter() {}
 
-    void OnExit(const char * NKIT_UNUSED(el))
+    void OnExit(const char * el)
     {
       Iterator it = target_items_.begin(), end = target_items_.end();
       for (; it != end; ++it)
