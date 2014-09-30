@@ -2,7 +2,10 @@
 
 namespace nkit
 {
-
+  namespace detail
+  {
+    const bool Options::TRIM_DEFAULT = false;
+  }
   //----------------------------------------------------------------------------
   std::ostream & operator <<(std::ostream & stream, const Path & path)
   {
