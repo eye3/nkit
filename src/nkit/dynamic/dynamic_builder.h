@@ -13,7 +13,11 @@ namespace nkit
 
     typedef Dynamic type;
 
-    DynamicPolicy(): object_() {}
+    DynamicPolicy(const detail::Options & options)
+      : object_()
+      , options_(options)
+    {}
+
     ~DynamicPolicy() {}
 
     void _InitAsBoolean( std::string const & value )
@@ -96,6 +100,7 @@ namespace nkit
 
   private:
     type object_;
+    const detail::Options & options_;
   };
 
   typedef VarBuilder<DynamicPolicy> DynamicBuilder;

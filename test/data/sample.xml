@@ -1,5 +1,9 @@
 <?xml version="1.0"?>
 <any_name>
+	<academy>
+		<title>Delhi Academy Of Medical Sciences</title>
+		<link>http://www.damsdelhi.com/dams.php</link>
+	</academy>
 	<person>
 		<phone>+122233344550</phone>
 		<name>Jack</name>

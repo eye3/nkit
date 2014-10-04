@@ -29,11 +29,11 @@ namespace nkit
         DynamicBuilder>::Create(options, error);
     if(!builder)
       return Dynamic();
-    if (!builder->AddMapping(mapping, error))
+    if (!builder->AddMapping(S_EMPTY_, mapping, error))
       return Dynamic();
     if (!builder->Feed(xml.c_str(), xml.length(), true, error))
       return Dynamic();
-    return builder->var();
+    return builder->var(S_EMPTY_);
   }
 
   Dynamic DynamicFromXml(const std::string & xml,
@@ -59,11 +59,11 @@ namespace nkit
         DynamicBuilder>::Create(options, error);
     if(!builder)
       return Dynamic();
-    if (!builder->AddMapping(mapping, error))
+    if (!builder->AddMapping(S_EMPTY_, mapping, error))
       return Dynamic();
     if (!builder->Feed(xml.c_str(), xml.length(), true, error))
       return Dynamic();
-    return builder->var();
+    return builder->var(S_EMPTY_);
   }
 
   Dynamic DynamicFromXmlFile(const std::string & path,

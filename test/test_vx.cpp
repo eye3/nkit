@@ -1,6 +1,6 @@
 #include "nkit/test.h"
 #include "nkit/logger_brief.h"
-
+#include "nkit/dynamic/dynamic_builder.h"
 #include "nkit/dynamic_xml.h"
 
 namespace nkit_test
@@ -218,8 +218,13 @@ namespace nkit_test
     NKIT_TEST_ASSERT_WITH_TEXT(nkit::text_file_to_string(mapping_path,
             &mapping), "Could not read file '" + mapping_path + "'.");
 
+    std::string options;
+    std::string options_path("./data/options_no_trim.json");
+    NKIT_TEST_ASSERT_WITH_TEXT(nkit::text_file_to_string(options_path,
+            &options), "Could not read file '" + options_path + "'.");
+
     std::string error;
-    Dynamic var = DynamicFromXml(xml, "", mapping, &error);
+    Dynamic var = DynamicFromXml(xml, options, mapping, &error);
     NKIT_TEST_ASSERT_WITH_TEXT(var, error);
 
     Dynamic etalon = DLIST(
@@ -294,6 +299,64 @@ namespace nkit_test
     //CINFO(nkit::json_hr << var);
     //CINFO(nkit::json_hr << etalon);
     NKIT_TEST_ASSERT(var == etalon);
+  }
+
+  //---------------------------------------------------------------------------
+  NKIT_TEST_CASE(vx_multi_mappings)
+  {
+    std::string xml_path("./data/sample.xml");
+    std::string xml;
+    NKIT_TEST_ASSERT_WITH_TEXT(nkit::text_file_to_string(xml_path, &xml),
+        "Could not read file '" + xml_path + "'.");
+
+    std::string mapping_path("./data/multi_mapping.json");
+    std::string mapping;
+    NKIT_TEST_ASSERT_WITH_TEXT(nkit::text_file_to_string(mapping_path,
+            &mapping), "Could not read file '" + mapping_path + "'.");
+
+    std::string options;
+    std::string options_path("./data/options_trim.json");
+    NKIT_TEST_ASSERT_WITH_TEXT(nkit::text_file_to_string(options_path,
+            &options), "Could not read file '" + options_path + "'.");
+
+    std::string error;
+    Xml2VarBuilder<DynamicBuilder>::Ptr builder = Xml2VarBuilder<
+        DynamicBuilder>::Create(options, mapping, &error);
+    NKIT_TEST_ASSERT_WITH_TEXT(builder, error);
+    NKIT_TEST_ASSERT_WITH_TEXT(
+        builder->Feed(xml.c_str(), xml.length(), true, &error), error);
+
+    Dynamic academy = builder->var("academy");
+    Dynamic persons = builder->var("persons");
+
+    Dynamic academy_etalon = DDICT(
+              "link" << "http://www.damsdelhi.com/dams.php"
+          <<  "title" << "Delhi Academy Of Medical Sciences"
+        );
+
+    Dynamic persons_etalon = DLIST(
+        DDICT(
+            "name" << "Jack" <<
+            "photos" << "" <<
+            "age" << "33" <<
+            "married" << "Yes" <<
+            "phone" << "+122233344551" <<
+            "birthday" << "Wed, 28 Mar 1979 12:13:14 +0300" <<
+            "address" << ""
+            ) <<
+        DDICT(
+            "name" << "Boris" <<
+            "photos" << "" <<
+            "age" << "34" <<
+            "married" << "Yes" <<
+            "phone" << "+122233344554" <<
+            "birthday" << "Mon, 31 Aug 1970 02:03:04 +0300" <<
+            "address" << ""
+            )
+        );
+
+    NKIT_TEST_ASSERT(academy == academy_etalon);
+    NKIT_TEST_ASSERT(persons == persons_etalon);
   }
 
   //---------------------------------------------------------------------------

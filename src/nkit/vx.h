@@ -14,6 +14,7 @@ namespace nkit
     struct Options
     {
       static const bool TRIM_DEFAULT;
+      static const bool UNICODE_DEFAULT;
 
       typedef NKIT_SHARED_PTR(Options) Ptr;
 
@@ -40,32 +41,39 @@ namespace nkit
 
       static Ptr Create(DynamicGetter & config, std::string * error)
       {
-        bool trim;
+        bool trim, unicode;
         std::string white_spaces;
         config
           .Get(".trim", &trim, TRIM_DEFAULT)
           .Get(".white_spaces", &white_spaces, WHITE_SPACES)
+          .Get(".unicode", &unicode, UNICODE_DEFAULT)
         ;
+
         if (!config.ok())
         {
           *error = config.error();
           return Ptr();
         }
-        return Ptr(new Options(trim, white_spaces));
+
+        return Ptr(new Options(trim, white_spaces, unicode));
       }
 
-      Options(bool trim, const std::string & white_spaces)
+      Options(bool trim, const std::string & white_spaces,
+          bool unicode)
         : trim_(trim)
         , white_spaces_(white_spaces)
+        , unicode_(unicode)
       {}
 
       Options()
-        : trim_(TRIM_DEFAULT),
-          white_spaces_(WHITE_SPACES)
+        : trim_(TRIM_DEFAULT)
+        , white_spaces_(WHITE_SPACES)
+        , unicode_(UNICODE_DEFAULT)
       {}
 
       const bool trim_;
       const std::string white_spaces_;
+      const bool unicode_;
     };
   }
 
@@ -74,6 +82,10 @@ namespace nkit
   {
   public:
     typedef typename Policy::type type;
+
+    VarBuilder(const detail::Options::Ptr & options)
+      : p_(*options)
+    {}
 
     void InitAsBoolean( std::string const & value )
     {
@@ -383,9 +395,13 @@ namespace nkit
     }
 
   protected:
-    Target() {}
+    Target(const detail::Options::Ptr & options)
+      : options_(options)
+      , var_builder_(options)
+    {}
 
   protected:
+    const detail::Options::Ptr options_;
     T var_builder_;
   };
 
@@ -525,9 +541,9 @@ namespace nkit
     typedef typename TargetItemVector::const_iterator ConstIterator;
 
   public:
-    static Ptr Create()
+    static Ptr Create(const detail::Options::Ptr & options)
     {
-      return Ptr(new ObjectTarget<T>);
+      return Ptr(new ObjectTarget<T>(options));
     }
 
     ~ObjectTarget() {}
@@ -548,7 +564,8 @@ namespace nkit
 //    }
 //
   private:
-    ObjectTarget()
+    ObjectTarget(const detail::Options::Ptr & options)
+      : Target<T>(options)
     {
       Clear();
     }
@@ -604,6 +621,7 @@ namespace nkit
 
   private:
     TargetItemVector target_items_;
+    const detail::Options::Ptr options_;
   };
 
   //----------------------------------------------------------------------------
@@ -620,9 +638,9 @@ namespace nkit
     typedef typename TargetItemVector::const_iterator ConstIterator;
     typedef NKIT_SHARED_PTR(ListTarget<T>) Ptr;
 
-    static Ptr Create()
+    static Ptr Create(const detail::Options::Ptr & options)
     {
-      return Ptr(new ListTarget<T>);
+      return Ptr(new ListTarget<T>(options));
     }
 
     ~ListTarget() {}
@@ -646,7 +664,9 @@ namespace nkit
 //    }
 //
   private:
-    ListTarget() {
+    ListTarget(const detail::Options::Ptr & options)
+      : Target<T>(options)
+    {
       Clear();
     }
 
@@ -731,18 +751,20 @@ namespace nkit
     ScalarTarget(const detail::Options::Ptr & options,
         const std::string & default_value,
         const std::string & format)
-      : use_default_value_(true)
+      : Target<T>(options)
+      , default_value_(options)
+      , use_default_value_(true)
       , has_default_value_(true)
       , value_("")
       , format_(format)
-      , options_(options)
     {
       Init();
       std::string trimed_default_value;
       const std::string * p_default_value = & default_value;
-      if (options_->trim_)
+      if (Target<T>::options_->trim_)
       {
-        trimed_default_value = trim(default_value, options_->white_spaces_);
+        trimed_default_value = trim(default_value,
+            Target<T>::options_->white_spaces_);
         p_default_value = & trimed_default_value;
       }
 
@@ -754,20 +776,22 @@ namespace nkit
 
     ScalarTarget(const detail::Options::Ptr & options,
         const std::string & default_value)
-      : use_default_value_(true)
+      : Target<T>(options)
+      , default_value_(options)
+      , use_default_value_(true)
       , has_default_value_(true)
       , value_("")
-      , options_(options)
     {
       Init();
       (default_value_.*InitByString)(default_value);
     }
 
     ScalarTarget(const detail::Options::Ptr & options)
-      : use_default_value_(false)
+      : Target<T>(options)
+      , default_value_(options)
+      , use_default_value_(false)
       , has_default_value_(false)
       , value_("")
-      , options_(options)
     {
       Init();
     }
@@ -786,8 +810,8 @@ namespace nkit
     {
       if (likely(!must_use_default_value()))
       {
-        if (options_->trim_)
-          value_ = trim(value_, options_->white_spaces_);
+        if (Target<T>::options_->trim_)
+          value_ = trim(value_, Target<T>::options_->white_spaces_);
 
         if (format_.empty())
           (Target<T>::var_builder_.*InitByString)(value_);
@@ -833,7 +857,6 @@ namespace nkit
     mutable bool has_default_value_;
     std::string value_;
     std::string format_;
-    detail::Options::Ptr options_;
   };
 
   //---------------------------------------------------------------------------
@@ -984,6 +1007,7 @@ namespace nkit
     typedef typename PathNode<T>::Ptr PathNodePtr;
     typedef typename TargetItem<T>::Vector TargetItemVector;
     typedef typename TargetItemVector::iterator TargetItemVectorIterator;
+    typedef std::map<std::string, TargetPtr> RootTargets;
 
   public:
     typedef NKIT_SHARED_PTR(Xml2VarBuilder<T>) Ptr;
@@ -997,6 +1021,27 @@ namespace nkit
       return Ptr(new Xml2VarBuilder<T>(o));
     }
 
+    static Ptr Create(const std::string & options,
+        const std::string & mappings, std::string * error)
+    {
+      detail::Options::Ptr o = detail::Options::Create(options, error);
+      if (!o)
+        return Ptr();
+      Dynamic m = DynamicFromJson(mappings, error);
+      if (!m)
+        return Ptr();
+
+      Ptr ret(new Xml2VarBuilder<T>(o));
+
+      DDICT_FOREACH(pair, m)
+      {
+        if (!ret->AddMapping(pair->first, pair->second, error))
+          return Ptr();
+      }
+
+      return ret;
+    }
+
     static Ptr Create(const Dynamic & options, std::string * error)
     {
       detail::Options::Ptr o = detail::Options::Create(options, error);
@@ -1005,32 +1050,55 @@ namespace nkit
       return Ptr(new Xml2VarBuilder<T>(o));
     }
 
-    bool AddMapping(const std::string & mapping, std::string * error)
+    bool AddMapping(const std::string & target_name,
+        const std::string & mapping, std::string * error)
     {
       Dynamic m = DynamicFromJson(mapping, error);
       if (!m)
         return false;
-      return AddMapping(m, error);
+      return AddMapping(target_name, m, error);
     }
 
-    bool AddMapping(const Dynamic & mapping, std::string * error)
+    bool AddMapping(const std::string & target_name,
+        const Dynamic & mapping, std::string * error)
     {
       String2IdMap str2id;
       TargetItemVector mask_target_items;
       PathNodePtr path_tree(PathNode<T>::CreateRoot());
 
-      root_target_ = ParseMapping(mapping, options_, path_tree_,
+      TargetPtr root_target = ParseMapping(mapping, options_, path_tree_,
           &mask_target_items_, &str2id_, error);
-      if (!root_target_)
+      if (!root_target)
         return false;
+      root_targets_[target_name] = root_target;
       return true;
     }
 
     ~Xml2VarBuilder() {}
 
-    typename T::type const & var() const
+    StringList mapping_names() const
     {
-      return root_target_->var();
+      StringList ret;
+      typename RootTargets::const_iterator it = root_targets_.begin(),
+          end = root_targets_.end();
+      for (; it != end; ++it)
+        ret.push_back(it->first);
+      return ret;
+    }
+
+    typename T::type const & var(const std::string & target_name) const
+    {
+      typename RootTargets::const_iterator
+        found = root_targets_.find(target_name),
+        not_found = root_targets_.end();
+      if (found == not_found)
+      {
+        T builder(options_);
+        builder.InitAsUndefined();
+        return builder.get();
+      }
+
+      return found->second->var();
     }
 
   private:
@@ -1038,7 +1106,7 @@ namespace nkit
       : path_tree_(PathNode<T>::CreateRoot())
       , current_node_(path_tree_.get())
       , options_(o)
-      , root_target_()
+      , root_targets_()
       , first_node_(true)
       , str2id_()
       , mask_target_items_()
@@ -1167,7 +1235,7 @@ namespace nkit
             "- string|optional_string_default\n"
             "- boolean|optional_boolean_default\n"
             "- datetime|mandatory_default_dateTime_value"
-            		"|mandatory_formatting_string";
+                "|mandatory_formatting_string";
         return TargetItemPtr();
       }
 
@@ -1264,7 +1332,7 @@ namespace nkit
       }
 
       typename ListTarget<T>::Ptr target =
-          ListTarget<T>::Create();
+          ListTarget<T>::Create(options);
 
       Path path(mapping.GetByIndex(0).GetString(), str2id);
       const Dynamic & sum_mapping = mapping.GetByIndex(1);
@@ -1283,7 +1351,7 @@ namespace nkit
         target->PutTargetItem(child_target_item);
 
       TargetItemPtr target_item = TargetItem<T>::Create(fool_path,
-      		target);
+          target);
       target_item->SetParentTarget(parent_target);
 
       if (fool_path.is_mask())
@@ -1306,7 +1374,7 @@ namespace nkit
         std::string * error)
     {
       typename ObjectTarget<T>::Ptr target =
-          ObjectTarget<T>::Create();
+          ObjectTarget<T>::Create(options);
 
       DDICT_FOREACH(pair, mapping)
       {
@@ -1423,7 +1491,8 @@ namespace nkit
     PathNode<T> * current_node_;
     detail::Options::Ptr options_;
     Path current_path_;
-    TargetPtr root_target_;
+    //TargetPtr root_target_;
+    RootTargets root_targets_;
     bool first_node_;
     String2IdMap str2id_;
     TargetItemVector mask_target_items_;
