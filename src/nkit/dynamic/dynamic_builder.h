@@ -15,8 +15,10 @@ namespace nkit
 
     DynamicPolicy(const detail::Options & options)
       : object_()
-      , options_(options)
-    {}
+      //, options_(options)
+    {
+      NKIT_FORCE_USED(options);
+    }
 
     ~DynamicPolicy() {}
 
@@ -100,7 +102,7 @@ namespace nkit
 
   private:
     type object_;
-    const detail::Options & options_;
+    //const detail::Options & options_;
   };
 
   typedef VarBuilder<DynamicPolicy> DynamicBuilder;
