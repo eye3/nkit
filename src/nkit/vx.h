@@ -78,7 +78,7 @@ namespace nkit
   }
 
   template< typename Policy >
-  class VarBuilder
+  class VarBuilder: Uncopyable
   {
   public:
     typedef typename Policy::type type;
@@ -89,81 +89,81 @@ namespace nkit
 
     void InitAsBoolean( std::string const & value )
     {
-      p_._InitAsBoolean(value);
+      p_.InitAsBoolean(value);
     }
 
     void InitAsBooleanFormat( std::string const & value, const std::string & )
     {
-      p_._InitAsBoolean(value);
+      p_.InitAsBoolean(value);
     }
 
     void InitAsInteger( std::string const & value )
     {
-      p_._InitAsInteger(value);
+      p_.InitAsInteger(value);
     }
 
     void InitAsIntegerFormat( std::string const & value, const std::string & )
     {
-      p_._InitAsInteger(value);
+      p_.InitAsInteger(value);
     }
 
     void InitAsString( std::string const & value )
     {
-      p_._InitAsString(value);
+      p_.InitAsString(value);
     }
 
     void InitAsStringFormat( std::string const & value, const std::string & )
     {
-      p_._InitAsString(value);
+      p_.InitAsString(value);
     }
 
     void InitAsUndefined()
     {
-      p_._InitAsUndefined();
+      p_.InitAsUndefined();
     }
 
     void InitAsFloat( std::string const & value )
     {
-      p_._InitAsFloatFormat( value, NKIT_FORMAT_DOUBLE );
+      p_.InitAsFloatFormat( value, NKIT_FORMAT_DOUBLE );
     }
 
     void InitAsFloatFormat( std::string const & value,
         std::string const & format )
     {
-      p_._InitAsFloatFormat( value, format.c_str() );
+      p_.InitAsFloatFormat( value, format.c_str() );
     }
 
     void InitAsDatetime( std::string const & value )
     {
-      p_._InitAsDatetimeFormat( value, nkit::DATE_TIME_DEFAULT_FORMAT_ );
+      p_.InitAsDatetimeFormat( value, nkit::DATE_TIME_DEFAULT_FORMAT_ );
     }
 
     void InitAsDatetimeFormat( std::string const & value,
         std::string const & format )
     {
-      p_._InitAsDatetimeFormat( value, format.c_str() );
+      p_.InitAsDatetimeFormat( value, format.c_str() );
     }
 
     void InitAsList()
     {
-      p_._InitAsList();
+      p_.InitAsList();
     }
 
     void InitAsDict()
     {
-      p_._InitAsDict();
+      p_.InitAsDict();
     }
 
     void AppendToList( type const & obj )
     {
-      p_._ListCheck();
-      p_._AppendToList(obj);
+      p_.ListCheck();
+      p_.AppendToList(obj);
     }
 
     void SetDictKeyValue( std::string const & key, type const & var )
     {
-      p_._DictCheck();
-      p_._SetDictKeyValue( key, var );
+      p_.DictCheck();
+      p_.SetDictKeyValue( key, var );
     }
 
     type const & get() const
@@ -338,7 +338,7 @@ namespace nkit
 
   //----------------------------------------------------------------------------
   template<typename T>
-  class Target
+  class Target: Uncopyable
   {
   public:
     typedef NKIT_SHARED_PTR(Target<T>) Ptr;
@@ -407,7 +407,7 @@ namespace nkit
 
   //----------------------------------------------------------------------------
   template<typename T>
-  class TargetItem
+  class TargetItem: Uncopyable
   {
   public:
     typedef NKIT_SHARED_PTR(TargetItem<T>) Ptr;

@@ -22,28 +22,28 @@ namespace nkit
 
     ~DynamicPolicy() {}
 
-    void _InitAsBoolean( std::string const & value )
+    void InitAsBoolean( std::string const & value )
     {
       object_ = nkit::Dynamic(bool_cast(value));
     }
 
-    void _InitAsInteger( std::string const & value )
+    void InitAsInteger( std::string const & value )
     {
       int64_t i = !value.empty() ? NKIT_STRTOLL(value.c_str(), NULL, 10) : 0;
       object_ = nkit::Dynamic(i);
     }
 
-    void _InitAsString( std::string const & value)
+    void InitAsString( std::string const & value)
     {
       object_ = nkit::Dynamic(value);
     }
 
-    void _InitAsUndefined()
+    void InitAsUndefined()
     {
       object_ = nkit::Dynamic();
     }
 
-    void _InitAsFloatFormat( std::string const & value, const char * format )
+    void InitAsFloatFormat( std::string const & value, const char * format )
     {
       double d(0.0);
       if (!value.empty())
@@ -54,38 +54,38 @@ namespace nkit
       object_ = nkit::Dynamic(d);
     }
 
-    void _InitAsDatetimeFormat( std::string const & value,
+    void InitAsDatetimeFormat( std::string const & value,
         const char * format )
     {
       object_ = nkit::Dynamic::DateTimeFromString(value, format);
     }
 
-    void _InitAsList()
+    void InitAsList()
     {
       object_ = nkit::Dynamic::List();
     }
 
-    void _InitAsDict()
+    void InitAsDict()
     {
       object_ = nkit::Dynamic::Dict();
     }
 
-    void _ListCheck()
+    void ListCheck()
     {
       assert(object_.IsList());
     }
 
-    void _DictCheck()
+    void DictCheck()
     {
       assert(object_.IsDict());
     }
 
-    void _AppendToList( type const & obj )
+    void AppendToList( type const & obj )
     {
       object_.PushBack(obj);
     }
 
-    void _SetDictKeyValue( std::string const & key, type const & var )
+    void SetDictKeyValue( std::string const & key, type const & var )
     {
       object_[std::string(key)] = var;
     }
