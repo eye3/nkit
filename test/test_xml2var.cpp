@@ -8,7 +8,7 @@ namespace nkit_test
   using namespace nkit;
 
   //---------------------------------------------------------------------------
-  NKIT_TEST_CASE(vx_wrong_xml)
+  NKIT_TEST_CASE(xml2var_wrong_xml)
   {
     Dynamic mapping = DLIST(
         "/person" << DLIST("/*/city" << "string"));
@@ -19,7 +19,7 @@ namespace nkit_test
   }
 
   //---------------------------------------------------------------------------
-  _NKIT_TEST_CASE(vx_star_pref_test)
+  _NKIT_TEST_CASE(xml2var_star_pref_test)
   {
     std::string error;
     std::string xml_path("../../data/commerce.xml");
@@ -55,7 +55,7 @@ namespace nkit_test
   }
 
   //---------------------------------------------------------------------------
-  NKIT_TEST_CASE(vx_list_of_lists)
+  NKIT_TEST_CASE(xml2var_list_of_lists)
   {
     //CINFO(__FILE__);
     std::string xml_path("./data/sample.xml");
@@ -78,7 +78,7 @@ namespace nkit_test
   }
 
   //---------------------------------------------------------------------------
-  NKIT_TEST_CASE(vx_list)
+  NKIT_TEST_CASE(xml2var_list)
   {
     //CINFO(__FILE__);
     std::string xml_path("./data/sample.xml");
@@ -100,7 +100,7 @@ namespace nkit_test
   }
 
   //---------------------------------------------------------------------------
-  NKIT_TEST_CASE(vx_list_of_lists_with_mask)
+  NKIT_TEST_CASE(xml2var_list_of_lists_with_mask)
   {
     std::string xml_path("./data/sample.xml");
     std::string xml;
@@ -124,7 +124,7 @@ namespace nkit_test
   }
 
   //---------------------------------------------------------------------------
-  NKIT_TEST_CASE(vx_list_of_objects_with_mask)
+  NKIT_TEST_CASE(xml2var_list_of_objects_with_mask)
   {
     //CINFO(__FILE__);
     std::string xml_path("./data/sample.xml");
@@ -146,7 +146,7 @@ namespace nkit_test
   }
 
   //---------------------------------------------------------------------------
-  NKIT_TEST_CASE(vx_list_of_objects_with_list)
+  NKIT_TEST_CASE(xml2var_list_of_objects_with_list)
   {
     std::string xml_path("./data/sample.xml");
     std::string xml;
@@ -179,7 +179,7 @@ namespace nkit_test
   }
 
   //---------------------------------------------------------------------------
-  NKIT_TEST_CASE(vx_default_values)
+  NKIT_TEST_CASE(xml2var_default_values)
   {
     std::string xml_path("./data/sample.xml");
     std::string xml;
@@ -206,7 +206,7 @@ namespace nkit_test
   }
 
   //---------------------------------------------------------------------------
-  NKIT_TEST_CASE(vx_without_trim)
+  NKIT_TEST_CASE(xml2var_without_trim)
   {
     std::string xml_path("./data/sample.xml");
     std::string xml;
@@ -254,7 +254,7 @@ namespace nkit_test
   }
 
   //---------------------------------------------------------------------------
-  NKIT_TEST_CASE(vx_with_trim)
+  NKIT_TEST_CASE(xml2var_with_trim)
   {
     std::string xml_path("./data/sample.xml");
     std::string xml;
@@ -302,7 +302,7 @@ namespace nkit_test
   }
 
   //---------------------------------------------------------------------------
-  NKIT_TEST_CASE(vx_multi_mappings)
+  NKIT_TEST_CASE(xml2var_multi_mappings)
   {
     std::string xml_path("./data/sample.xml");
     std::string xml;
@@ -360,7 +360,7 @@ namespace nkit_test
   }
 
   //---------------------------------------------------------------------------
-  _NKIT_TEST_CASE(vx_sandbox)
+  _NKIT_TEST_CASE(xml2var_sandbox)
   {
     std::string xml_path("./data/tmp.xml");
     std::string xml;

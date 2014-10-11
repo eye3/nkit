@@ -717,7 +717,7 @@ namespace nkit
     Dynamic & Update(const Dynamic & hash);
     void GetKeys(StringSet * const keys) const;
 
-    HashConstIterator begin_h() const;
+    HashConstIterator begin_h() const; // TODO: rename this methods & iterator
     HashConstIterator end_h() const;
     HashConstIterator FindByKey(const std::string & s) const;
 

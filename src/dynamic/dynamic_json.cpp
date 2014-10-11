@@ -375,7 +375,6 @@ namespace nkit
   Dynamic DynamicFromJson(const std::string & json, std::string * error)
   {
     return DynamicFromYajl(json, error);
-    //return DynamicFromYajlTree(json, error);
   }
 
   Dynamic DynamicFromJsonFile(const std::string & path, std::string * error)
