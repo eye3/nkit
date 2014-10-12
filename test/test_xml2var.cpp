@@ -360,24 +360,29 @@ namespace nkit_test
   }
 
   //---------------------------------------------------------------------------
-  _NKIT_TEST_CASE(xml2var_sandbox)
+  NKIT_TEST_CASE(xml2var_sandbox)
   {
-    std::string xml_path("./data/tmp.xml");
+    std::string xml_path("./data/sample.xml");
     std::string xml;
     NKIT_TEST_ASSERT_WITH_TEXT(nkit::text_file_to_string(xml_path, &xml),
         "Could not read file '" + xml_path + "'.");
 
-    std::string mapping_path("./data/tmp.json");
+    std::string mapping_path("./data/multi_mapping.json");
     std::string mapping;
     NKIT_TEST_ASSERT_WITH_TEXT(nkit::text_file_to_string(mapping_path,
             &mapping), "Could not read file '" + mapping_path + "'.");
 
+    std::string options;
+    std::string options_path("./data/options_attrkey.json");
+    NKIT_TEST_ASSERT_WITH_TEXT(nkit::text_file_to_string(options_path,
+            &options), "Could not read file '" + options_path + "'.");
 
     std::string error;
-    Dynamic var = DynamicFromXml(xml, mapping, &error);
+    Dynamic var = DynamicFromXml(xml, options, mapping, &error);
     NKIT_TEST_ASSERT_WITH_TEXT(var, error);
 
     CINFO(nkit::json_hr << var);
   }
 
 } // namespace nkit_test
+

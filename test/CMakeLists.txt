@@ -16,8 +16,10 @@
 ### Test cases
 
 if (EXPAT_FOUND)
-  set(TEST_VX_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/test_xml2var.cpp)
-  set(TEST_VX_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/test_var2xml.cpp)
+  set(TEST_VX_SOURCES
+      ${CMAKE_CURRENT_SOURCE_DIR}/test_xml2var.cpp
+      ${CMAKE_CURRENT_SOURCE_DIR}/test_var2xml.cpp
+  )
   set(EXTRA_SYS_LIB ${EXTRA_SYS_LIB} ${EXPAT_LIBRARIES})
 else()
   set(TEST_VX_SOURCES "")

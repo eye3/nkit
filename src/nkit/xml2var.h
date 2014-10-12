@@ -41,12 +41,12 @@ namespace nkit
 
       static Ptr Create(DynamicGetter & config, std::string * error)
       {
-        bool trim, unicode;
-        std::string white_spaces;
+        Ptr ret(new Options);
         config
-          .Get(".trim", &trim, TRIM_DEFAULT)
-          .Get(".white_spaces", &white_spaces, WHITE_SPACES)
-          .Get(".unicode", &unicode, UNICODE_DEFAULT)
+          .Get(".trim", &ret->trim_, TRIM_DEFAULT)
+          .Get(".white_spaces", &ret->white_spaces_, WHITE_SPACES)
+          .Get(".unicode", &ret->unicode_, UNICODE_DEFAULT)
+          .Get(".attrkey", &ret->attrkey_, S_EMPTY_)
         ;
 
         if (!config.ok())
@@ -55,15 +55,8 @@ namespace nkit
           return Ptr();
         }
 
-        return Ptr(new Options(trim, white_spaces, unicode));
+        return ret;
       }
-
-      Options(bool trim, const std::string & white_spaces,
-          bool unicode)
-        : trim_(trim)
-        , white_spaces_(white_spaces)
-        , unicode_(unicode)
-      {}
 
       Options()
         : trim_(TRIM_DEFAULT)
@@ -71,9 +64,10 @@ namespace nkit
         , unicode_(UNICODE_DEFAULT)
       {}
 
-      const bool trim_;
-      const std::string white_spaces_;
-      const bool unicode_;
+      bool trim_;
+      std::string white_spaces_;
+      bool unicode_;
+      std::string attrkey_;
     };
   }
 
@@ -135,7 +129,7 @@ namespace nkit
 
     void InitAsDatetime( std::string const & value )
     {
-      p_.InitAsDatetimeFormat( value, nkit::DATE_TIME_DEFAULT_FORMAT_ );
+      p_.InitAsDatetimeFormat( value, DATE_TIME_DEFAULT_FORMAT_ );
     }
 
     void InitAsDatetimeFormat( std::string const & value,
@@ -200,10 +194,10 @@ namespace nkit
       : is_mask_(false)
     {
       std::string path_spec_wo_attr, attr;
-      nkit::simple_split(path_spec, "/@", &path_spec_wo_attr, &attr);
-      nkit::StringVector path_spec_list;
-      nkit::simple_split(path_spec_wo_attr, "/", &path_spec_list);
-      nkit::StringVector::const_iterator element = path_spec_list.begin(),
+      simple_split(path_spec, "/@", &path_spec_wo_attr, &attr);
+      StringVector path_spec_list;
+      simple_split(path_spec_wo_attr, "/", &path_spec_list);
+      StringVector::const_iterator element = path_spec_list.begin(),
           end = path_spec_list.end();
       for (; element != end; ++element)
       {
@@ -287,7 +281,7 @@ namespace nkit
     std::string GetLastElementName(const String2IdMap & str2id) const
     {
       if (elements_.empty())
-        return nkit::S_EMPTY_;
+        return S_EMPTY_;
       return str2id.GetString(elements_.back());
     }
 
@@ -311,7 +305,7 @@ namespace nkit
       std::vector<size_t>::const_iterator element_id = elements().begin(),
           end = elements().end();
       for (; element_id != end; ++element_id)
-        result.append("/" + nkit::string_cast(*element_id));
+        result.append("/" + string_cast(*element_id));
 
       if (!attribute_name_.empty())
         result.append("/@" + attribute_name_);
@@ -345,7 +339,7 @@ namespace nkit
 
   public:
     virtual ~Target() {}
-    virtual void OnEnter() = 0;
+    virtual void OnEnter(const char ** attrs) = 0;
     virtual void OnExit(const char * el) = 0;
     virtual void OnText(const char * text, size_t len) = 0;
     virtual void Clear() = 0;
@@ -474,7 +468,7 @@ namespace nkit
 
     void OnEnter(const char ** attrs)
     {
-      target_->OnEnter();
+      target_->OnEnter(attrs);
       const std::string & attribute_name = path_.attribute_name();
       if (!attribute_name.empty())
       {
@@ -598,7 +592,22 @@ namespace nkit
       return true;
     }
 
-    void OnEnter() {}
+    void OnEnter(const char ** attrs)
+    {
+      if (!Target<T>::options_->attrkey_.empty() && attrs[0])
+      {
+        T attr_builder(Target<T>::options_);
+        attr_builder.InitAsDict();
+        for (size_t i = 0; attrs[i] && attrs[i + 1]; ++(++i))
+        {
+          T value_builder(Target<T>::options_);
+          value_builder.InitAsString(std::string(attrs[i + 1]));
+          attr_builder.SetDictKeyValue(std::string(attrs[i]), value_builder.get());
+        }
+        Target<T>::var_builder_.SetDictKeyValue(Target<T>::options_->attrkey_,
+                attr_builder.get());
+      }
+    }
 
     void OnExit(const char * el)
     {
@@ -621,7 +630,7 @@ namespace nkit
 
   private:
     TargetItemVector target_items_;
-    const detail::Options::Ptr options_;
+    //const detail::Options::Ptr options_;
   };
 
   //----------------------------------------------------------------------------
@@ -688,7 +697,7 @@ namespace nkit
         target_items_.insert(it, target_item);
     }
 
-    void OnEnter() {}
+    void OnEnter(const char ** NKIT_UNUSED(attrs)) {}
 
     void OnExit(const char * NKIT_UNUSED(el))
     {
@@ -801,7 +810,7 @@ namespace nkit
       value_.reserve(RESERVED_LENGTH);
     }
 
-    void OnEnter()
+    void OnEnter(const char ** NKIT_UNUSED(attrs))
     {
       use_default_value_ = true;
     }
@@ -1225,8 +1234,8 @@ namespace nkit
       static const std::string DATETIME_TYPE = "datetime";
       static const std::string BOOLEAN_TYPE = "boolean";
 
-      nkit::StringVector spec_list;
-      nkit::simple_split(mapping, "|", &spec_list);
+      StringVector spec_list;
+      simple_split(mapping, "|", &spec_list);
       if (spec_list.size() < 1)
       {
         *error = "Type definition for scalar must be of following format:\n"
@@ -1316,7 +1325,7 @@ namespace nkit
     static TargetItemPtr ParseListTargetSpec(
         Target<T> * parent_target,
         Path parent_path,
-        const nkit::Dynamic & mapping,
+        const Dynamic & mapping,
         const detail::Options::Ptr & options,
         PathNodePtr path_tree,
         TargetItemVector * mask_target_items,
@@ -1366,7 +1375,7 @@ namespace nkit
     static TargetItemPtr ParseObjectTargetSpec(
         Target<T> * parent_target,
         Path parent_path,
-        const nkit::Dynamic & mapping,
+        const Dynamic & mapping,
         const detail::Options::Ptr & options,
         PathNodePtr path_tree,
         TargetItemVector * mask_target_items,
@@ -1379,7 +1388,7 @@ namespace nkit
       DDICT_FOREACH(pair, mapping)
       {
         std::string path_spec, key;
-        nkit::simple_split(pair->first, "->", &path_spec, &key);
+        simple_split(pair->first, "->", &path_spec, &key);
         Path path(path_spec, str2id);
         if (key.empty())
         {
@@ -1427,7 +1436,7 @@ namespace nkit
     static TargetItemPtr ParseTargetSpec(
         Target<T> * parent_target,
         Path parent_path,
-        const nkit::Dynamic & mapping,
+        const Dynamic & mapping,
         const detail::Options::Ptr & options,
         PathNodePtr path_tree,
         TargetItemVector * mask_target_items,
@@ -1455,7 +1464,7 @@ namespace nkit
 
     //--------------------------------------------------------------------------
     static TargetPtr ParseMapping(
-        const nkit::Dynamic & mapping,
+        const Dynamic & mapping,
         const detail::Options::Ptr & options,
         PathNodePtr path_tree,
         TargetItemVector * mask_target_items,

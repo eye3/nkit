@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-#include "nkit/vx.h"
+#include "nkit/xml2var.h"
 #include "nkit/dynamic/dynamic_builder.h"
 #include "nkit/dynamic_xml.h"
 

@@ -1,4 +1,4 @@
-#include "nkit/vx.h"
+#include "nkit/xml2var.h"
 
 namespace nkit
 {
@@ -25,7 +25,7 @@ namespace nkit
       const char * attribute_name)
   {
 
-    for (size_t i = 0; attrs[i] && attrs[i + 1]; ++i)
+    for (size_t i = 0; attrs[i] && attrs[i + 1]; ++(++i))
     {
       if (strcmp(attrs[i], attribute_name) == 0)
         return attrs[i + 1];
