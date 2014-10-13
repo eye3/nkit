@@ -28,27 +28,49 @@ namespace nkit
   {
     namespace detail
     {
+      // -----------------------------------------------------------------------
       class AssertError: public std::exception
       {
       public:
         AssertError(const std::string & file, uint32_t line,
             const std::string & text)
         {
-          text_ = file + ":" + nkit::string_cast(line) + ": error: " + text + "\n";
+          text_ = file + ":" + nkit::string_cast(line) + ": error: " + text +
+              "\n";
         }
         AssertError(const std::string & file, uint32_t line,
             const std::string & text1, const std::string & text2)
         {
           text_ = file + ":" + nkit::string_cast(line) + ": error: " + text1 +
-              + ": " + text2 + "\n";
+              ": " + text2 + "\n";
         }
-        ~AssertError() throw ()
+
+        ~AssertError() throw () {}
+        const char* what() const throw () { return text_.c_str();}
+
+      private:
+        std::string text_;
+      };
+
+      // -----------------------------------------------------------------------
+      class AbortWithError: public std::exception
+      {
+      public:
+        AbortWithError(const std::string & file, uint32_t line,
+            const std::string & text)
         {
+          text_ = file + ":" + nkit::string_cast(line) + ": error: " + text +
+              "\n";
         }
-        const char* what() const throw ()
+        AbortWithError(const std::string & file, uint32_t line,
+            const std::string & text1, const std::string & text2)
         {
-          return text_.c_str();
+          text_ = file + ":" + nkit::string_cast(line) + ": error: " + text1 +
+              ": " + text2 + "\n";
         }
+
+        ~AbortWithError() throw () {}
+        const char* what() const throw () { return text_.c_str(); }
 
       private:
         std::string text_;
@@ -66,10 +88,10 @@ namespace nkit
 #ifdef NKIT_TEST_FATAL_ERRORS
 
 #define NKIT_TEST_ASSERT(a) if (!(a)) \
-  nkit::abort_with_core(#a)
+    throw nkit::test::detail::AbortWithError(__FILE__, __LINE__, #a)
 
 #define NKIT_TEST_ASSERT_WITH_TEXT(a, s) if (!(a)) \
-    nkit::abort_with_core(#a + (s))
+    throw nkit::test::detail::AbortWithError(__FILE__, __LINE__, #a, (s))
 
 #else
 
