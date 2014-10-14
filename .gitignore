@@ -39,3 +39,4 @@ src/nkit/version.h
 src/version.cpp
 win
 src/nkit/detail/config.h
+build
