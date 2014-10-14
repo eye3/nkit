@@ -46,7 +46,9 @@ int main(void)
 
   CINFO("as double: " << static_cast<double>(i6));  // prints: -6
 
-  CINFO("as std::string: " << static_cast<std::string>(i6));  // prints: -6
+
+  //std::string w(static_cast<std::string>(i6));
+  //CINFO("as std::string: " << static_cast<std::string>(i6));  // prints: -6
 
   if (i2.IsSignedInteger())
     CINFO("This will be printed");
