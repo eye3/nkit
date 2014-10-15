@@ -73,8 +73,8 @@ namespace nkit_test
     Dynamic etalon = DLIST(
            DLIST("+122233344550" << "+122233344551")
         << DLIST("+122233344553" << "+122233344554"));
-    //CINFO(nkit::json_hr << var);
-    NKIT_TEST_ASSERT(var == etalon);
+
+    NKIT_TEST_EQ(var, etalon);
   }
 
   //---------------------------------------------------------------------------
@@ -95,8 +95,8 @@ namespace nkit_test
     Dynamic etalon = DLIST(
            "+122233344550" << "+122233344551"
         << "+122233344553" << "+122233344554");
-    //CINFO(nkit::json_hr << var);
-    NKIT_TEST_ASSERT(var == etalon);
+
+    NKIT_TEST_EQ(var, etalon);
   }
 
   //---------------------------------------------------------------------------
@@ -119,8 +119,7 @@ namespace nkit_test
            DLIST("New York" << "Boston")
         << DLIST("Moscow" << "Tula"));
 
-    //CINFO(nkit::json_hr << var);
-    NKIT_TEST_ASSERT(var == etalon);
+    NKIT_TEST_EQ(var, etalon);
   }
 
   //---------------------------------------------------------------------------
@@ -173,9 +172,7 @@ namespace nkit_test
             << "firstTime" << true)
         );
 
-    //CINFO(nkit::json_hr << var);
-    //CINFO(nkit::json_hr << etalon);
-    NKIT_TEST_ASSERT(var == etalon);
+    NKIT_TEST_EQ(var, etalon);
   }
 
   //---------------------------------------------------------------------------
@@ -200,9 +197,7 @@ namespace nkit_test
         DDICT("key_for_default_value" << "default_value")
         );
 
-    //CINFO(nkit::json_hr << var);
-    //CINFO(nkit::json_hr << etalon);
-    NKIT_TEST_ASSERT(var == etalon);
+    NKIT_TEST_EQ(var, etalon);
   }
 
   //---------------------------------------------------------------------------
@@ -248,9 +243,7 @@ namespace nkit_test
             )
         );
 
-    //CINFO(nkit::json_hr << var);
-    //CINFO(nkit::json_hr << etalon);
-    NKIT_TEST_ASSERT(var == etalon);
+    NKIT_TEST_EQ(var, etalon);
   }
 
   //---------------------------------------------------------------------------
@@ -296,9 +289,7 @@ namespace nkit_test
             )
         );
 
-    //CINFO(nkit::json_hr << var);
-    //CINFO(nkit::json_hr << etalon);
-    NKIT_TEST_ASSERT(var == etalon);
+    NKIT_TEST_EQ(var, etalon);
   }
 
   //---------------------------------------------------------------------------

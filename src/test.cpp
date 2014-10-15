@@ -18,8 +18,6 @@
 #include "nkit/logger.h"
 #include "nkit/test.h"
 
-#include <iostream>
-
 namespace nkit
 {
   namespace test
