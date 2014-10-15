@@ -21,6 +21,7 @@
 #include <string>
 
 #include "nkit/tools.h"
+#include "nkit/dynamic_json.h"
 
 namespace nkit
 {
