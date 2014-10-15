@@ -326,8 +326,8 @@ namespace nkit_test
     NKIT_TEST_ASSERT_WITH_TEXT(
         builder->Feed(xml.c_str(), xml.length(), true, &error), error);
 
-    Dynamic academy = builder->var("academy");
-    Dynamic persons = builder->var("persons");
+    Dynamic academy = builder->var("academy mapping");
+    Dynamic persons = builder->var("persons mapping");
 
     Dynamic academy_etalon = DDICT(
               "link" << "http://www.damsdelhi.com/dams.php"
@@ -355,19 +355,19 @@ namespace nkit_test
             )
         );
 
-    NKIT_TEST_ASSERT(academy == academy_etalon);
-    NKIT_TEST_ASSERT(persons == persons_etalon);
+    NKIT_TEST_EQ(academy, academy_etalon);
+    NKIT_TEST_EQ(persons, persons_etalon);
   }
 
   //---------------------------------------------------------------------------
   NKIT_TEST_CASE(xml2var_sandbox)
   {
-    std::string xml_path("./data/sample.xml");
+    std::string xml_path("./data/sample1251.xml");
     std::string xml;
     NKIT_TEST_ASSERT_WITH_TEXT(nkit::text_file_to_string(xml_path, &xml),
         "Could not read file '" + xml_path + "'.");
 
-    std::string mapping_path("./data/multi_mapping.json");
+    std::string mapping_path("./data/academi_mapping.json");
     std::string mapping;
     NKIT_TEST_ASSERT_WITH_TEXT(nkit::text_file_to_string(mapping_path,
             &mapping), "Could not read file '" + mapping_path + "'.");

@@ -630,6 +630,16 @@ static const time_t __FREQUENCY = 1000000000;
     return true;
   }
 
+  bool string_to_text_file(const std::string & path, const std::string & str)
+  {
+    std::ofstream f(path.c_str(), std::ios::trunc | std::ios::binary);
+    if (!f)
+      return false;
+    f << str;
+    f.close();
+    return true;
+  }
+
   static ToolsInitializer tools_initializer;
 
 } // namespace nkit

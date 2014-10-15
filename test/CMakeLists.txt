@@ -48,6 +48,7 @@ add_executable(dynamic
   ${CMAKE_CURRENT_SOURCE_DIR}/test_dynamic_json.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_dynamic_datetime.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_tools.cpp
+  ${CMAKE_SOURCE_DIR}/src/vx/encodings_inc_gen.cpp
   ${TEST_VX_SOURCES}
 )
 

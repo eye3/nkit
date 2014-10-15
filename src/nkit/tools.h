@@ -176,6 +176,7 @@ namespace nkit
   bool ends_with(const std::string & what, const char * with);
 
   bool text_file_to_string(const std::string & path, std::string * out);
+  bool string_to_text_file(const std::string & path, const std::string & str);
 
   //----------------------------------------------------------------------------
   template<typename T>
@@ -484,5 +485,14 @@ namespace nkit
 
 #define NKIT_CHECK_OR_DIE(expr, message) \
   if (unlikely(!(expr))) nkit::abort_with_core((message));
+
+// UTF tools
+// String length:
+// - utf8:  1 character has max. 6 Bytes  plus 1 Byte  NULL-terminator.
+// - utf16: 1 character has max. 2 Shorts plus 1 Short NULL-terminator.
+
+bool    utf16_to_utf8(char *utf8, const uint16_t *utf16, uint8_t *shorts_read);
+bool    utf8_to_utf16(uint16_t *utf16, const char *utf8, uint8_t *bytes_read);
+uint8_t utf8_bytes(char first_utf8_byte);
 
 #endif // __NKIT__TOOLS__H__

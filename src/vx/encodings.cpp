@@ -7,26 +7,44 @@ namespace nkit
 
   struct Encoding
   {
-    const char * encoding_name;
+    const uint16_t codepage_id;
     const int map[ALL_CHARS_LEN];
   };
 
-#include "vx/encodings.inc"
+  struct Lang
+  {
+    const char * name;
+    const uint16_t codepage_id;
+  };
+
+#include "vx/langs_inc.cpp"
+
+  static const size_t LANGS_COUNT = sizeof(langs)/sizeof(Lang);
+
+#include "vx/encodings_inc.cpp"
+
+  static const size_t ENCODINGS_COUNT = sizeof(encodings)/sizeof(Encoding);
 
   bool find_encoding(const char * name, XML_Encoding * info)
   {
-    size_t encoding_count = sizeof(encodings) / sizeof(Encoding);
-    for (size_t e = 0; e < encoding_count; ++e)
+    for (size_t l = 0; l < LANGS_COUNT; ++l)
     {
-      const Encoding & encoding = encodings[e];
-      if (NKIT_STRCASECMP(encoding.encoding_name, name) == 0)
+      if (NKIT_STRCASECMP(langs[l].name, name) == 0)
       {
-        for (size_t i = 0; i < ALL_CHARS_LEN; ++i)
-          info->map[i] = encoding.map[i];
-        return true;
+        for (size_t e = 0; e < ENCODINGS_COUNT; ++e)
+        {
+          const Encoding & encoding = encodings[e];
+          if (encoding.codepage_id == langs[l].codepage_id)
+          {
+            for (size_t i = 0; i < ALL_CHARS_LEN; ++i)
+              info->map[i] = encoding.map[i];
+            return true;
+          }
+        }
+        break;
       }
     }
-
+    
     return false;
   }
 
