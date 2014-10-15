@@ -64,7 +64,11 @@ namespace nkit
   std::string get_process_id();
   std::string get_hostname();
   std::string get_username();
-  int64_t rename(const std::string & from, const std::string & to,
+  int64_t rename_file(const std::string & from, const std::string & to,
+      std::string * error);
+  bool text_file_to_string(const std::string & path, std::string * out);
+  bool string_to_text_file(const std::string & path, const std::string & str);
+  bool copy_file(const std::string & from, const std::string & to,
       std::string * error);
 
   //----------------------------------------------------------------------------
@@ -174,9 +178,6 @@ namespace nkit
   bool starts_with(const std::string & what, const char * with);
   bool ends_with(const std::string & what, const std::string & with);
   bool ends_with(const std::string & what, const char * with);
-
-  bool text_file_to_string(const std::string & path, std::string * out);
-  bool string_to_text_file(const std::string & path, const std::string & str);
 
   //----------------------------------------------------------------------------
   template<typename T>

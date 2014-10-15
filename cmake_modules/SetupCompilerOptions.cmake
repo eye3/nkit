@@ -22,8 +22,8 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU"
         COMMAND ${CMAKE_CXX_COMPILER} -dumpversion OUTPUT_VARIABLE GCC_VERSION)
     if((GCC_VERSION VERSION_GREATER 4.7 OR GCC_VERSION VERSION_EQUAL 4.7))
         set(HAVE_STD_CXX_11 1
-            CACHE INTERNAL "have std c++ 1 support")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+            CACHE INTERNAL "have std c++11 support")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wno-unused-local-typedefs")
     endif()
 
     set(CFLAGS_COMMON

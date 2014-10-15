@@ -16,6 +16,8 @@
 
 #include <string.h>
 #include <errno.h>
+#include <fcntl.h>   // open
+#include <unistd.h>  // read, write, close
 
 #include <limits>
 #include <cstdio>
@@ -607,7 +609,7 @@ static const time_t __FREQUENCY = 1000000000;
 #endif
   }
 
-  int64_t rename(const std::string & from, const std::string & to,
+  int64_t rename_file(const std::string & from, const std::string & to,
       std::string * error)
   {
     if (::std::rename(from.c_str(), to.c_str()) == -1)
@@ -637,6 +639,35 @@ static const time_t __FREQUENCY = 1000000000;
       return false;
     f << str;
     f.close();
+    return true;
+  }
+
+  bool copy_file(const std::string & from, const std::string & to,
+      std::string * error)
+  {
+    char buf[BUFSIZ];
+    size_t size;
+
+    int source = open(from.c_str(), O_RDONLY, 0);
+    if (source < 0)
+    {
+      *error = strerror(errno);
+      return false;
+    }
+
+    int dest = open(to.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    if (dest < 0)
+    {
+      *error = strerror(errno);
+      return false;
+    }
+
+    while ((size = read(source, buf, BUFSIZ)) > 0)
+      write(dest, buf, size);
+
+    close(source);
+    close(dest);
+
     return true;
   }
 
