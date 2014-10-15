@@ -77,11 +77,4 @@ NKIT_TEST_CASE(enc_gen)
 
   nkit::string_to_text_file("../../src/vx/encodings_inc.cpp", stream.str());
 }
-
-#else
-NKIT_TEST_CASE(enc_gen)
-{
-  NKIT_TEST_ASSERT_WITH_TEXT(false,
-    "You can generate encodings.inc file only on windows platform");
-}
 #endif
