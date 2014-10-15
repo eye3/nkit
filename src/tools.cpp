@@ -16,8 +16,7 @@
 
 #include <string.h>
 #include <errno.h>
-#include <fcntl.h>   // open
-#include <unistd.h>  // read, write, close
+#include <stdio.h>
 
 #include <limits>
 #include <cstdio>
@@ -648,25 +647,25 @@ static const time_t __FREQUENCY = 1000000000;
     char buf[BUFSIZ];
     size_t size;
 
-    int source = open(from.c_str(), O_RDONLY, 0);
-    if (source < 0)
+    FILE * source = fopen(from.c_str(), "r");
+    if (!source)
     {
       *error = strerror(errno);
       return false;
     }
 
-    int dest = open(to.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
-    if (dest < 0)
+    FILE * dest = fopen(to.c_str(), "w");
+    if (!dest)
     {
       *error = strerror(errno);
       return false;
     }
 
-    while ((size = read(source, buf, BUFSIZ)) > 0)
-      write(dest, buf, size);
+    while ((size = fread(buf, 1, BUFSIZ, source)) > 0)
+      fwrite(buf, 1, size, dest);
 
-    close(source);
-    close(dest);
+    fclose(source);
+    fclose(dest);
 
     return true;
   }
