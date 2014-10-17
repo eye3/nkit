@@ -24,13 +24,13 @@ namespace nkit_test
     std::string error;
     std::string xml_path("../../data/commerce.xml");
     std::string xml;
-    NKIT_TEST_ASSERT_WITH_TEXT(nkit::text_file_to_string(xml_path, &xml),
-        "Could not read file '" + xml_path + "'.");
+    NKIT_TEST_ASSERT_WITH_TEXT(
+        nkit::text_file_to_string(xml_path, &xml, &error), error);
 
     std::string mapping_path("../../data/commerce1.json");
     std::string mapping;
-    NKIT_TEST_ASSERT_WITH_TEXT(nkit::text_file_to_string(mapping_path,
-            &mapping), "Could not read file '" + mapping_path + "'.");
+    NKIT_TEST_ASSERT_WITH_TEXT(
+        nkit::text_file_to_string(mapping_path, &mapping, &error), error);
 
     TimeMeter tm;
     tm.Start();
@@ -42,8 +42,8 @@ namespace nkit_test
 
     mapping = "";
     mapping_path = "../../data/commerce2.json";
-    NKIT_TEST_ASSERT_WITH_TEXT(nkit::text_file_to_string(mapping_path,
-            &mapping), "Could not read file '" + mapping_path + "'.");
+    NKIT_TEST_ASSERT_WITH_TEXT(
+        nkit::text_file_to_string(mapping_path, &mapping, &error), error);
 
     tm.Clear();
     tm.Start();
@@ -58,15 +58,15 @@ namespace nkit_test
   NKIT_TEST_CASE(xml2var_list_of_lists)
   {
     //CINFO(__FILE__);
+    std::string error;
     std::string xml_path("./data/sample.xml");
     std::string xml;
-    NKIT_TEST_ASSERT_WITH_TEXT(nkit::text_file_to_string(xml_path, &xml),
-        "Could not read file '" + xml_path + "'.");
+    NKIT_TEST_ASSERT_WITH_TEXT(
+        nkit::text_file_to_string(xml_path, &xml, &error), error);
 
     Dynamic mapping = DLIST(
         "/person" << DLIST("/phone" << "string"));
 
-    std::string error;
     Dynamic var = DynamicFromXml(xml, mapping, &error);
     NKIT_TEST_ASSERT_WITH_TEXT(var, error);
 
@@ -81,14 +81,14 @@ namespace nkit_test
   NKIT_TEST_CASE(xml2var_list)
   {
     //CINFO(__FILE__);
+    std::string error;
     std::string xml_path("./data/sample.xml");
     std::string xml;
-    NKIT_TEST_ASSERT_WITH_TEXT(nkit::text_file_to_string(xml_path, &xml),
-        "Could not read file '" + xml_path + "'.");
+    NKIT_TEST_ASSERT_WITH_TEXT(
+        nkit::text_file_to_string(xml_path, &xml, &error), error);
 
     Dynamic mapping = DLIST("/person/phone" << "string");
 
-    std::string error;
     Dynamic var = DynamicFromXml(xml, mapping, &error);
     NKIT_TEST_ASSERT_WITH_TEXT(var, error);
 
@@ -102,15 +102,15 @@ namespace nkit_test
   //---------------------------------------------------------------------------
   NKIT_TEST_CASE(xml2var_list_of_lists_with_mask)
   {
+    std::string error;
     std::string xml_path("./data/sample.xml");
     std::string xml;
-    NKIT_TEST_ASSERT_WITH_TEXT(nkit::text_file_to_string(xml_path, &xml),
-        "Could not read file '" + xml_path + "'.");
+    NKIT_TEST_ASSERT_WITH_TEXT(
+        nkit::text_file_to_string(xml_path, &xml, &error), error);
 
     Dynamic mapping = DLIST(
         "/person" << DLIST("/*/city" << "string"));
 
-    std::string error;
     Dynamic var = DynamicFromXml(xml, mapping, &error);
     //CINFO(nkit::json_hr << var);
     NKIT_TEST_ASSERT_WITH_TEXT(var, error);
@@ -126,10 +126,11 @@ namespace nkit_test
   NKIT_TEST_CASE(xml2var_list_of_objects_with_mask)
   {
     //CINFO(__FILE__);
+    std::string error;
     std::string xml_path("./data/sample.xml");
     std::string xml;
-    NKIT_TEST_ASSERT_WITH_TEXT(nkit::text_file_to_string(xml_path, &xml),
-        "Could not read file '" + xml_path + "'.");
+    NKIT_TEST_ASSERT_WITH_TEXT(
+        nkit::text_file_to_string(xml_path, &xml, &error), error);
 
     Dynamic mapping = //DLIST("/person" << DDICT("/*" << "string") );
         DLIST("/person" << DDICT(
@@ -138,7 +139,6 @@ namespace nkit_test
                 )
         );
 
-    std::string error;
     Dynamic var = DynamicFromXml(xml, mapping, &error);
     NKIT_TEST_ASSERT_WITH_TEXT(var, error);
    // CINFO(nkit::json_hr << var);
@@ -147,17 +147,17 @@ namespace nkit_test
   //---------------------------------------------------------------------------
   NKIT_TEST_CASE(xml2var_list_of_objects_with_list)
   {
+    std::string error;
     std::string xml_path("./data/sample.xml");
     std::string xml;
-    NKIT_TEST_ASSERT_WITH_TEXT(nkit::text_file_to_string(xml_path, &xml),
-        "Could not read file '" + xml_path + "'.");
+    NKIT_TEST_ASSERT_WITH_TEXT(
+        nkit::text_file_to_string(xml_path, &xml, &error), error);
 
     std::string mapping_path("./data/list_of_objects_with_list.json");
     std::string mapping;
-    NKIT_TEST_ASSERT_WITH_TEXT(nkit::text_file_to_string(mapping_path,
-            &mapping), "Could not read file '" + mapping_path + "'.");
+    NKIT_TEST_ASSERT_WITH_TEXT(
+        nkit::text_file_to_string(mapping_path, &mapping, &error), error);
 
-    std::string error;
     Dynamic var = DynamicFromXml(xml, mapping, &error);
     NKIT_TEST_ASSERT_WITH_TEXT(var, error);
 
@@ -178,17 +178,17 @@ namespace nkit_test
   //---------------------------------------------------------------------------
   NKIT_TEST_CASE(xml2var_default_values)
   {
+    std::string error;
     std::string xml_path("./data/sample.xml");
     std::string xml;
-    NKIT_TEST_ASSERT_WITH_TEXT(nkit::text_file_to_string(xml_path, &xml),
-        "Could not read file '" + xml_path + "'.");
+    NKIT_TEST_ASSERT_WITH_TEXT(
+        nkit::text_file_to_string(xml_path, &xml, &error), error);
 
     std::string mapping_path("./data/default_values.json");
     std::string mapping;
-    NKIT_TEST_ASSERT_WITH_TEXT(nkit::text_file_to_string(mapping_path,
-            &mapping), "Could not read file '" + mapping_path + "'.");
+    NKIT_TEST_ASSERT_WITH_TEXT(
+        nkit::text_file_to_string(mapping_path, &mapping, &error), error);
 
-    std::string error;
     Dynamic var = DynamicFromXml(xml, mapping, &error);
     NKIT_TEST_ASSERT_WITH_TEXT(var, error);
 
@@ -203,22 +203,22 @@ namespace nkit_test
   //---------------------------------------------------------------------------
   NKIT_TEST_CASE(xml2var_without_trim)
   {
+    std::string error;
     std::string xml_path("./data/sample.xml");
     std::string xml;
-    NKIT_TEST_ASSERT_WITH_TEXT(nkit::text_file_to_string(xml_path, &xml),
-        "Could not read file '" + xml_path + "'.");
+    NKIT_TEST_ASSERT_WITH_TEXT(
+        nkit::text_file_to_string(xml_path, &xml, &error), error);
 
     std::string mapping_path("./data/persons_with_star.json");
     std::string mapping;
-    NKIT_TEST_ASSERT_WITH_TEXT(nkit::text_file_to_string(mapping_path,
-            &mapping), "Could not read file '" + mapping_path + "'.");
+    NKIT_TEST_ASSERT_WITH_TEXT(
+        nkit::text_file_to_string(mapping_path, &mapping, &error), error);
 
     std::string options;
     std::string options_path("./data/options_no_trim.json");
-    NKIT_TEST_ASSERT_WITH_TEXT(nkit::text_file_to_string(options_path,
-            &options), "Could not read file '" + options_path + "'.");
+    NKIT_TEST_ASSERT_WITH_TEXT(
+        nkit::text_file_to_string(options_path, &options, &error), error);
 
-    std::string error;
     Dynamic var = DynamicFromXml(xml, options, mapping, &error);
     NKIT_TEST_ASSERT_WITH_TEXT(var, error);
 
@@ -249,22 +249,22 @@ namespace nkit_test
   //---------------------------------------------------------------------------
   NKIT_TEST_CASE(xml2var_with_trim)
   {
+    std::string error;
     std::string xml_path("./data/sample.xml");
     std::string xml;
-    NKIT_TEST_ASSERT_WITH_TEXT(nkit::text_file_to_string(xml_path, &xml),
-        "Could not read file '" + xml_path + "'.");
+    NKIT_TEST_ASSERT_WITH_TEXT(
+        nkit::text_file_to_string(xml_path, &xml, &error), error);
 
     std::string mapping_path("./data/persons_with_star.json");
     std::string mapping;
-    NKIT_TEST_ASSERT_WITH_TEXT(nkit::text_file_to_string(mapping_path,
-            &mapping), "Could not read file '" + mapping_path + "'.");
+    NKIT_TEST_ASSERT_WITH_TEXT(
+        nkit::text_file_to_string(mapping_path, &mapping, &error), error);
 
     std::string options;
     std::string options_path("./data/options_trim.json");
-    NKIT_TEST_ASSERT_WITH_TEXT(nkit::text_file_to_string(options_path,
-            &options), "Could not read file '" + options_path + "'.");
+    NKIT_TEST_ASSERT_WITH_TEXT(
+        nkit::text_file_to_string(options_path, &options, &error), error);
 
-    std::string error;
     Dynamic var = DynamicFromXml(xml, options, mapping, &error);
     NKIT_TEST_ASSERT_WITH_TEXT(var, error);
 
@@ -295,22 +295,22 @@ namespace nkit_test
   //---------------------------------------------------------------------------
   NKIT_TEST_CASE(xml2var_multi_mappings)
   {
+    std::string error;
     std::string xml_path("./data/sample.xml");
     std::string xml;
-    NKIT_TEST_ASSERT_WITH_TEXT(nkit::text_file_to_string(xml_path, &xml),
-        "Could not read file '" + xml_path + "'.");
+    NKIT_TEST_ASSERT_WITH_TEXT(
+        nkit::text_file_to_string(xml_path, &xml, &error), error);
 
     std::string mapping_path("./data/multi_mapping.json");
     std::string mapping;
-    NKIT_TEST_ASSERT_WITH_TEXT(nkit::text_file_to_string(mapping_path,
-            &mapping), "Could not read file '" + mapping_path + "'.");
+    NKIT_TEST_ASSERT_WITH_TEXT(
+        nkit::text_file_to_string(mapping_path, &mapping, &error), error);
 
     std::string options;
     std::string options_path("./data/options_trim.json");
-    NKIT_TEST_ASSERT_WITH_TEXT(nkit::text_file_to_string(options_path,
-            &options), "Could not read file '" + options_path + "'.");
+    NKIT_TEST_ASSERT_WITH_TEXT(
+        nkit::text_file_to_string(options_path, &options, &error), error);
 
-    std::string error;
     Xml2VarBuilder<DynamicBuilder>::Ptr builder = Xml2VarBuilder<
         DynamicBuilder>::Create(options, mapping, &error);
     NKIT_TEST_ASSERT_WITH_TEXT(builder, error);
@@ -353,22 +353,22 @@ namespace nkit_test
   //---------------------------------------------------------------------------
   NKIT_TEST_CASE(xml2var_sandbox)
   {
+    std::string error;
     std::string xml_path("./data/sample1251.xml");
     std::string xml;
-    NKIT_TEST_ASSERT_WITH_TEXT(nkit::text_file_to_string(xml_path, &xml),
-        "Could not read file '" + xml_path + "'.");
+    NKIT_TEST_ASSERT_WITH_TEXT(
+        nkit::text_file_to_string(xml_path, &xml, &error), error);
 
     std::string mapping_path("./data/academi_mapping.json");
     std::string mapping;
-    NKIT_TEST_ASSERT_WITH_TEXT(nkit::text_file_to_string(mapping_path,
-            &mapping), "Could not read file '" + mapping_path + "'.");
+    NKIT_TEST_ASSERT_WITH_TEXT(
+        nkit::text_file_to_string(mapping_path, &mapping, &error), error);
 
     std::string options;
     std::string options_path("./data/options_attrkey.json");
-    NKIT_TEST_ASSERT_WITH_TEXT(nkit::text_file_to_string(options_path,
-            &options), "Could not read file '" + options_path + "'.");
+    NKIT_TEST_ASSERT_WITH_TEXT(
+        nkit::text_file_to_string(options_path, &options, &error), error);
 
-    std::string error;
     Dynamic var = DynamicFromXml(xml, options, mapping, &error);
     NKIT_TEST_ASSERT_WITH_TEXT(var, error);
 

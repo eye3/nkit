@@ -25,14 +25,18 @@
 #include <nkit/ctools.h>
 #include <nkit/detail/push_options.h>
 
-#define NKIT_STATIC_ASSERT__(expr, message, line) \
-  typedef char static_assertion_##message##line[(expr)?1:-1]
+#if HAVE_STD_CXX_11
+# define NKIT_STATIC_ASSERT(expr, message) static_assert(expr, #message)
+#else
+# define NKIT_STATIC_ASSERT__(expr, message, line) \
+		typedef char static_assertion_##message##line[(expr)?1:-1]
 
-#define NKIT_STATIC_ASSERT_(expr, message, line) \
-  NKIT_STATIC_ASSERT__(expr, message, line)
+# define NKIT_STATIC_ASSERT_(expr, message, line) \
+		NKIT_STATIC_ASSERT__(expr, message, line)
 
-#define NKIT_STATIC_ASSERT(expr, message) \
-  NKIT_STATIC_ASSERT_(expr, message, __LINE__)
+# define NKIT_STATIC_ASSERT(expr, message) \
+		NKIT_STATIC_ASSERT_(expr, message, __LINE__)
+#endif
 
 #if defined(__GNUC__)
 #  define NKIT_UNUSED(v) v __attribute__ ((unused))
@@ -64,11 +68,26 @@ namespace nkit
   std::string get_process_id();
   std::string get_hostname();
   std::string get_username();
-  int64_t rename_file(const std::string & from, const std::string & to,
-      std::string * error);
-  bool text_file_to_string(const std::string & path, std::string * out);
-  bool string_to_text_file(const std::string & path, const std::string & str);
   bool copy_file(const std::string & from, const std::string & to,
+      std::string * error);
+  bool move_file(const std::string & from, const std::string & to,
+      std::string * error);
+  bool delete_file(const std::string & path, std::string * error);
+
+  enum PathType
+  {
+    PATH_UNKNOWN = 0,
+    PATH_FILE,
+    PATH_DIR
+  };
+
+  bool is_path_exists(const std::string & path, PathType * pt);
+  bool path_is_file(const std::string & path);
+  bool path_is_dir(const std::string & path);
+
+  bool text_file_to_string(const std::string & path, std::string * out,
+      std::string * error);
+  bool string_to_text_file(const std::string & path, const std::string & str,
       std::string * error);
 
   //----------------------------------------------------------------------------

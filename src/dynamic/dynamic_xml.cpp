@@ -72,11 +72,8 @@ namespace nkit
         std::string * const error)
   {
     std::string xml;
-    if (!path.empty() && !text_file_to_string(path, &xml))
-    {
-      *error = "Could not open file: '" + path + "'";
+    if (!path.empty() && !text_file_to_string(path, &xml, error))
       return Dynamic();
-    }
 
     if (xml.empty())
     {
