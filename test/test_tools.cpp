@@ -23,6 +23,8 @@ namespace nkit_test
     NKIT_TEST_ASSERT_WITH_TEXT(
         delete_file(DST_FILE, &error), error);
     NKIT_TEST_ASSERT(!path_is_file(DST_FILE));
+    NKIT_TEST_ASSERT_WITH_TEXT(
+        delete_file(SRC_FILE, &error), error);
   }
 
   NKIT_TEST_CASE(tools_copy_file)
