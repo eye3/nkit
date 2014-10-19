@@ -21,9 +21,9 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU"
     set(CFLAGS_COMMON
       "-Wall -Wextra -Werror")# -Wno-ignored-qualifiers -Wfatal-errors")
 
-    set(CFLAGS_REL      "-O3 ${CFLAGS_COMMON} ${GCOV_FLAGS} -DNDEBUG")
-    set(CFLAGS_DBG      "-O0 -ggdb3 ${CFLAGS_COMMON} ${GCOV_FLAGS} -DDEBUG")
-    set(CFLAGS_DBGREL   "-O2 -g ${CFLAGS_COMMON} ${GCOV_FLAGS} -DNDEBUG")
+    set(CFLAGS_REL      "-O3 ${CFLAGS_COMMON} -DNDEBUG")
+    set(CFLAGS_DBG      "-O0 -ggdb3 ${CFLAGS_COMMON} -DDEBUG")
+    set(CFLAGS_DBGREL   "-O2 -g ${CFLAGS_COMMON} -DNDEBUG")
 
     ###
     execute_process(
