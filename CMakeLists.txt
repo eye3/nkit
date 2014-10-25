@@ -46,13 +46,21 @@ enable_testing()
 
 ### entry
 
-message(STATUS "YAJL_ROOT: " $ENV{YAJL_ROOT})
-message(STATUS "USE_VX: " $ENV{USE_VX})
-message(STATUS "EXPAT_ROOT: " $ENV{EXPAT_ROOT})
-
 if (NOT DEFINED YAJL_ROOT AND DEFINED ENV{YAJL_ROOT})
-    set(YAJL_ROOT $ENV{YAJL_ROOT})
+    set(YAJL_ROOT $ENV{YAJL_ROOT} CACHE INTERNAL "yajl root")
 endif()
+
+if (NOT DEFINED USE_VX AND DEFINED ENV{USE_VX})
+    set(USE_VX $ENV{USE_VX} CACHE INTERNAL "use vx")
+endif()
+
+if (NOT DEFINED EXPAT_ROOT AND DEFINED ENV{EXPAT_ROOT})
+    set(EXPAT_ROOT $ENV{EXPAT_ROOT} CACHE INTERNAL "expat root")
+endif()
+
+message(STATUS "YAJL_ROOT: " ${YAJL_ROOT})
+message(STATUS "USE_VX: " ${USE_VX})
+message(STATUS "EXPAT_ROOT: " ${EXPAT_ROOT})
 
 find_package(Yajl 2.0.4 REQUIRED)
 
@@ -84,14 +92,6 @@ if (NOT DEFINED USE_REF_COUNT_PTR)
         set(HAVE_BOOST 1 CACHE INTERNAL "boost found")
         set(USE_BOOST 1 CACHE INTERNAL "use boost in nkit backend")
     endif()
-endif()
-
-if (NOT DEFINED USE_VX AND DEFINED ENV{USE_VX})
-    set(USE_VX $ENV{USE_VX} CACHE INTERNAL "use vx")
-endif()
-
-if (NOT DEFINED EXPAT_ROOT AND DEFINED ENV{EXPAT_ROOT})
-    set(EXPAT_ROOT $ENV{EXPAT_ROOT} CACHE INTERNAL "expat root")
 endif()
 
 if (DEFINED USE_VX)

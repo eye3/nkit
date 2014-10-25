@@ -1,4 +1,4 @@
-/*
+﻿/*
    Copyright 2010-2014 Boris T. Darchiev (boris.darchiev@gmail.com)
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,6 +21,7 @@
 #include "nkit/dynamic.h"
 #include "nkit/logger.h"
 #include "nkit/tools.h"
+#include "nkit/detail/encodings.h"
 
 namespace nkit
 {
@@ -196,6 +197,7 @@ namespace nkit
   {
     detail::FillOperations();
     NKIT_FORCE_USED(timezone_offset());
+    build_utf16_convertors();
   }
 
   // copy constructor

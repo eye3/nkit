@@ -75,6 +75,7 @@ NKIT_TEST_CASE(enc_gen)
   }
   stream << "};\n";
 
-  nkit::string_to_text_file("../../src/vx/encodings_inc.cpp", stream.str());
+  std::string error;
+  nkit::string_to_text_file("../../src/vx/encodings_inc.cpp", stream.str(), &error);
 }
 #endif

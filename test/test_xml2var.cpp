@@ -2,10 +2,43 @@
 #include "nkit/logger_brief.h"
 #include "nkit/dynamic/dynamic_builder.h"
 #include "nkit/dynamic_xml.h"
+#include "nkit/detail/encodings.h"
 
 namespace nkit_test
 {
   using namespace nkit;
+
+  //----------------------------------------------------------------------------
+  NKIT_TEST_CASE(encoding_to1251)
+  {
+    std::string error;
+    std::string xml_path("./data/sample1251.xml");
+    std::string xml;
+    NKIT_TEST_ASSERT_WITH_TEXT(
+      nkit::text_file_to_string(xml_path, &xml, &error), error);
+
+    std::string mapping_path("./data/academi_mapping.json");
+    std::string mapping;
+    NKIT_TEST_ASSERT_WITH_TEXT(
+      nkit::text_file_to_string(mapping_path, &mapping, &error), error);
+
+    std::string options;
+    std::string options_path("./data/options_attrkey.json");
+    NKIT_TEST_ASSERT_WITH_TEXT(
+      nkit::text_file_to_string(options_path, &options, &error), error);
+
+    Dynamic var = DynamicFromXml(xml, options, mapping, &error);
+    NKIT_TEST_ASSERT_WITH_TEXT(var, error);
+    CINFO("=============== " << var["academy"]["title"]);
+    const SingleUtf16CharMap * map = find_encoding("cp866");
+    NKIT_TEST_ASSERT(map);
+    std::string str;
+    NKIT_TEST_ASSERT(
+      from_utf8(*map, var["academy"]["title"].GetConstString(), &str));
+    CINFO("=============== " << str);
+    //const SingleUtf16CharMap * map = find_encoding("cp1251");
+    //map->GetChar()
+  }
 
   //---------------------------------------------------------------------------
   NKIT_TEST_CASE(xml2var_wrong_xml)
