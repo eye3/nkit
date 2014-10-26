@@ -18,6 +18,7 @@
 #define NKIT__XML2VAR__H__
 
 #include "nkit/dynamic_getter.h"
+#include "nkit/transcode.h"
 
 namespace nkit
 {
@@ -42,7 +43,7 @@ namespace nkit
         .Get(".rootname", &res->root_name_, S_EMPTY_)
         .Get(".itemname", &res->item_name_, S_EMPTY_)
         .Get(".attrkey", &res->attr_key_, S_EMPTY_)
-        .Get(".charkey", &res->char_key_, S_EMPTY_)
+        .Get(".textkey", &res->text_key_, S_EMPTY_)
         .Get(".xmldec.version", &version, S_EMPTY_)
         .Get(".xmldec.encoding", &encoding, S_UTF_8_)
         .Get(".xmldec.standalone", &standalone, true)
@@ -56,18 +57,35 @@ namespace nkit
         return Ptr();
       }
 
+      if (istrequal(encoding, S_UTF_8_))
+      {
+        res->transcoder_ = NULL;
+      }
+      else
+      {
+        res->transcoder_ = Transcoder::Find(encoding);
+        if (!res->transcoder_)
+        {
+          *error = "'" + encoding + "' encoding doesn't supported";
+          return Ptr();
+        }
+      }
+
       if (!version.empty())
+      {
         res->xml_dec_ = "<?xml version=\"" + version +
             "\" encoding=\"" + encoding +
             "\" standalone=\"" + (standalone? "yes": "no") + "\"?>";
+      }
 
       return res;
     }
 
+    const Transcoder * transcoder_;
     std::string root_name_;
     std::string item_name_;
     std::string attr_key_;
-    std::string char_key_;
+    std::string text_key_;
     std::string xml_dec_;
     Pretty pretty_;
   };  // struct Var2XmlOptions
@@ -139,7 +157,7 @@ namespace nkit
         {
           const std::string & key = it->first;
           if (options_->attr_key_ == key
-              || options_->char_key_ == key)
+              || options_->text_key_ == key)
             continue;
           const Dynamic & v = it->second;
           if (!v.IsList())
@@ -150,12 +168,13 @@ namespace nkit
             builder.EndElement(out);
         }
 
-        // charkey option ('_')
+        // textkey option ('_')
         const Dynamic * text = NULL;
-        if (data.Get(options_->char_key_, &text))
+        if (data.Get(options_->text_key_, &text))
           builder.PutText(
               text->IsString() ? text->GetConstString(): text->GetString(),
-              true, out);
+              true,
+              out);
       }
       else if (data.IsList())
       {
@@ -173,7 +192,9 @@ namespace nkit
       else
       {
         builder.PutText(
-            data.IsString() ? data.GetConstString(): data.GetString(), false, out);
+                data.IsString() ? data.GetConstString() : data.GetString(),
+                false,
+                out);
       }
 
       return true;
@@ -183,23 +204,22 @@ namespace nkit
     void BeginElement(const std::string & name, const Dynamic & data,
         std::string * out)
     {
-      std::string & out_ = *out;
       if (begin_)
       {
         begin_ = false;
         if (!options_->xml_dec_.empty() && !options_->root_name_.empty())
         {
-          out_.append(options_->xml_dec_);
-          out_.append(options_->pretty_.newline_);
+          out->append(options_->xml_dec_);
+          out->append(options_->pretty_.newline_);
         }
       }
       else
-        out_.append(options_->pretty_.newline_);
+        out->append(options_->pretty_.newline_);
 
       path_.push(name);
-      out_.append(current_indent_);
-      out_.append("<");
-      out_.append(name);
+      out->append(current_indent_);
+      out->append("<");
+      AppendTranscoderd(name, out);
 
       // attrkey option ('$')
       const Dynamic & attrs = data[options_->attr_key_];
@@ -207,16 +227,16 @@ namespace nkit
       {
         DDICT_FOREACH(pair, attrs)
         {
-          out_ += ' ';
-          out_.append(pair->first);
-          out_.append("=\"");
+          (*out) += ' ';
+          AppendTranscoderd(pair->first, out);
+          out->append("=\"");
           PutText(pair->second.IsString() ? pair->second.GetConstString():
               pair->second.GetString(), out);
-          out_ += '\"';
+          (*out) += '\"';
 
         }
       }
-      out_.append(">");
+      out->append(">");
       current_indent_ += options_->pretty_.indent_;
       first_end_after_begin_ = true;
     }
@@ -226,91 +246,83 @@ namespace nkit
     {
       assert(!path_.empty());
 
-      std::string & out_ = *out;
       current_indent_.resize(
           current_indent_.size() - options_->pretty_.indent_.size());
       if (!first_end_after_begin_)
       {
-        out_.append(options_->pretty_.newline_);
-        out_.append(current_indent_);
+        out->append(options_->pretty_.newline_);
+        out->append(current_indent_);
       }
       first_end_after_begin_ = false;
-      out_.append("</");
-      out_.append(path_.top());
-      out_.append(">");
+      out->append("</");
+      AppendTranscoderd(path_.top(), out);
+      out->append(">");
       path_.pop();
     }
 
+    //----------------------------------------------------------------------------
+    void AppendTranscoderd(const std::string & text, std::string * out)
+    {
+      if (options_->transcoder_)
+        options_->transcoder_->FromUtf8(text, out);
+      else
+        out->append(text);
+    }
     //----------------------------------------------------------------------------
     void PutText(const std::string & text, bool newline, std::string * out)
     {
       if (text.empty())
         return;
 
-      std::string & out_ = *out;
-
       if (newline)
       {
-        out_.append(options_->pretty_.newline_);
-        out_.append(current_indent_);
+        out->append(options_->pretty_.newline_);
+        out->append(current_indent_);
       }
 
-      size_t count = text.size();
-      for (size_t i=0; i < count; ++i)
+      PutText(text, out);
+    }
+
+    static bool SpetialCharCallback(char ch, std::string * out)
+    {
+      switch (ch)
       {
-        char c = text[i];
-        switch (c)
-        {
-        case '<':
-          out_.append("&lt;");
-          break;
-        case '>':
-          out_.append("&gt;");
-          break;
-        case '&':
-          out_.append("&amp;");
-          break;
-        case '"':
-          out_.append("&quot;");
-          break;
-        case '\'':
-          out_.append("&apos;");
-          break;
-        default:
-          out_ += c;
-          break;
-        }
+      case '<':
+        out->append("&lt;");
+        return true;
+      case '>':
+        out->append("&gt;");
+        return true;
+      case '&':
+        out->append("&amp;");
+        return true;
+      case '"':
+        out->append("&quot;");
+        return true;
+      case '\'':
+        out->append("&apos;");
+        return true;
+      default:
+        break;
       }
+      return false;
     }
 
     void PutText(const std::string & text, std::string * out)
     {
-      std::string & out_ = *out;
-
-      size_t count = text.size();
-      for (size_t i=0; i < count; ++i)
+      if (options_->transcoder_)
       {
-        char c = text[i];
-        switch (c)
+        options_->transcoder_->FromUtf8(text, SpetialCharCallback, out);
+      }
+      else
+      {
+        size_t count = text.size();
+        for (size_t i=0; i < count; ++i)
         {
-        case '<':
-          out_.append("&lt;");
-          break;
-        case '>':
-          out_.append("&gt;");
-          break;
-        case '&':
-          out_.append("&amp;");
-          break;
-        case '"':
-          out_.append("&quot;");
-          break;
-        case '\'':
-          out_.append("&apos;");
-          break;
-        default:
-          out_ += c;
-          break;
+          char ch = text[i];
+          if (SpetialCharCallback(ch, out))
+            continue;
+          (*out) += ch;
         }
       }
     }
@@ -319,10 +331,9 @@ namespace nkit
     //----------------------------------------------------------------------------
     void PutCdata(const std::string & cdata, std::string * out)
     {
-      std::string & out_ = *out;
-      out_.append("<![CDATA[");
-      out_.append(cdata);
-      out_.append("]]>");
+      out->append("<![CDATA[");
+      AppendTranscoderd(cdata, out);
+      out->append("]]>");
     }
 
   private:

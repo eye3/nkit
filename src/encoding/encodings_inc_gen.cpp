@@ -1,3 +1,19 @@
+/*
+   Copyright 2010-2014 Boris T. Darchiev (boris.darchiev@gmail.com)
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
+
 #include "nkit/tools.h"
 #include "nkit/logger_brief.h"
 
@@ -45,7 +61,7 @@ NKIT_TEST_CASE(enc_gen)
     it = begin, end = code_page_list_.end();
 
   std::stringstream stream;
-  stream << "Encoding encodings[] = {\n";
+  // stream << "Encoding encodings[] = {\n";
 
   for (size_t l=0; it != end; ++it, ++l)
   {
@@ -73,9 +89,10 @@ NKIT_TEST_CASE(enc_gen)
     stream << "    " << "}\n";
     stream << "  }" << ((l+1 == code_page_list_.size()) ? ' ': ',') << "\n";
   }
-  stream << "};\n";
+  // stream << "};\n";
 
   std::string error;
-  nkit::string_to_text_file("../../src/vx/encodings_inc.cpp", stream.str(), &error);
+  nkit::string_to_text_file("../../src/encoding/encodings.inc",
+          stream.str(), &error);
 }
 #endif

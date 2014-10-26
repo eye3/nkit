@@ -244,9 +244,9 @@ namespace nkit
 
   //----------------------------------------------------------------------------
   template<typename charT>
-  struct iequal
+  struct icharequal
   {
-    iequal( const std::locale& loc ) : loc_(loc) {}
+    icharequal( const std::locale & loc ) : loc_(loc) {}
     bool operator()(charT ch1, charT ch2)
     {
         return std::tolower(ch1, loc_) == std::tolower(ch2, loc_);
@@ -260,14 +260,26 @@ namespace nkit
   // find substring (case insensitive)
   template<typename T>
   typename T::size_type stristr(const T& str1, const T& str2,
-      const std::locale& loc = std::locale())
+      const std::locale & loc = std::locale())
   {
     typename T::const_iterator it = std::search(str1.begin(), str1.end(),
-        str2.begin(), str2.end(), iequal<typename T::value_type>(loc));
+        str2.begin(), str2.end(), icharequal<typename T::value_type>(loc));
     if (it != str1.end())
       return it - str1.begin();
     else
       return T::npos;
+  }
+
+  //----------------------------------------------------------------------------
+  // compare strings (case insensitive)
+  template<typename T>
+  bool istrequal(const T& str1, const T& str2,
+          const std::locale & loc = std::locale())
+  {
+    if (str1.size() != str2.size())
+      return false;
+    return std::equal(str1.begin(), str1.end(),
+        str2.begin(), icharequal<typename T::value_type>(loc));
   }
 
   //----------------------------------------------------------------------------

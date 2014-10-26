@@ -21,7 +21,7 @@
 #include "nkit/dynamic.h"
 #include "nkit/logger.h"
 #include "nkit/tools.h"
-#include "nkit/detail/encodings.h"
+#include "nkit/transcode.h"
 
 namespace nkit
 {
@@ -197,7 +197,7 @@ namespace nkit
   {
     detail::FillOperations();
     NKIT_FORCE_USED(timezone_offset());
-    build_utf16_convertors();
+    Transcoder::Build();
   }
 
   // copy constructor
