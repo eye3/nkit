@@ -602,7 +602,8 @@ namespace nkit
         {
           T value_builder(Target<T>::options_);
           value_builder.InitAsString(std::string(attrs[i + 1]));
-          attr_builder.SetDictKeyValue(std::string(attrs[i]), value_builder.get());
+          attr_builder.SetDictKeyValue(std::string(attrs[i]),
+              value_builder.get());
         }
         Target<T>::var_builder_.SetDictKeyValue(Target<T>::options_->attrkey_,
                 attr_builder.get());
@@ -840,6 +841,7 @@ namespace nkit
     void Clear()
     {
       value_.clear();
+      use_default_value_ = true;
     }
 
     virtual bool must_use_default_value() const

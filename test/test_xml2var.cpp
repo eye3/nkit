@@ -240,6 +240,32 @@ namespace nkit_test
   }
 
   //---------------------------------------------------------------------------
+  NKIT_TEST_CASE(xml2var_default_value_after_value)
+  {
+    std::string error;
+    std::string xml_path("./data/xml2var_default_value_after_value.xml");
+    std::string xml;
+    NKIT_TEST_ASSERT_WITH_TEXT(
+        text_file_to_string(xml_path, &xml, &error), error);
+
+    std::string mapping_path("./data/xml2var_default_value_after_value.json");
+    std::string mapping;
+    NKIT_TEST_ASSERT_WITH_TEXT(
+        text_file_to_string(mapping_path, &mapping, &error), error);
+
+    Dynamic var = DynamicFromXml(xml, mapping, &error);
+    NKIT_TEST_ASSERT_WITH_TEXT(var, error);
+    CINFO("+++++++++++++++++ " << var);
+
+//    Dynamic etalon = DLIST(
+//        DDICT("key_for_default_value" << "default_value") <<
+//        DDICT("key_for_default_value" << "default_value")
+//        );
+//
+//    NKIT_TEST_EQ(var, etalon);
+  }
+
+  //---------------------------------------------------------------------------
   NKIT_TEST_CASE(xml2var_without_trim)
   {
     std::string error;
