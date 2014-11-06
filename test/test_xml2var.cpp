@@ -294,7 +294,7 @@ namespace nkit_test
             "age" << "33" <<
             "married" << "Yes" <<
             "phone" << "+122233344551" <<
-            "birthday" << "Wed, 28 Mar 1979 12:13:14 +0300" <<
+            "birthday" << "Wed, 28 Mar 1979 12:13:14" <<
             "address" << "\n\t\t\t\n\t\t\t\n\t\t\t\n\t\t\t\n\t\t"
             ) <<
         DDICT(
@@ -303,7 +303,7 @@ namespace nkit_test
             "age" << "34" <<
             "married" << "Yes" <<
             "phone" << "+122233344554" <<
-            "birthday" << "Mon, 31 Aug 1970 02:03:04 +0300" <<
+            "birthday" << "Mon, 31 Aug 1970 02:03:04" <<
             "address" << "\n\t\t\t\n\t\t\t\n\t\t\t\n\t\t\t\n\t\t"
             )
         );
@@ -340,7 +340,7 @@ namespace nkit_test
             "age" << "33" <<
             "married" << "Yes" <<
             "phone" << "+122233344551" <<
-            "birthday" << "Wed, 28 Mar 1979 12:13:14 +0300" <<
+            "birthday" << "Wed, 28 Mar 1979 12:13:14" <<
             "address" << ""
             ) <<
         DDICT(
@@ -349,7 +349,7 @@ namespace nkit_test
             "age" << "34" <<
             "married" << "Yes" <<
             "phone" << "+122233344554" <<
-            "birthday" << "Mon, 31 Aug 1970 02:03:04 +0300" <<
+            "birthday" << "Mon, 31 Aug 1970 02:03:04" <<
             "address" << ""
             )
         );
@@ -397,7 +397,7 @@ namespace nkit_test
             "age" << "33" <<
             "married" << "Yes" <<
             "phone" << "+122233344551" <<
-            "birthday" << "Wed, 28 Mar 1979 12:13:14 +0300" <<
+            "birthday" << "Wed, 28 Mar 1979 12:13:14" <<
             "address" << ""
             ) <<
         DDICT(
@@ -406,7 +406,7 @@ namespace nkit_test
             "age" << "34" <<
             "married" << "Yes" <<
             "phone" << "+122233344554" <<
-            "birthday" << "Mon, 31 Aug 1970 02:03:04 +0300" <<
+            "birthday" << "Mon, 31 Aug 1970 02:03:04" <<
             "address" << ""
             )
         );

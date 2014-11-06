@@ -14,6 +14,8 @@
    limitations under the License.
 */
 
+#include <string>
+
 #include "nkit/dynamic.h"
 #include "nkit/logger.h"
 #include "nkit/test.h"

@@ -19,7 +19,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU"
     OR "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
 
     set(CFLAGS_COMMON
-      "-Wall -Wextra -Werror")# -Wno-ignored-qualifiers -Wfatal-errors")
+      "-Wall -Wextra")# -Werror -Wno-ignored-qualifiers -Wfatal-errors")
 
     set(CFLAGS_REL      "-O3 ${CFLAGS_COMMON} -DNDEBUG")
     set(CFLAGS_DBG      "-O0 -ggdb3 ${CFLAGS_COMMON} -DDEBUG")
@@ -32,7 +32,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU"
     if((GCC_VERSION VERSION_GREATER 4.7 OR GCC_VERSION VERSION_EQUAL 4.7))
         set(HAVE_STD_CXX_11 1
             CACHE INTERNAL "have std c++11 support")
-        set(CXX_11_FLAGS "-std=c++11 -Wno-unused-local-typedefs")
+        set(CXX_11_FLAGS "-std=c++11 -std=gnu++0x -Wno-unused-local-typedefs")
     endif()
 
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99")

@@ -40,3 +40,4 @@ src/version.cpp
 win
 src/nkit/detail/config.h
 build
+cygwin

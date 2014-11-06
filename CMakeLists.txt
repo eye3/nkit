@@ -20,6 +20,8 @@
 ## 4) CLANG/VS 2008 compiler/linker flags
 ##
 
+set(CMAKE_LEGACY_CYGWIN_WIN32 0 CACHE INTERNAL "CMAKE_LEGACY_CYGWIN_WIN32=0")
+
 cmake_minimum_required(VERSION 2.8)
 
 project(nkit)
@@ -88,7 +90,11 @@ if (NOT DEFINED USE_REF_COUNT_PTR)
         if (DEFINED BOOST_ROOT)
             message(STATUS "Searching custom Boost library at ${BOOST_ROOT}")
         endif()
-        find_package(Boost ${BOOST_VERSION} REQUIRED COMPONENTS system)
+        if (DEFINED CYGWIN)
+	    find_package(Boost ${BOOST_VERSION} REQUIRED COMPONENTS system.dll)
+        else()
+	    find_package(Boost ${BOOST_VERSION} REQUIRED COMPONENTS system)
+        endif()
         set(HAVE_BOOST 1 CACHE INTERNAL "boost found")
         set(USE_BOOST 1 CACHE INTERNAL "use boost in nkit backend")
     endif()
