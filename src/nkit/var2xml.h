@@ -32,10 +32,13 @@ namespace nkit
     };
 
     typedef NKIT_SHARED_PTR(Var2XmlOptions) Ptr;
+
     static Ptr Create(const Dynamic & options, std::string * error)
     {
       Ptr res(new Var2XmlOptions);
       DynamicGetter op(options);
+
+      static const StringSet EMPTY_STRING_SET;
 
       std::string version, encoding, indent, nweline;
       bool standalone;
@@ -49,6 +52,7 @@ namespace nkit
         .Get(".xmldec.standalone", &standalone, true)
         .Get(".pretty.indent", &res->pretty_.indent_, S_EMPTY_)
         .Get(".pretty.newline", &res->pretty_.newline_, S_EMPTY_)
+        .Get(".cdata", &res->cdata_, EMPTY_STRING_SET)
       ;
 
       if (!op.ok())
@@ -57,11 +61,30 @@ namespace nkit
         return Ptr();
       }
 
-      if (istrequal(encoding, S_UTF_8_))
+      if (res->cdata_.empty())
       {
-        res->transcoder_ = NULL;
+        op.Get(".+cdata", &res->cdata_, EMPTY_STRING_SET);
+        if (!op.ok())
+        {
+          *error = op.error();
+          return Ptr();
+        }
       }
-      else
+
+      if (res->cdata_.empty())
+      {
+        op.Get(".-cdata", &res->cdata_, EMPTY_STRING_SET);
+        if (!op.ok())
+        {
+          *error = op.error();
+          return Ptr();
+        }
+
+        if (!res->cdata_.empty())
+          res->cdata_exclude_ = true;
+      }
+
+      if (!istrequal(encoding, S_UTF_8_))
       {
         res->transcoder_ = Transcoder::Find(encoding);
         if (!res->transcoder_)
@@ -81,6 +104,8 @@ namespace nkit
       return res;
     }
 
+    Var2XmlOptions() : transcoder_(NULL), cdata_exclude_(false) {}
+
     const Transcoder * transcoder_;
     std::string root_name_;
     std::string item_name_;
@@ -88,6 +113,8 @@ namespace nkit
     std::string text_key_;
     std::string xml_dec_;
     Pretty pretty_;
+    StringSet cdata_;
+    bool cdata_exclude_;
   };  // struct Var2XmlOptions
 
   //----------------------------------------------------------------------------
@@ -100,8 +127,8 @@ namespace nkit
       , begin_(true)
     {}
 
-    //----------------------------------------------------------------------------
-    static bool Run(const Dynamic & options, const Dynamic & data,
+    //--------------------------------------------------------------------------
+    static bool Process(const Dynamic & options, const Dynamic & data,
         std::string * out, std::string * error)
     {
       Var2XmlOptions::Ptr op = Var2XmlOptions::Create(options, error);
@@ -146,7 +173,7 @@ namespace nkit
     }
 
   private:
-    //----------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
     bool Convert(const std::string & item_name, const Dynamic & data,
         Var2XmlConverter & builder, std::string * out, std::string * error)
     {
@@ -200,7 +227,7 @@ namespace nkit
       return true;
     }
 
-    //----------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
     void BeginElement(const std::string & name, const Dynamic & data,
         std::string * out)
     {
@@ -241,7 +268,7 @@ namespace nkit
       first_end_after_begin_ = true;
     }
 
-    //----------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
     void EndElement(std::string * out)
     {
       assert(!path_.empty());
@@ -260,7 +287,7 @@ namespace nkit
       path_.pop();
     }
 
-    //----------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
     void AppendTranscoderd(const std::string & text, std::string * out)
     {
       if (options_->transcoder_)
@@ -268,7 +295,7 @@ namespace nkit
       else
         out->append(text);
     }
-    //----------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
     void PutText(const std::string & text, bool newline, std::string * out)
     {
       if (text.empty())
@@ -280,7 +307,20 @@ namespace nkit
         out->append(current_indent_);
       }
 
-      PutText(text, out);
+      if (options_->cdata_.empty())
+      {
+        PutText(text, out);
+      }
+      else
+      {
+        bool found =
+                options_->cdata_.find(path_.top()) != options_->cdata_.end();
+        if (( found && !options_->cdata_exclude_) ||
+            (!found &&  options_->cdata_exclude_))
+          PutCdata(text, out);
+        else
+          PutText(text, out);
+      }
     }
 
     static bool SpetialCharCallback(char ch, std::string * out)
@@ -328,7 +368,7 @@ namespace nkit
     }
 
   private:
-    //----------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
     void PutCdata(const std::string & cdata, std::string * out)
     {
       out->append("<![CDATA[");

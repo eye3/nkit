@@ -25,7 +25,8 @@ namespace nkit_test
             << "newline" << "\n"
          )
       << "attrkey" << "$"
-      << "charkey" << "_"
+      << "textkey" << "_"
+      << "-cdata" << DLIST("cdata")
     );
 
     Dynamic data = DDICT(
@@ -33,25 +34,25 @@ namespace nkit_test
       << "_" << "Hello(Привет) world(мир)"
       << "int(число)" << 1
       << "float" << 1.1
-      << "string" << "text < > & \" '"
+      << "cdata" << "text < > & \" '"
       << "list" << DLIST(DLIST(1) << 2 << 3)
       << "dict" << DDICT(
                "$" << DDICT("a1" << "V1" << "a2" << "V2")
             << "int" << 1
             << "float" << 1.1
-            << "string" << "text"
+            << "sub_string" << "text < > & \" '"
             << "list" << DLIST(1 << 2 << 3)
          )
     );
 
     std::string out, error;
-    NKIT_TEST_ASSERT_WITH_TEXT(Var2XmlConverter::Run(
+    NKIT_TEST_ASSERT_WITH_TEXT(Var2XmlConverter::Process(
         options, data, &out, &error), error);
     CINFO(out);
 
     out.clear();
     data = DLIST(DLIST(1) << 2 << 3);
-    NKIT_TEST_ASSERT_WITH_TEXT(Var2XmlConverter::Run(
+    NKIT_TEST_ASSERT_WITH_TEXT(Var2XmlConverter::Process(
         options, data, &out, &error), error);
     CINFO(out);
   }
