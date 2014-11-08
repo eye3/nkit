@@ -1105,7 +1105,7 @@ namespace nkit
       if (found == not_found)
       {
         T builder(options_);
-        builder.InitAsUndefined();
+        builder.InitAsUndefined(); // TODO: write static method T::GetUndefined()
         return builder.get();
       }
 
