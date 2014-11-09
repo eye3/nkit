@@ -383,6 +383,7 @@ namespace nkit
     return true;
   }
 
+#ifdef __APPLE__
   inline bool GetSubDynamic(const Dynamic & data,
       const DynamicPath & sub_path, size_t * out,
       std::string * NKIT_UNUSED(error))
@@ -393,6 +394,20 @@ namespace nkit
     *out = static_cast<size_t>(v->GetUnsignedInteger());
     return true;
   }
+#endif
+
+#ifdef NKIT_WINNT
+  inline bool GetSubDynamic(const Dynamic & data,
+      const DynamicPath & sub_path, unsigned long * out,
+      std::string * NKIT_UNUSED(error))
+  {
+    const Dynamic * v = sub_path.Get(data);
+    if (!v)
+      return false;
+    *out = static_cast<unsigned long>(v->GetUnsignedInteger());
+    return true;
+  }
+#endif
 
   inline bool GetSubDynamic(const Dynamic & data,
       const DynamicPath & sub_path, bool * out, std::string * error)
