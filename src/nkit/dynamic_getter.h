@@ -384,6 +384,17 @@ namespace nkit
   }
 
   inline bool GetSubDynamic(const Dynamic & data,
+      const DynamicPath & sub_path, size_t * out,
+      std::string * NKIT_UNUSED(error))
+  {
+    const Dynamic * v = sub_path.Get(data);
+    if (!v)
+      return false;
+    *out = static_cast<size_t>(v->GetUnsignedInteger());
+    return true;
+  }
+
+  inline bool GetSubDynamic(const Dynamic & data,
       const DynamicPath & sub_path, bool * out, std::string * error)
   {
     const Dynamic * v = sub_path.Get(data);

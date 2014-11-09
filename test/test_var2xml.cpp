@@ -1,8 +1,6 @@
-#include <stack>
-
 #include "nkit/logger_brief.h"
 #include "nkit/test.h"
-#include "nkit/var2xml.h"
+#include "nkit/dynamic/dynamic_builder.h"
 
 namespace nkit_test
 {
@@ -26,16 +24,20 @@ namespace nkit_test
          )
       << "attrkey" << "$"
       << "textkey" << "_"
-      << "-cdata" << DLIST("cdata")
+      << "cdata" << DLIST("cdata")
+      << "float_precision" << 10
+      << "date_time_format" << S_DATE_TIME_DEFAULT_FORMAT_
     );
 
     Dynamic data = DDICT(
          "$" << DDICT("p1" << "в1&v2\"'" << "p2" << "v2")
       << "_" << "Hello(Привет) world(мир)"
-      << "int(число)" << 1
-      << "float" << 1.1
+      << "int_число" << 1
+      << "float" << 1.123456789
       << "cdata" << "text < > & \" '"
-      << "list" << DLIST(DLIST(1) << 2 << 3)
+      << "list" << DLIST(DLIST("1.1" << "1.2" << DLIST("1.3.1" << "1.3.2"))
+                         << 2 << 3)
+      << "date_time" << Dynamic::DateTimeGmt()
       << "dict" << DDICT(
                "$" << DDICT("a1" << "V1" << "a2" << "V2")
             << "int" << 1
@@ -46,13 +48,13 @@ namespace nkit_test
     );
 
     std::string out, error;
-    NKIT_TEST_ASSERT_WITH_TEXT(Var2XmlConverter::Process(
+    NKIT_TEST_ASSERT_WITH_TEXT(Dynamic2XmlConverter::Process(
         options, data, &out, &error), error);
     CINFO(out);
 
     out.clear();
     data = DLIST(DLIST(1) << 2 << 3);
-    NKIT_TEST_ASSERT_WITH_TEXT(Var2XmlConverter::Process(
+    NKIT_TEST_ASSERT_WITH_TEXT(Dynamic2XmlConverter::Process(
         options, data, &out, &error), error);
     CINFO(out);
   }
