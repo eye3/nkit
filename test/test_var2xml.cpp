@@ -25,19 +25,15 @@ namespace nkit_test
       << "attrkey" << "$"
       << "textkey" << "_"
       << "cdata" << DLIST("cdata")
-      << "float_precision" << 10
-      << "date_time_format" << S_DATE_TIME_DEFAULT_FORMAT_
     );
 
     Dynamic data = DDICT(
          "$" << DDICT("p1" << "в1&v2\"'" << "p2" << "v2")
       << "_" << "Hello(Привет) world(мир)"
-      << "int_число" << 1
-      << "float" << 1.123456789
+      << "int(число)" << 1
+      << "float" << 1.1
       << "cdata" << "text < > & \" '"
-      << "list" << DLIST(DLIST("1.1" << "1.2" << DLIST("1.3.1" << "1.3.2"))
-                         << 2 << 3)
-      << "date_time" << Dynamic::DateTimeGmt()
+      << "list" << DLIST(DLIST(1) << 2 << 3)
       << "dict" << DDICT(
                "$" << DDICT("a1" << "V1" << "a2" << "V2")
             << "int" << 1

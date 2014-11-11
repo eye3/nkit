@@ -12,8 +12,15 @@ namespace nkit
   private:
     friend class VarBuilder<DynamicBuilderPolicy>;
 
+  public:
     typedef Dynamic type;
 
+    static const type & GetUndefined()
+    {
+      return D_NONE;
+    }
+
+  private:
     DynamicBuilderPolicy(const detail::Options & options)
       : object_()
       //, options_(options)
@@ -42,11 +49,6 @@ namespace nkit
     void InitAsUndefined()
     {
       object_ = nkit::Dynamic();
-    }
-
-    static Dynamic GetUndefined()
-    {
-      return Dynamic();
     }
 
     void InitAsFloatFormat( std::string const & value, const char * format )
@@ -188,21 +190,24 @@ namespace nkit
     static std::string GetStringAsDateTime(const Dynamic & data,
             const std::string & format)
     {
-      CINFO(format);
       return data.GetString(format.c_str());
     }
 
     static std::string GetStringAsFloat(const Dynamic & data,
             size_t precision)
     {
-      CINFO("precision = " << precision);
       return string_cast(data.GetFloat(), precision);
     }
 
-    static bool GetByKey(const Dynamic & data, const std::string & key,
-            Dynamic * value)
+    static Dynamic GetByKey(const Dynamic & data, const std::string & key,
+        bool * found)
     {
-      return data.Get(key, const_cast<const Dynamic **>(&value));
+      const Dynamic * ret = NULL;
+      *found = data.Get(key, &ret);
+      if (*found)
+        return *ret;
+      else
+        return Dynamic();
     }
   };
 

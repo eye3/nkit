@@ -225,8 +225,9 @@ namespace nkit
         }
 
         // textkey option ('_')
-        DataType text;
-        if (T::GetByKey(data, options_->text_key_, &text))
+        bool found(false);
+        DataType text = T::GetByKey(data, options_->text_key_, &found);
+        if (found)
           builder.PutText(text, true, out);
       }
       else if (T::IsList(data))
@@ -237,7 +238,7 @@ namespace nkit
         {
           builder.BeginElement(
                   use_item_name ? item_name :
-                          options_->item_name_ + string_cast(counter),
+                          options_->item_name_, // + string_cast(counter),
                   T::Value(it), out);
           if (!Convert("", T::Value(it), builder, out, error))
             return false;
@@ -274,20 +275,25 @@ namespace nkit
       AppendTranscoded(name, out);
 
       // attrkey option ('$')
-      DataType attrs;
-      if (T::GetByKey(data, options_->attr_key_, &attrs) && T::IsDict(attrs))
+      if (T::IsDict(data))
       {
-        DictConstIterator pair = T::begin_d(attrs), end = T::end_d(attrs);
-        for (; pair != end; ++pair)
+        bool found = false;
+        DataType attrs = T::GetByKey(data, options_->attr_key_, &found);
+        if (found && T::IsDict(attrs))
         {
-          (*out) += ' ';
-          AppendTranscoded(T::First(pair), out);
-          out->append("=\"");
-          PutText(T::Second(pair), out);
-          (*out) += '\"';
+          DictConstIterator pair = T::begin_d(attrs), end = T::end_d(attrs);
+          for (; pair != end; ++pair)
+          {
+            (*out) += ' ';
+            AppendTranscoded(T::First(pair), out);
+            out->append("=\"");
+            PutText(T::Second(pair), out);
+            (*out) += '\"';
 
+          }
         }
       }
+
       out->append(">");
       current_indent_ += options_->pretty_.indent_;
       first_end_after_begin_ = true;
@@ -325,11 +331,11 @@ namespace nkit
     void PutText(const DataType & data, bool newline, std::string * out)
     {
       // TODO: optimize by member string
-      if (T::IsFloat(data))
-        PutText(T::GetStringAsFloat(data, options_->float_precision_),
-                newline, out);
-      else if (T::IsDateTime(data))
+      if (T::IsDateTime(data))
         PutText(T::GetStringAsDateTime(data, options_->date_time_format_),
+                newline, out);
+      else if (T::IsFloat(data))
+        PutText(T::GetStringAsFloat(data, options_->float_precision_),
                 newline, out);
       else
         PutText(T::GetString(data), newline, out);
@@ -339,10 +345,10 @@ namespace nkit
     void PutText(const DataType & data, std::string * out)
     {
       // TODO: optimize by member string
-      if (T::IsFloat(data))
-        PutText(T::GetStringAsFloat(data, options_->float_precision_), out);
-      else if (T::IsDateTime(data))
+      if (T::IsDateTime(data))
         PutText(T::GetStringAsDateTime(data, options_->date_time_format_), out);
+      else if (T::IsFloat(data))
+        PutText(T::GetStringAsFloat(data, options_->float_precision_), out);
       else
         PutText(T::GetString(data), out);
     }
