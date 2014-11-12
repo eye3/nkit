@@ -25,8 +25,8 @@ namespace nkit_test
       << "attrkey" << "$"
       << "textkey" << "_"
       << "cdata" << DLIST("cdata")
-      << "bool_true_format" << "TRUE"
-      << "bool_false_format" << "FALSE"
+      << "bool_true" << "TRUE"
+      << "bool_false" << "FALSE"
     );
 
     Dynamic data = DDICT(

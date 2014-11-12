@@ -28,8 +28,8 @@ namespace nkit
   struct Var2XmlOptions
   {
     static const size_t DEFAULT_FLOAT_PRECISION;
-    static const std::string BOOL_TRUE_FORMAT;
-    static const std::string BOOL_FALSE_FORMAT;
+    static const std::string BOOL_TRUE;
+    static const std::string BOOL_FALSE;
 
     struct Pretty
     {
@@ -63,8 +63,8 @@ namespace nkit
                 DEFAULT_FLOAT_PRECISION)
         .Get(".date_time_format", &res->date_time_format_,
                 S_DATE_TIME_DEFAULT_FORMAT_)
-        .Get(".bool_true_format", &res->bool_true_format_, BOOL_TRUE_FORMAT)
-        .Get(".bool_false_format", &res->bool_false_format_, BOOL_FALSE_FORMAT)
+        .Get(".bool_true", &res->bool_true_, BOOL_TRUE)
+        .Get(".bool_false", &res->bool_false_, BOOL_FALSE)
       ;
 
       if (!op.ok())
@@ -133,8 +133,8 @@ namespace nkit
     bool cdata_exclude_;
     size_t float_precision_;
     std::string date_time_format_;
-    std::string bool_true_format_;
-    std::string bool_false_format_;
+    std::string bool_true_;
+    std::string bool_false_;
   };  // struct Var2XmlOptions
 
   //----------------------------------------------------------------------------
@@ -346,8 +346,8 @@ namespace nkit
                 newline, out);
       else if (T::IsBool(data))
         PutText(T::GetStringAsBool(data,
-                  options_->bool_true_format_,
-                  options_->bool_false_format_),
+                  options_->bool_true_,
+                  options_->bool_false_),
                 newline, out);
       else
         PutText(T::GetString(data), newline, out);
@@ -363,8 +363,8 @@ namespace nkit
         PutText(T::GetStringAsFloat(data, options_->float_precision_), out);
       else if (T::IsBool(data))
         PutText(T::GetStringAsBool(data,
-                  options_->bool_true_format_,
-                  options_->bool_false_format_),
+                  options_->bool_true_,
+                  options_->bool_false_),
                 out);
       else
         PutText(T::GetString(data), out);
