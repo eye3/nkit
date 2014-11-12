@@ -11,7 +11,7 @@ namespace nkit_test
   {
     Dynamic options = DDICT(
          "rootname" << "ROOT"
-      << "itemname" << "item"
+//      << "itemname" << "item"
       << "xmldec" << DDICT(
                "version" << "1.0"
                //<< "encoding" << "UTF-8"
