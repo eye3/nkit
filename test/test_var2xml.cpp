@@ -10,9 +10,9 @@ namespace nkit_test
   NKIT_TEST_CASE(var2xml)
   {
     Dynamic options = DDICT(
-         "rootname" << "ROOT"
-//      << "itemname" << "item"
-      << "xmldec" << DDICT(
+      //"rootname" << "ROOT" <<
+      //"itemname" << "item_" <<
+      "xmldec" << DDICT(
                "version" << "1.0"
                //<< "encoding" << "UTF-8"
                << "encoding" << "windows-1251"
