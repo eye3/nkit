@@ -1,5 +1,7 @@
-#ifndef NKIT_VX_H
-#define NKIT_VX_H
+#ifndef NKIT_XML2VAR_H
+#define NKIT_XML2VAR_H
+
+#include <stack>
 
 #include "nkit/detail/str2id.h"
 #include "nkit/dynamic_json.h"
@@ -16,7 +18,7 @@ namespace nkit
       static const bool TRIM_DEFAULT;
       static const bool UNICODE_DEFAULT;
 
-      typedef NKIT_SHARED_PTR(Options) Ptr;
+      typedef NKIT_SHARED_PTR(Options)Ptr;
 
       static Ptr Create()
       {
@@ -26,7 +28,7 @@ namespace nkit
       static Ptr Create(const Dynamic & options, std::string * error)
       {
         if (!options)
-          return Create();
+        return Create();
         DynamicGetter config(options);
         return Create(config, error);
       }
@@ -34,7 +36,7 @@ namespace nkit
       static Ptr Create(const std::string & options, std::string * error)
       {
         if (options.empty())
-          return Create();
+        return Create();
         DynamicGetter config(options, "");
         return Create(config, error);
       }
@@ -47,6 +49,7 @@ namespace nkit
           .Get(".white_spaces", &ret->white_spaces_, WHITE_SPACES)
           .Get(".unicode", &ret->unicode_, UNICODE_DEFAULT)
           .Get(".attrkey", &ret->attrkey_, S_EMPTY_)
+          .Get(".textkey", &ret->textkey_, S_EMPTY_)
         ;
 
         if (!config.ok())
@@ -68,17 +71,20 @@ namespace nkit
       std::string white_spaces_;
       bool unicode_;
       std::string attrkey_;
+      std::string textkey_;
     };
-  }
+  } // namespace detail
 
-  template< typename Policy >
+  template<typename Policy>
   class VarBuilder: Uncopyable
   {
   public:
+    typedef NKIT_SHARED_PTR(VarBuilder<Policy>)Ptr;
     typedef typename Policy::type type;
 
     VarBuilder(const detail::Options::Ptr & options)
       : p_(*options)
+      , options_(options)
     {}
 
     void InitAsBoolean( std::string const & value )
@@ -153,6 +159,19 @@ namespace nkit
       p_.InitAsDict();
     }
 
+    void SetAttrKey(const char ** attrs)
+    {
+      if (!options_->attrkey_.empty() && attrs[0])
+      {
+        VarBuilder<Policy> attr_builder(options_);
+        attr_builder.InitAsDict();
+        for (size_t i = 0; attrs[i] && attrs[i + 1]; ++(++i))
+        attr_builder.SetDictKeyValue(std::string(attrs[i]),
+            std::string(attrs[i + 1]));
+        SetDictKeyValue(options_->attrkey_, attr_builder.get());
+      }
+    }
+
     void AppendToList( type const & obj )
     {
       p_.ListCheck();
@@ -162,7 +181,26 @@ namespace nkit
     void SetDictKeyValue( std::string const & key, type const & var )
     {
       p_.DictCheck();
-      p_.SetDictKeyValue( key, var );
+      p_.SetDictKeyValue(key, var);
+    }
+
+    void SetDictKeyValue( std::string const & key, std::string const & var )
+    {
+      VarBuilder<Policy> string_value_builder(options_);
+      string_value_builder.InitAsString(var);
+      p_.SetDictKeyValue(key, string_value_builder.get());
+    }
+
+    void AppendToDictKeyList( std::string const & key, type const & var )
+    {
+      p_.AppendToDictKeyList(key, var);
+    }
+
+    void AppendToDictKeyList( std::string const & key, std::string const & var )
+    {
+      VarBuilder<Policy> string_value_builder(options_);
+      string_value_builder.InitAsString(var);
+      p_.AppendToDictKeyList(key, string_value_builder.get());
     }
 
     type const & get() const
@@ -177,6 +215,7 @@ namespace nkit
 
   private:
     Policy p_;
+    detail::Options::Ptr options_;
   };
 
   //----------------------------------------------------------------------------
@@ -585,20 +624,21 @@ namespace nkit
 
     void OnEnter(const char ** attrs)
     {
-      if (!Target<T>::options_->attrkey_.empty() && attrs[0])
-      {
-        T attr_builder(Target<T>::options_);
-        attr_builder.InitAsDict();
-        for (size_t i = 0; attrs[i] && attrs[i + 1]; ++(++i))
-        {
-          T value_builder(Target<T>::options_);
-          value_builder.InitAsString(std::string(attrs[i + 1]));
-          attr_builder.SetDictKeyValue(std::string(attrs[i]),
-              value_builder.get());
-        }
-        Target<T>::var_builder_.SetDictKeyValue(Target<T>::options_->attrkey_,
-                attr_builder.get());
-      }
+      Target<T>::var_builder_.SetAttrKey(attrs);
+//      if (!Target<T>::options_->attrkey_.empty() && attrs[0])
+//      {
+//        T attr_builder(Target<T>::options_);
+//        attr_builder.InitAsDict();
+//        for (size_t i = 0; attrs[i] && attrs[i + 1]; ++(++i))
+//        {
+//          T value_builder(Target<T>::options_);
+//          value_builder.InitAsString(std::string(attrs[i + 1]));
+//          attr_builder.SetDictKeyValue(std::string(attrs[i]),
+//              value_builder.get());
+//        }
+//        Target<T>::var_builder_.SetDictKeyValue(Target<T>::options_->attrkey_,
+//                attr_builder.get());
+//      }
     }
 
     void OnExit(const char * el)
@@ -982,10 +1022,10 @@ namespace nkit
 
   //----------------------------------------------------------------------------
   template <typename T>
-  class Xml2VarBuilder: public ExpatParser<Xml2VarBuilder<T> >
+  class StructXml2VarBuilder: public ExpatParser<StructXml2VarBuilder<T> >
   {
   private:
-    friend class ExpatParser<Xml2VarBuilder<T> > ;
+    friend class ExpatParser<StructXml2VarBuilder<T> > ;
     typedef typename TargetItem<T>::Ptr TargetItemPtr;
     typedef typename Target<T>::Ptr TargetPtr;
     typedef typename PathNode<T>::Ptr PathNodePtr;
@@ -994,7 +1034,7 @@ namespace nkit
     typedef std::map<std::string, TargetPtr> RootTargets;
 
   public:
-    typedef NKIT_SHARED_PTR(Xml2VarBuilder<T>) Ptr;
+    typedef NKIT_SHARED_PTR(StructXml2VarBuilder<T>) Ptr;
 
   public:
     static Ptr Create(const std::string & options, std::string * error)
@@ -1002,7 +1042,7 @@ namespace nkit
       detail::Options::Ptr o = detail::Options::Create(options, error);
       if (!o)
         return Ptr();
-      return Ptr(new Xml2VarBuilder<T>(o));
+      return Ptr(new StructXml2VarBuilder<T>(o));
     }
 
     static Ptr Create(const std::string & options,
@@ -1015,7 +1055,7 @@ namespace nkit
       if (!m)
         return Ptr();
 
-      Ptr ret(new Xml2VarBuilder<T>(o));
+      Ptr ret(new StructXml2VarBuilder<T>(o));
 
       DDICT_FOREACH(pair, m)
       {
@@ -1031,7 +1071,7 @@ namespace nkit
       detail::Options::Ptr o = detail::Options::Create(options, error);
       if (!o)
         return Ptr();
-      return Ptr(new Xml2VarBuilder<T>(o));
+      return Ptr(new StructXml2VarBuilder<T>(o));
     }
 
     bool AddMapping(const std::string & target_name,
@@ -1058,7 +1098,7 @@ namespace nkit
       return true;
     }
 
-    ~Xml2VarBuilder() {}
+    ~StructXml2VarBuilder() {}
 
     StringList mapping_names() const
     {
@@ -1082,7 +1122,7 @@ namespace nkit
     }
 
   private:
-    Xml2VarBuilder(detail::Options::Ptr o)
+    StructXml2VarBuilder(detail::Options::Ptr o)
       : path_tree_(PathNode<T>::CreateRoot())
       , current_node_(path_tree_.get())
       , options_(o)
@@ -1434,7 +1474,7 @@ namespace nkit
       return target_item->target();
     }
 
-    //--------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   private:
     std::string error_;
     PathNodePtr path_tree_;
@@ -1446,8 +1486,125 @@ namespace nkit
     bool first_node_;
     String2IdMap str2id_;
     TargetItemVector mask_target_items_;
-  }; // Xml2VarBuilder
+  }; // StructXml2VarBuilder
+
+  //----------------------------------------------------------------------------
+  template <typename T>
+  class AnyXml2VarBuilder: public ExpatParser<AnyXml2VarBuilder<T> >
+  {
+  private:
+    friend class ExpatParser<AnyXml2VarBuilder<T> > ;
+    typedef typename T::Ptr VarBuilderPtr;
+
+  public:
+    typedef NKIT_SHARED_PTR(AnyXml2VarBuilder<T>) Ptr;
+
+  public:
+    static Ptr Create(const std::string & options, std::string * error)
+    {
+      detail::Options::Ptr o = detail::Options::Create(options, error);
+      if (!o)
+        return Ptr();
+      return Ptr(new AnyXml2VarBuilder<T>(o));
+    }
+
+    static Ptr Create(const Dynamic & options, std::string * error)
+    {
+      detail::Options::Ptr o = detail::Options::Create(options, error);
+      if (!o)
+        return Ptr();
+      return Ptr(new AnyXml2VarBuilder<T>(o));
+    }
+
+    const typename T::type & var() const
+    {
+      return root_var_builder_->get();
+    }
+
+  private:
+    AnyXml2VarBuilder(detail::Options::Ptr o)
+      : options_(o)
+      , root_var_builder_(new T(options_))
+      , first_(true)
+    {
+      is_simple_element_stack_.push(false);
+      root_var_builder_->InitAsDict();
+      var_builder_stack_.push(root_var_builder_);
+      if (options_->attrkey_.empty())
+        options_->attrkey_ = "$";
+      if (options_->textkey_.empty())
+        options_->textkey_ = "_";
+    }
+
+    bool OnStartElement(const char * NKIT_UNUSED(el), const char ** attrs)
+    {
+      bool has_attrs = (attrs[0] != NULL);
+      if (unlikely(first_))
+      {
+        first_ = false;
+        if (has_attrs)
+          root_var_builder_->SetAttrKey(attrs);
+      }
+      else
+      {
+        is_simple_element_stack_.top() = false;
+        VarBuilderPtr var_builder_(new T(options_));
+        var_builder_->InitAsDict();
+        if (has_attrs)
+          var_builder_->SetAttrKey(attrs);
+        is_simple_element_stack_.push(!has_attrs);
+        var_builder_stack_.push(var_builder_);
+      }
+      return true;
+    }
+
+    bool OnEndElement(const char * el)
+    {
+      if (options_->trim_)
+        current_text_ = trim(current_text_, options_->white_spaces_);
+
+      if (is_simple_element_stack_.top())
+      {
+        var_builder_stack_.pop();
+        var_builder_stack_.top()->AppendToDictKeyList(el, current_text_);
+      }
+      else
+      {
+        VarBuilderPtr last = var_builder_stack_.top();
+        if (!current_text_.empty())
+          last->SetDictKeyValue(options_->textkey_, current_text_);
+        var_builder_stack_.pop();
+        if (!var_builder_stack_.empty())
+          var_builder_stack_.top()->AppendToDictKeyList(el, (*last).get());
+      }
+
+      is_simple_element_stack_.pop();
+      current_text_.clear();
+      return true;
+    }
+
+    bool OnText(const char * text, int len)
+    {
+      current_text_.append(text, len);
+      return true;
+    }
+
+    void GetCustomError(std::string * error)
+    {
+      *error = error_;
+    }
+
+  //----------------------------------------------------------------------------
+  private:
+    std::string error_;
+    detail::Options::Ptr options_;
+    VarBuilderPtr root_var_builder_;
+    bool first_;
+    std::stack<VarBuilderPtr> var_builder_stack_;
+    std::stack<bool> is_simple_element_stack_;
+    std::string current_text_;
+  }; // AnyXml2VarBuilder
 
 } // namespace nkit
 
-#endif // NKIT_VX_H
+#endif // NKIT_XML2VAR_H

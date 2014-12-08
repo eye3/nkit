@@ -376,7 +376,7 @@ namespace nkit_test
     NKIT_TEST_ASSERT_WITH_TEXT(
         text_file_to_string(options_path, &options, &error), error);
 
-    Xml2VarBuilder<DynamicBuilder>::Ptr builder = Xml2VarBuilder<
+    StructXml2VarBuilder<DynamicBuilder>::Ptr builder = StructXml2VarBuilder<
         DynamicBuilder>::Create(options, mapping, &error);
     NKIT_TEST_ASSERT_WITH_TEXT(builder, error);
     NKIT_TEST_ASSERT_WITH_TEXT(
@@ -438,6 +438,27 @@ namespace nkit_test
     NKIT_TEST_ASSERT_WITH_TEXT(var, error);
 
     CINFO(json_hr << var);
+  }
+
+  //---------------------------------------------------------------------------
+  NKIT_TEST_CASE(xml2var_any)
+  {
+    std::string error;
+    std::string xml_path("./data/sample1251.xml");
+    std::string xml;
+    NKIT_TEST_ASSERT_WITH_TEXT(
+        text_file_to_string(xml_path, &xml, &error), error);
+
+    std::string options;
+    std::string options_path("./data/options_attrkey.json");
+    NKIT_TEST_ASSERT_WITH_TEXT(
+        text_file_to_string(options_path, &options, &error), error);
+
+    Dynamic var = DynamicFromAnyXml(xml, options, &error);
+    //NKIT_TEST_ASSERT_WITH_TEXT(var, error);
+
+    CINFO(json_hr << var);
+    //CINFO(var);
   }
 
 } // namespace nkit_test

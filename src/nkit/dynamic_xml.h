@@ -21,6 +21,9 @@
 
 namespace nkit
 {
+  Dynamic DynamicFromAnyXml(const std::string & xml,
+        const std::string & options,
+        std::string * const error);
   Dynamic DynamicFromXml(const std::string & xml,
       const Dynamic & options,
       const Dynamic & mapping,
