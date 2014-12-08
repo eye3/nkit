@@ -12,18 +12,18 @@ namespace nkit_test
     Dynamic options = DDICT(
       "rootname" << "ROOT" <<
       "itemname" << "item_" <<
-      //"encoding" << "UTF-8" <<
-      "encoding" << "windows-1251" <<
-//      "xmldec" << DDICT(
-//               "version" << "1.0" <<
-//               "standalone" << true
-//        ) <<
+      "encoding" << "UTF-8" <<
+      //"encoding" << "windows-1251" <<
+      "xmldec" << DDICT(
+               "version" << "1.0" <<
+               "standalone" << true
+        ) <<
       "pretty" << DDICT(
-               "indent" << "  " <<
+               "indent" << "\t" <<
                "newline" << "\n"
         )
-//      << "attrkey" << "$"
-//      << "textkey" << "_"
+      << "attrkey" << "$"
+      << "textkey" << "_"
       << "cdata" << DLIST("cdata")
       << "bool_true" << "TRUE"
       << "bool_false" << "FALSE"

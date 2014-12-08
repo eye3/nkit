@@ -1527,6 +1527,7 @@ namespace nkit
       , root_var_builder_(new T(options_))
       , first_(true)
     {
+      current_text_stack_.push(S_EMPTY_);
       is_simple_element_stack_.push(false);
       root_var_builder_->InitAsDict();
       var_builder_stack_.push(root_var_builder_);
@@ -1554,38 +1555,40 @@ namespace nkit
           var_builder_->SetAttrKey(attrs);
         is_simple_element_stack_.push(!has_attrs);
         var_builder_stack_.push(var_builder_);
+        current_text_stack_.push(S_EMPTY_);
       }
       return true;
     }
 
     bool OnEndElement(const char * el)
     {
+      std::string & current_text = current_text_stack_.top();
       if (options_->trim_)
-        current_text_ = trim(current_text_, options_->white_spaces_);
+        current_text.assign(trim(current_text, options_->white_spaces_));
 
       if (is_simple_element_stack_.top())
       {
         var_builder_stack_.pop();
-        var_builder_stack_.top()->AppendToDictKeyList(el, current_text_);
+        var_builder_stack_.top()->AppendToDictKeyList(el, current_text);
       }
       else
       {
         VarBuilderPtr last = var_builder_stack_.top();
-        if (!current_text_.empty())
-          last->SetDictKeyValue(options_->textkey_, current_text_);
+        if (!current_text.empty())
+          last->SetDictKeyValue(options_->textkey_, current_text);
         var_builder_stack_.pop();
         if (!var_builder_stack_.empty())
           var_builder_stack_.top()->AppendToDictKeyList(el, (*last).get());
       }
 
       is_simple_element_stack_.pop();
-      current_text_.clear();
+      current_text_stack_.pop();
       return true;
     }
 
     bool OnText(const char * text, int len)
     {
-      current_text_.append(text, len);
+      current_text_stack_.top().append(text, len);
       return true;
     }
 
@@ -1602,7 +1605,7 @@ namespace nkit
     bool first_;
     std::stack<VarBuilderPtr> var_builder_stack_;
     std::stack<bool> is_simple_element_stack_;
-    std::string current_text_;
+    std::stack<std::string> current_text_stack_;
   }; // AnyXml2VarBuilder
 
 } // namespace nkit
