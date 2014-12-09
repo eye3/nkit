@@ -444,21 +444,55 @@ namespace nkit_test
   NKIT_TEST_CASE(xml2var_any)
   {
     std::string error;
-    std::string xml_path("./data/sample1251.xml");
-    std::string xml;
-    NKIT_TEST_ASSERT_WITH_TEXT(
-        text_file_to_string(xml_path, &xml, &error), error);
+    std::string xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+"<rss version=\"2.0\">\n"
+"  <channel>\n"
+"    <title>FOREX (45 пар валют)</title>\n"
+"    <link>http://stock.rbc.ru/online/forex.0/intraday/index.rus.shtml</link>\n"
+"    <description>FOREX (45 пар валют) :: Realtime</description>\n"
+"    <pubDate>Tue, 09 Dec 2014 10:10:18 GMT</pubDate>\n"
+"    <language>ru-ru</language>\n"
+"    <item>\n"
+"      <title>Австралийский доллар/Канадский доллар</title>\n"
+"      <link>http://stock.rbc.ru/online/forex.0/intraday/AUD_CAD.rus.shtml</link>\n"
+"      <description>AUD/CAD (AUD_CAD); 0.9516 (-0.04%)</description>\n"
+"    </item>\n"
+"    <item>\n"
+"      <title>Австралийский доллар/Гонконгский доллар</title>\n"
+"      <link>http://stock.rbc.ru/online/forex.0/intraday/AUD_HKD.rus.shtml</link>\n"
+"      <description>AUD/HKD (AUD_HKD); 6.4257 (-0.02%)</description>\n"
+"    </item>\n"
+"  </channel>\n"
+"</rss>";
 
-    std::string options;
-    std::string options_path("./data/options_attrkey.json");
-    NKIT_TEST_ASSERT_WITH_TEXT(
-        text_file_to_string(options_path, &options, &error), error);
+    Dynamic options = DDICT(
+      "trim" << true <<
+      "priority" << DLIST("title"
+                      << "link"
+                      << "description"
+                      << "pubDate"
+                      << "language") <<
+      "attrkey" << "$" <<
+      "textkey" << "_" <<
+      "rootname" << "rss" <<
+      "itemname" << "item" <<
+      "encoding" << "UTF-8" <<
+      "xmldec" << DDICT(
+         "version" << "1.0" <<
+         "standalone" << true
+        ) <<
+      "pretty" << DDICT(
+         "indent" << "  " <<
+         "newline" << "\n"
+        )
+    );
 
-    Dynamic var = DynamicFromAnyXml(xml, options, &error);
-    //NKIT_TEST_ASSERT_WITH_TEXT(var, error);
+    Dynamic data = DynamicFromAnyXml(xml, options, &error);
 
-    CINFO(json_hr << var);
-    //CINFO(var);
+    std::string out;
+    NKIT_TEST_ASSERT_WITH_TEXT(Dynamic2XmlConverter::Process(
+        options, data, &out, &error), error);
+    NKIT_TEST_EQ(xml, out);
   }
 
 } // namespace nkit_test

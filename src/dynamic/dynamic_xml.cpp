@@ -33,6 +33,19 @@ namespace nkit
     return builder->var();
   }
 
+  Dynamic DynamicFromAnyXml(const std::string & xml,
+      const Dynamic & options,
+      std::string * const error)
+  {
+    AnyXml2VarBuilder<DynamicBuilder>::Ptr builder = AnyXml2VarBuilder<
+        DynamicBuilder>::Create(options, error);
+    if(!builder)
+      return Dynamic();
+    if (!builder->Feed(xml.c_str(), xml.length(), true, error))
+      return Dynamic();
+    return builder->var();
+  }
+
   Dynamic DynamicFromXml(const std::string & xml,
       const std::string & options,
       const std::string & mapping,
