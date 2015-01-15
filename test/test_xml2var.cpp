@@ -487,7 +487,9 @@ namespace nkit_test
         )
     );
 
-    Dynamic data = DynamicFromAnyXml(xml, options, &error);
+    std::string root_name;
+    Dynamic data = DynamicFromAnyXml(xml, options, &root_name, &error);
+    CINFO(root_name << "\n" << data);
 
     std::string out;
     NKIT_TEST_ASSERT_WITH_TEXT(Dynamic2XmlConverter::Process(

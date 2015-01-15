@@ -22,6 +22,7 @@ namespace nkit
 {
   Dynamic DynamicFromAnyXml(const std::string & xml,
       const std::string & options,
+      std::string * const root_name,
       std::string * const error)
   {
     AnyXml2VarBuilder<DynamicBuilder>::Ptr builder = AnyXml2VarBuilder<
@@ -30,11 +31,13 @@ namespace nkit
       return Dynamic();
     if (!builder->Feed(xml.c_str(), xml.length(), true, error))
       return Dynamic();
+    *root_name = builder->root_name();
     return builder->var();
   }
 
   Dynamic DynamicFromAnyXml(const std::string & xml,
       const Dynamic & options,
+      std::string * const root_name,
       std::string * const error)
   {
     AnyXml2VarBuilder<DynamicBuilder>::Ptr builder = AnyXml2VarBuilder<
@@ -43,6 +46,7 @@ namespace nkit
       return Dynamic();
     if (!builder->Feed(xml.c_str(), xml.length(), true, error))
       return Dynamic();
+    *root_name = builder->root_name();
     return builder->var();
   }
 

@@ -290,6 +290,14 @@ namespace nkit
   }
 
   //----------------------------------------------------------------------------
+  template <typename T>
+  void clear_stack(T & st)
+  {
+    while (!st.empty())
+      st.pop();
+  }
+
+  //----------------------------------------------------------------------------
   class ToolsInitializer;
 
   class TimeMeter

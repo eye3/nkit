@@ -1521,12 +1521,30 @@ namespace nkit
       return root_var_builder_->get();
     }
 
-  private:
-    AnyXml2VarBuilder(detail::Options::Ptr o)
-      : options_(o)
-      , root_var_builder_(new T(options_))
-      , first_(true)
+    const std::string & root_name() const
     {
+      return root_name_;
+    }
+
+    bool Clear(const Dynamic & options, std::string * error)
+    {
+      detail::Options::Ptr o = detail::Options::Create(options, error);
+      if (!o)
+        return false;
+      options_ = o;
+      Clear();
+      return true;
+    }
+
+    void Clear()
+    {
+      root_var_builder_.reset(new T(options_));
+      first_ = true;
+      root_name_.clear();
+      clear_stack(current_text_stack_);
+      clear_stack(is_simple_element_stack_);
+      clear_stack(var_builder_stack_);
+
       current_text_stack_.push(S_EMPTY_);
       is_simple_element_stack_.push(false);
       root_var_builder_->InitAsDict();
@@ -1537,11 +1555,20 @@ namespace nkit
         options_->textkey_ = "_";
     }
 
-    bool OnStartElement(const char * NKIT_UNUSED(el), const char ** attrs)
+  private:
+    AnyXml2VarBuilder(detail::Options::Ptr o)
+      : options_(o)
+      , first_(true)
+    {
+      Clear();
+    }
+
+    bool OnStartElement(const char * el, const char ** attrs)
     {
       bool has_attrs = (attrs[0] != NULL);
       if (unlikely(first_))
       {
+        root_name_.assign(el);
         first_ = false;
         if (has_attrs)
           root_var_builder_->SetAttrKey(attrs);
@@ -1603,6 +1630,7 @@ namespace nkit
     detail::Options::Ptr options_;
     VarBuilderPtr root_var_builder_;
     bool first_;
+    std::string root_name_;
     std::stack<VarBuilderPtr> var_builder_stack_;
     std::stack<bool> is_simple_element_stack_;
     std::stack<std::string> current_text_stack_;
