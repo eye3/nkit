@@ -1538,7 +1538,7 @@ namespace nkit
 
     void Clear()
     {
-      root_var_builder_.reset(new T(options_));
+      root_var_builder_ = VarBuilderPtr(new T(options_));
       first_ = true;
       root_name_.clear();
       clear_stack(current_text_stack_);
