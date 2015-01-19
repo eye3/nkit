@@ -20,6 +20,7 @@
 #include <iostream>
 #include <algorithm>
 #include <locale>
+#include <deque>
 
 #include <nkit/types.h>
 #include <nkit/ctools.h>
@@ -362,6 +363,38 @@ namespace nkit
       out << "]\n";
     }
   };
+
+  template <typename T>
+  std::ostream & operator << (std::ostream & out,
+      const std::list<T> & container)
+  {
+    Printer<std::list<T> >::_print(out, container, "");
+    return out;
+  }
+
+  template <typename T>
+  std::ostream & operator << (std::ostream & out,
+      const std::vector<T> & container)
+  {
+    Printer<std::vector<T> >::_print(out, container, "");
+    return out;
+  }
+
+  template <typename T>
+  std::ostream & operator << (std::ostream & out,
+      const std::set<T> & container)
+  {
+    Printer<std::set<T> >::_print(out, container, "");
+    return out;
+  }
+
+  template <typename T>
+  std::ostream & operator << (std::ostream & out,
+      const std::deque<T> & container)
+  {
+    Printer<std::deque<T> >::_print(out, container, "");
+    return out;
+  }
 
   template <typename K, typename V>
   struct Printer<std::map<K, V> >
