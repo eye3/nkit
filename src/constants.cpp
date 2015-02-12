@@ -33,12 +33,14 @@
 namespace nkit
 {
   const char * GMT_FORMAT_ = "%a, %d %b %Y %H:%M:%S GMT";
-  const char * Y_m_d_H_M_S_ = "%Y-%m-%d %H:%M:%S";
   const char * DATE_TIME_DEFAULT_FORMAT()
   {
-    const char * result = Y_m_d_H_M_S_;
+    static const char * result = "%Y-%m-%d %H:%M:%S";
     return result;
   }
+
+  const char * Y_m_d_H_M_S_ = DATE_TIME_DEFAULT_FORMAT();
+  const char * DATE_TIME_DEFAULT_FORMAT_ = DATE_TIME_DEFAULT_FORMAT();
 
   const std::string S_DATE_TIME_DEFAULT_FORMAT_(DATE_TIME_DEFAULT_FORMAT());
   const std::string S_FLOAT_DEFAULT_(NKIT_FORMAT_DOUBLE);
