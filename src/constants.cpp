@@ -34,9 +34,13 @@ namespace nkit
 {
   const char * GMT_FORMAT_ = "%a, %d %b %Y %H:%M:%S GMT";
   const char * Y_m_d_H_M_S_ = "%Y-%m-%d %H:%M:%S";
-  const char * DATE_TIME_DEFAULT_FORMAT_ = Y_m_d_H_M_S_;
+  const char * DATE_TIME_DEFAULT_FORMAT()
+  {
+    const char * result = Y_m_d_H_M_S_;
+    return result;
+  }
 
-  const std::string S_DATE_TIME_DEFAULT_FORMAT_(DATE_TIME_DEFAULT_FORMAT_);
+  const std::string S_DATE_TIME_DEFAULT_FORMAT_(DATE_TIME_DEFAULT_FORMAT());
   const std::string S_FLOAT_DEFAULT_(NKIT_FORMAT_DOUBLE);
 
   uint64_t MAX_UINT64_VALUE = std::numeric_limits<uint64_t>::max();

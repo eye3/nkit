@@ -140,7 +140,7 @@ namespace nkit
 
     void InitAsDatetime( std::string const & value )
     {
-      p_.InitAsDatetimeFormat( value, DATE_TIME_DEFAULT_FORMAT_ );
+      p_.InitAsDatetimeFormat( value, DATE_TIME_DEFAULT_FORMAT() );
     }
 
     void InitAsDatetimeFormat( std::string const & value,

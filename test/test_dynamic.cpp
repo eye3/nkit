@@ -727,11 +727,11 @@ namespace nkit_test
     item1 = Dynamic::DateTimeLocal();
     item2 = Dynamic::DateTimeGmt();
     list1 = DLIST(item1 << item2);
-    out_check = prefix + item1.GetString(DATE_TIME_DEFAULT_FORMAT_) + postfix
+    out_check = prefix + item1.GetString(DATE_TIME_DEFAULT_FORMAT()) + postfix
         + delimiter
-        + prefix + item2.GetString(DATE_TIME_DEFAULT_FORMAT_) + postfix;
+        + prefix + item2.GetString(DATE_TIME_DEFAULT_FORMAT()) + postfix;
     out.clear();
-    list1.Join("'", prefix, postfix, DATE_TIME_DEFAULT_FORMAT_, &out);
+    list1.Join("'", prefix, postfix, DATE_TIME_DEFAULT_FORMAT(), &out);
     NKIT_TEST_ASSERT(out == out_check);
   }
 
