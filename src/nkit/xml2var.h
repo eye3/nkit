@@ -17,6 +17,7 @@ namespace nkit
     {
       static const bool TRIM_DEFAULT;
       static const bool UNICODE_DEFAULT;
+      static const bool ORDERED_DICT;
 
       typedef NKIT_SHARED_PTR(Options)Ptr;
 
@@ -50,6 +51,7 @@ namespace nkit
           .Get(".unicode", &ret->unicode_, UNICODE_DEFAULT)
           .Get(".attrkey", &ret->attrkey_, S_EMPTY_)
           .Get(".textkey", &ret->textkey_, S_EMPTY_)
+          .Get(".ordered_dict", &ret->ordered_dict_, ORDERED_DICT)
         ;
 
         if (!config.ok())
@@ -65,11 +67,13 @@ namespace nkit
         : trim_(TRIM_DEFAULT)
         , white_spaces_(WHITE_SPACES)
         , unicode_(UNICODE_DEFAULT)
+        , ordered_dict_(ORDERED_DICT)
       {}
 
       bool trim_;
       std::string white_spaces_;
       bool unicode_;
+      bool ordered_dict_;
       std::string attrkey_;
       std::string textkey_;
     };

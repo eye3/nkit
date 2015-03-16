@@ -44,6 +44,8 @@ namespace nkit
 
   //----------------------------------------------------------------------------
   const std::string WHITE_SPACES(" \n\t\r");
+  const std::string WHITE_SPACES_BUT_TAB(" \n\r");
+  const std::string WHITE_SPACES_BUT_SPACE("\t\n\r");
 
   bool is_white_space(char ch, const std::string & white_spaces)
   {
@@ -273,13 +275,13 @@ namespace nkit
 
   //----------------------------------------------------------------------------
   void simple_split(const std::string & src, const std::string & delimeter,
-      StringVector * dst)
+      StringVector * dst, const std::string & white_spaces)
   {
     dst->clear();
     size_t size = src.size();
     if (size == 0)
       return;
-    size_t first_pos = skip_space_forward(src.c_str(), 0, size);
+    size_t first_pos = skip_space_forward(src.c_str(), 0, size, white_spaces);
     if (first_pos >= size)
       return;
 
@@ -288,9 +290,11 @@ namespace nkit
     size_t pos = src.find(delimeter, first_pos);
     while (pos != src.npos)
     {
-      size_t last_pos = pos > 0 ? skip_space_backward(src.c_str(), pos-1) : -1;
+      size_t last_pos = pos > 0 ?
+          skip_space_backward(src.c_str(), pos-1, white_spaces) : -1;
       dst->push_back(src.substr(first_pos, last_pos - first_pos + 1));
-      first_pos = skip_space_forward(src.c_str(), pos + delimeter_size, size);
+      first_pos = skip_space_forward(src.c_str(), pos + delimeter_size, size,
+          white_spaces);
       pos = src.find(delimeter, first_pos);
     }
 
@@ -299,14 +303,15 @@ namespace nkit
 
   //----------------------------------------------------------------------------
   bool simple_split(const std::string & src, const std::string & delimeter,
-      std::string * key, std::string * value)
+      std::string * key, std::string * value,
+      const std::string & white_spaces)
   {
     key->clear();
     value->clear();
     size_t size = src.size();
     if (size == 0)
       return false;
-    size_t first_pos = skip_space_forward(src.c_str(), 0, size);
+    size_t first_pos = skip_space_forward(src.c_str(), 0, size, white_spaces);
     if (first_pos >= size)
       return false;
 
@@ -315,18 +320,20 @@ namespace nkit
     size_t pos = src.find(delimeter, first_pos);
     if (pos == src.npos)
     {
-      size_t last_pos = skip_space_backward(src.c_str(), size - 1);
+      size_t last_pos = skip_space_backward(src.c_str(), size - 1, white_spaces);
       *key = src.substr(first_pos, last_pos - first_pos + 1);
       return false;
     }
     else
     {
-      size_t last_pos = pos > 0 ? skip_space_backward(src.c_str(), pos-1) : -1;
+      size_t last_pos = pos > 0 ?
+          skip_space_backward(src.c_str(), pos-1, white_spaces) : -1;
       *key = src.substr(first_pos, last_pos - first_pos + 1);
-      first_pos = skip_space_forward(src.c_str(), pos + delimeter_size, size);
+      first_pos = skip_space_forward(src.c_str(), pos + delimeter_size, size,
+          white_spaces);
       if (first_pos < size)
       {
-        last_pos = skip_space_backward(src.c_str(), size - 1);
+        last_pos = skip_space_backward(src.c_str(), size - 1, white_spaces);
         *value = src.substr(first_pos, size - first_pos + 1);
       }
     }

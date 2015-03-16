@@ -63,6 +63,8 @@
 namespace nkit
 {
   extern const std::string WHITE_SPACES;
+  extern const std::string WHITE_SPACES_BUT_TAB;
+  extern const std::string WHITE_SPACES_BUT_SPACE;
   //----------------------------------------------------------------------------
   void abort_with_core(const std::string & error);
 
@@ -184,9 +186,10 @@ namespace nkit
 
   //----------------------------------------------------------------------------
   void simple_split(const std::string & src, const std::string & delimeter,
-      StringVector * dst);
+      StringVector * dst, const std::string & white_spaces = WHITE_SPACES);
   bool simple_split(const std::string & src, const std::string & delimeter,
-      std::string * key, std::string * value);
+      std::string * key, std::string * value,
+      const std::string & white_spaces = WHITE_SPACES);
   std::string ltrim(const std::string & src,
       const std::string & white_spaces);
   std::string rtrim(const std::string & src,
