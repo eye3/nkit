@@ -221,17 +221,25 @@ namespace nkit
     {
       if (T::IsDict(data))
       {
+        bool dict_is_empty = true;
+        bool dict_has_attrkey = false;
         StringList::const_iterator pr_it = options_->priority_list_.begin(),
             pr_end = options_->priority_list_.end();
         for (; pr_it != pr_end; ++pr_it)
         {
           std::string key(*pr_it);
-          if (options_->attr_key_ == key || options_->text_key_ == key)
+          if (options_->attr_key_ == key)
+          {
+            dict_has_attrkey = true;
+            continue;
+          }
+          else if (options_->text_key_ == key)
             continue;
           bool found = false;
           DataType v = T::GetByKey(data, key, &found);
           if (found)
           {
+            dict_is_empty = false;
             if (!T::IsList(v))
               builder.BeginElement(key, v, out);
             if (!Convert(key, v, builder, out, error))
@@ -246,10 +254,16 @@ namespace nkit
         for (; it != end; ++it)
         {
           std::string key(T::First(it));
-          if ( options_->attr_key_ == key || options_->text_key_ == key ||
+          if (options_->attr_key_ == key)
+          {
+            dict_has_attrkey = true;
+            continue;
+          }
+          else if ( options_->text_key_ == key ||
               (options_->priority_set_.find(key) != prset_end) )
             continue;
 
+          dict_is_empty = false;
           DataType v = T::Second(it);
           if (!T::IsList(v))
             builder.BeginElement(key, v, out);
@@ -263,7 +277,11 @@ namespace nkit
         bool found(false);
         DataType text = T::GetByKey(data, options_->text_key_, &found);
         if (found)
-          builder.PutText(text, true, out);
+        {
+          bool newline = dict_has_attrkey || !dict_is_empty;
+          builder.PutText(text, newline, out);
+          first_end_after_begin_ = !newline;
+        }
       }
       else if (T::IsList(data))
       {
@@ -324,7 +342,6 @@ namespace nkit
             out->append("=\"");
             PutText(T::Second(pair), out);
             (*out) += '\"';
-
           }
         }
       }

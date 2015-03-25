@@ -10,15 +10,15 @@ namespace nkit_test
   NKIT_TEST_CASE(var2xml)
   {
     Dynamic options = DDICT(
-      "rootname" << "ROOT" <<
-      "itemname" << "item_" <<
-      "encoding" << "UTF-8" <<
-      //"encoding" << "windows-1251" <<
-      "xmldec" << DDICT(
+         "rootname" << "ROOT"
+      << "itemname" << "item_"
+      << "encoding" << "UTF-8"
+      //"encoding" << "windows-1251"
+      << "xmldec" << DDICT(
                "version" << "1.0" <<
                "standalone" << true
-        ) <<
-      "pretty" << DDICT(
+        )
+      << "pretty" << DDICT(
                "indent" << "\t" <<
                "newline" << "\n"
         )
@@ -45,8 +45,11 @@ namespace nkit_test
               << "float" << 1.1
               << "sub_string" << "text < > & \" '"
               << "list" << DLIST(1 << 2 << 3)
+              << "_" << "Hello(Привет) world(мир)"
+//                 "list" << DLIST(1 << 2 << 3)
+//                "_" << "Hello(Привет) world(мир)"
            )
-      //)
+//      )
     );
 
     std::string out, error;
