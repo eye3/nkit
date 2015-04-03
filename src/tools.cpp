@@ -1,5 +1,5 @@
 /*
-   Copyright 2010-2014 Boris T. Darchiev (boris.darchiev@gmail.com)
+   Copyright 2010-2015 Boris T. Darchiev (boris.darchiev@gmail.com)
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@
 
 #include "nkit/tools.h"
 #include "nkit/constants.h"
+#include "nkit/logger_brief.h"
 
 #if defined(NKIT_WINNT)
 # include <LMCons.h>
@@ -120,11 +121,13 @@ namespace nkit
     case 't':
       return strcmp(first, S_TRUE_.c_str()) == 0;
     case 'T':
-      return strcmp(first, S_TRUE_CAP_.c_str()) == 0;
+      return (strcmp(first, S_TRUE_CAP_.c_str()) == 0)
+          || (strcmp(first, S_TRUE_CAP_CAP_.c_str()) == 0);
     case 'y':
       return strcmp(first, S_YES_.c_str()) == 0;
     case 'Y':
-      return strcmp(first, S_YES_CAP_.c_str()) == 0;
+      return (strcmp(first, S_YES_CAP_.c_str()) == 0)
+          || (strcmp(first, S_YES_CAP_CAP_.c_str()) == 0);
     }
 
     return (*first > 48 && *first <=57); // 1..9

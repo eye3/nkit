@@ -1,5 +1,5 @@
 /*
-   Copyright 2010-2014 Boris T. Darchiev (boris.darchiev@gmail.com)
+   Copyright 2010-2015 Boris T. Darchiev (boris.darchiev@gmail.com)
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -49,8 +49,10 @@ namespace nkit
   NKIT_DECLARE_CONST_STRING(S_FALSE_CAP_)
   NKIT_DECLARE_CONST_STRING(S_TRUE_)
   NKIT_DECLARE_CONST_STRING(S_TRUE_CAP_)
+  NKIT_DECLARE_CONST_STRING(S_TRUE_CAP_CAP_)
   NKIT_DECLARE_CONST_STRING(S_YES_)
   NKIT_DECLARE_CONST_STRING(S_YES_CAP_)
+  NKIT_DECLARE_CONST_STRING(S_YES_CAP_CAP_)
   NKIT_DECLARE_CONST_STRING(S_NO_)
   NKIT_DECLARE_CONST_STRING(S_NO_CAP_)
   NKIT_DECLARE_CONST_STRING(S_ZERO_)
