@@ -62,7 +62,34 @@ namespace nkit_test
   NKIT_OPTIONS_END
   #undef NKIT_OPTIONS_CLASS_NAME
 
+  typedef std::map<std::string, Address::Ptr> AddressMap;
+
   //--------------------------------------------------------------------------
+  NKIT_TEST_CASE(OptionsPathWithDot)
+  {
+    Dynamic etalon = DDICT(
+      "address_map" << DDICT(
+            "asia.0" << DDICT(
+              "street" << "Lenina"
+           << "no" << 93
+           << "corpus" << 4
+           << "flat_no" << 162
+           )
+         << "ipe.1" << DDICT(
+              "street" << "Kirova"
+           << "no" << 3
+           << "corpus" << 44
+           << "flat_no" << 58
+           )
+       )
+    );
+
+    AddressMap address_map;
+    DynamicGetter getter(etalon);
+    getter.Get(".address_map", &address_map);
+    NKIT_TEST_ASSERT_WITH_TEXT(getter.ok(), getter.error());
+  }
+
   NKIT_TEST_CASE(Options)
   {
     Dynamic etalon = DDICT(
