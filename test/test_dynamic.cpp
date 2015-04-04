@@ -201,35 +201,35 @@ namespace nkit_test
     size_t index_var(0);
     DynamicPath dp;
 
-    dp = DynamicPath(".[]", &name);
+    dp = DynamicPath('.', ".[]", &name);
     NKIT_TEST_ASSERT_WITH_TEXT(!dp.ok(), dp.Print());
 
-    dp = DynamicPath(".[", &name);
+    dp = DynamicPath('.', ".[", &name);
     NKIT_TEST_ASSERT_WITH_TEXT(!dp.ok(), dp.Print());
 
-    dp = DynamicPath(".]", &name);
+    dp = DynamicPath('.', ".]", &name);
     NKIT_TEST_ASSERT_WITH_TEXT(!dp.ok(), dp.Print());
 
-    dp = DynamicPath("[10].name", &name);
+    dp = DynamicPath('.', "[10].name", &name);
     NKIT_TEST_ASSERT_WITH_TEXT(!dp.ok(), dp.Print());
 
-    dp = DynamicPath(".[10].[30].name", &name);
+    dp = DynamicPath('.', ".[10].[30].name", &name);
     NKIT_TEST_ASSERT_WITH_TEXT(!dp.ok(), dp.Print());
 
-    dp = DynamicPath(".[10]name", &name);
+    dp = DynamicPath('.', ".[10]name", &name);
     NKIT_TEST_ASSERT_WITH_TEXT(!dp.ok(), dp.Print());
 
-    dp = DynamicPath(".", &name);
+    dp = DynamicPath('.', ".", &name);
     NKIT_TEST_ASSERT_WITH_TEXT(dp.ok(), dp.Print());
 
-    dp = DynamicPath(".%", &name);
+    dp = DynamicPath('.', ".%", &name);
     NKIT_TEST_ASSERT_WITH_TEXT(dp.ok(), dp.error());
     name = "name1";
     NKIT_TEST_ASSERT_WITH_TEXT(dp.Print() == (".&" + name), dp.Print());
     name = "name2";
     NKIT_TEST_ASSERT_WITH_TEXT(dp.Print() == (".&" + name), dp.Print());
 
-    dp = DynamicPath(".%[%]", &name, &index_var);
+    dp = DynamicPath('.', ".%[%]", &name, &index_var);
     NKIT_TEST_ASSERT_WITH_TEXT(dp.ok(), dp.error());
     name = "name1";
     index_var = 0;
@@ -238,7 +238,7 @@ namespace nkit_test
     index_var = 4;
     NKIT_TEST_ASSERT_WITH_TEXT(dp.Print() == (".&" + name + "[&4]"), dp.Print());
 
-    dp = DynamicPath(".name[%]", &index_var);
+    dp = DynamicPath('.', ".name[%]", &index_var);
     NKIT_TEST_ASSERT_WITH_TEXT(dp.ok(), dp.error());
     name = "name1";
     index_var = 0;
@@ -247,7 +247,7 @@ namespace nkit_test
     index_var = 4;
     NKIT_TEST_ASSERT_WITH_TEXT(dp.Print() == (".name[&4]"), dp.Print());
 
-    dp = DynamicPath(".aa[%][30].%", &index_var, &name);
+    dp = DynamicPath('.', ".aa[%][30].%", &index_var, &name);
     NKIT_TEST_ASSERT_WITH_TEXT(dp.ok(), dp.error());
     name = "name1";
     index_var = 0;
@@ -256,7 +256,7 @@ namespace nkit_test
     name = "name2";
     NKIT_TEST_ASSERT_WITH_TEXT(dp.Print() == (".aa[&4][30].&"+name), dp.Print());
 
-    dp = DynamicPath(".aa[%].%[30]", &index_var, &name);
+    dp = DynamicPath('.', ".aa[%].%[30]", &index_var, &name);
     NKIT_TEST_ASSERT_WITH_TEXT(dp.ok(), dp.error());
     name = "name1";
     index_var = 0;

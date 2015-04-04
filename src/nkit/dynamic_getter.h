@@ -582,6 +582,7 @@ namespace nkit
       , sub_path_(sub_path)
       , error_(parent.error_)
     {
+      sub_path_.delimiter(parent.delimiter());
       const Dynamic * tmp = sub_path_.Get(parent.data_);
       if (tmp)
         data_ = *tmp;
@@ -617,6 +618,15 @@ namespace nkit
       return *this;
     }
 
+    void delimiter(char d)
+    {
+      if (parent_)
+        parent_->delimiter(d);
+      sub_path_.delimiter(d);
+    }
+
+    char delimiter() const { return sub_path_.delimiter(); }
+
     std::string error() const
     {
       std::string error;
@@ -643,7 +653,8 @@ namespace nkit
     std::string file_path() const { return path_; }
     DynamicPath dynamic_path() const
     {
-      return (parent_ ? parent_->dynamic_path() : DynamicPath()) / sub_path_;
+      DynamicPath empty_path(delimiter());
+      return (parent_ ? parent_->dynamic_path() : empty_path) / sub_path_;
     }
 
     //--------------------------------------------------------------------------
@@ -652,7 +663,7 @@ namespace nkit
     {
       if (ok())
       {
-        DynamicPath _sub_path(sub_path);
+        DynamicPath _sub_path(delimiter(), sub_path);
         if (!_sub_path.ok())
         {
           SetError("Wrong path '" +
@@ -673,7 +684,7 @@ namespace nkit
     {
       if (ok())
       {
-        DynamicPath _sub_path(sub_path);
+        DynamicPath _sub_path(delimiter(), sub_path);
         if (!_sub_path.ok())
         {
           SetError("Wrong path '" +
@@ -706,7 +717,7 @@ namespace nkit
     template <typename T>
     DynamicGetter & Get(const size_t index, T * out)
     {
-      DynamicPath sub_path("[%]", index);
+      DynamicPath sub_path(delimiter(), "[%]", index);
       return Get(sub_path, out);
     }
 
@@ -714,7 +725,7 @@ namespace nkit
     template <typename T>
     DynamicGetter & Get(const size_t index, T * out, const T & def)
     {
-      DynamicPath sub_path("[%]", index);
+      DynamicPath sub_path(delimiter(), "[%]", index);
       return Get(sub_path, out, def);
     }
 
@@ -905,7 +916,7 @@ namespace nkit
           DDICT_FOREACH(pair, sub_loader.data())
           {
             NKIT_SHARED_PTR(T) tmp;
-            sub_loader.Get("." + pair->first, &tmp);
+            sub_loader.Get(sub_loader.delimiter() + pair->first, &tmp);
             if (!sub_loader.ok())
               break;
             K k;
@@ -1265,7 +1276,7 @@ namespace nkit
     public:                                                                   \
       prefix##Option<line>()                                                  \
         : prop##_option_(option)                                              \
-        , prop##_option_path_(S_DOT_ + option)                                \
+        , prop##_option_path_(option)                                         \
         , prop##_value_()                                                     \
       {}                                                                      \
       bool Init(DynamicGetter & config)                                       \
@@ -1300,7 +1311,7 @@ namespace nkit
     public:                                                                   \
       prefix##Option<line>()                                                  \
         : prop##_option_(option)                                              \
-        , prop##_option_path_(S_DOT_ + option)                                \
+        , prop##_option_path_(option)                                         \
         , prop##_def_val_(def_val)                                            \
         , prop##_value_(def_val)                                              \
       {}                                                                      \

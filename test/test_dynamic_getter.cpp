@@ -86,8 +86,18 @@ namespace nkit_test
 
     AddressMap address_map;
     DynamicGetter getter(etalon);
-    getter.Get(".address_map", &address_map);
+    getter.delimiter('/');
+    getter.Get("/address_map", &address_map);
     NKIT_TEST_ASSERT_WITH_TEXT(getter.ok(), getter.error());
+    NKIT_TEST_EQ(address_map["asia.0"]->street(), "Lenina");
+    NKIT_TEST_EQ(address_map["asia.0"]->no(), 93);
+    NKIT_TEST_EQ(address_map["asia.0"]->corpus(), 4);
+    NKIT_TEST_EQ(address_map["asia.0"]->flat_no(), 162);
+
+    NKIT_TEST_EQ(address_map["ipe.1"]->street(), "Kirova");
+    NKIT_TEST_EQ(address_map["ipe.1"]->no(), 3);
+    NKIT_TEST_EQ(address_map["ipe.1"]->corpus(), 44);
+    NKIT_TEST_EQ(address_map["ipe.1"]->flat_no(), 58);
   }
 
   NKIT_TEST_CASE(Options)
