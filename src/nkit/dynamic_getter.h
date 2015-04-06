@@ -1457,6 +1457,24 @@ namespace nkit
       }
     }
   };
+
+  template <typename T>
+  struct VarToDynamic<std::map<std::string, NKIT_SHARED_PTR(T)> >
+  {
+    static void Save(const std::map<std::string, NKIT_SHARED_PTR(T)> & map,
+        Dynamic * out)
+    {
+      *out = Dynamic::Dict();
+      typename std::map<std::string, NKIT_SHARED_PTR(T)>::const_iterator
+          it = map.begin(), end = map.end();
+      for (; it != end; ++it)
+      {
+        Dynamic item = Dynamic::Dict();
+        it->second->SaveToDynamic(&item);
+        (*out)[it->first] = item;
+      }
+    }
+  };
 }  // namespace nkit
 
 #endif // __NKIT__DYNAMIC__JSON__CONFIG__H__
