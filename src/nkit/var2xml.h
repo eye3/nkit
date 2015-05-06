@@ -380,6 +380,15 @@ namespace nkit
     }
 
     //--------------------------------------------------------------------------
+    void AppendTranscoded(const char * text, size_t len, std::string * out)
+    {
+      if (options_->transcoder_)
+        options_->transcoder_->FromUtf8(text, len, out);
+      else
+        out->append(text, len);
+    }
+
+    //--------------------------------------------------------------------------
     void PutText(const DataType & data, bool newline, std::string * out)
     {
       // TODO: optimize by member string
@@ -491,9 +500,76 @@ namespace nkit
     //--------------------------------------------------------------------------
     void PutCdata(const std::string & cdata, std::string * out)
     {
-      out->append("<![CDATA[");
-      AppendTranscoded(cdata, out);
-      out->append("]]>");
+      out->append(S_CDATA_BEGIN_);
+
+      size_t total = cdata.size();
+      size_t b_len = S_CDATA_BEGIN_.size();
+      size_t e_len = S_CDATA_END_.size();
+      char b_0 = S_CDATA_BEGIN_[0];
+      char b_1 = S_CDATA_BEGIN_[1];
+      char b_2 = S_CDATA_BEGIN_[2];
+      char b_3 = S_CDATA_BEGIN_[3];
+      char b_4 = S_CDATA_BEGIN_[4];
+      char b_5 = S_CDATA_BEGIN_[5];
+      char b_6 = S_CDATA_BEGIN_[6];
+      char b_7 = S_CDATA_BEGIN_[7];
+      char b_8 = S_CDATA_BEGIN_[8];
+      char e_0 = S_CDATA_END_[0];
+      char e_1 = S_CDATA_END_[1];
+      char e_2 = S_CDATA_END_[2];
+      size_t first = 0, len = 0;
+      for(size_t i = 0, rest = total;
+          i != total;
+          ++i, --rest)
+      {
+        if ((rest >= b_len) &&
+            (cdata[i] == b_0) &&
+            (cdata[i+1] == b_1) &&
+            (cdata[i+2] == b_2) &&
+            (cdata[i+3] == b_3) &&
+            (cdata[i+4] == b_4) &&
+            (cdata[i+5] == b_5) &&
+            (cdata[i+6] == b_6) &&
+            (cdata[i+7] == b_7) &&
+            (cdata[i+8] == b_8)
+            )
+        {
+          AppendTranscoded(&cdata.at(first), len, out);
+          i += b_len;
+          first = i;
+          --i; // compensate increment in 'for' statement
+          len = 0;
+          rest -= (b_len-1);
+          out->append("<![");
+          out->append(S_CDATA_END_);
+          out->append(S_CDATA_BEGIN_);
+          out->append("CDATA[");
+        }
+        else if ((rest >= e_len) &&
+            (cdata[i] == e_0) &&
+            (cdata[i+1] == e_1) &&
+            (cdata[i+2] == e_2)
+            )
+        {
+          AppendTranscoded(&cdata.at(first), len, out);
+          i += e_len;
+          first = i;
+          --i; // compensate increment in 'for' statement
+          len = 0;
+          rest -= (e_len-1);
+          out->append("]]");
+          out->append(S_CDATA_END_);
+          out->append(S_CDATA_BEGIN_);
+          out->append(">");
+        }
+        else
+          ++len;
+      }
+
+      if (len)
+        AppendTranscoded(&cdata.at(first), len, out);
+
+      out->append(S_CDATA_END_);
     }
 
   private:
