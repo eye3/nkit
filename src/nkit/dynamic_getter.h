@@ -1442,6 +1442,21 @@ namespace nkit
   };
 
   template <typename T>
+  struct VarToDynamic<std::vector<T> >
+  {
+    static void Save(const std::vector<T> & vv, Dynamic * out)
+    {
+      *out = Dynamic::List();
+      typename std::vector<T>::const_iterator it = vv.begin(),
+          end = vv.end();
+      for (; it != end; ++it)
+      {
+        out->PushBack(Dynamic(*it));
+      }
+    }
+  };
+
+  template <typename T>
   struct VarToDynamic<std::list<NKIT_SHARED_PTR(T)> >
   {
     static void Save(const std::list<NKIT_SHARED_PTR(T)> & vv, Dynamic * out)
@@ -1454,6 +1469,53 @@ namespace nkit
         Dynamic item = Dynamic::Dict();
         (*it)->SaveToDynamic(&item);
         out->PushBack(item);
+      }
+    }
+  };
+
+  template <typename T>
+  struct VarToDynamic<std::list<T> >
+  {
+    static void Save(const std::list<T> & vv, Dynamic * out)
+    {
+      *out = Dynamic::List();
+      typename std::list<T>::const_iterator it = vv.begin(),
+          end = vv.end();
+      for (; it != end; ++it)
+      {
+        out->PushBack(Dynamic(*it));
+      }
+    }
+  };
+
+  template <typename T>
+  struct VarToDynamic<std::set<NKIT_SHARED_PTR(T)> >
+  {
+    static void Save(const std::set<NKIT_SHARED_PTR(T)> & vv, Dynamic * out)
+    {
+      *out = Dynamic::List();
+      typename std::set<NKIT_SHARED_PTR(T)>::const_iterator it = vv.begin(),
+          end = vv.end();
+      for (; it != end; ++it)
+      {
+        Dynamic item = Dynamic::Dict();
+        (*it)->SaveToDynamic(&item);
+        out->PushBack(item);
+      }
+    }
+  };
+
+  template <typename T>
+  struct VarToDynamic<std::set<T> >
+  {
+    static void Save(const std::set<T> & vv, Dynamic * out)
+    {
+      *out = Dynamic::List();
+      typename std::set<T>::const_iterator it = vv.begin(),
+          end = vv.end();
+      for (; it != end; ++it)
+      {
+        out->PushBack(Dynamic(*it));
       }
     }
   };
@@ -1472,6 +1534,22 @@ namespace nkit
         Dynamic item = Dynamic::Dict();
         it->second->SaveToDynamic(&item);
         (*out)[it->first] = item;
+      }
+    }
+  };
+
+  template <typename T>
+  struct VarToDynamic<std::map<std::string, T> >
+  {
+    static void Save(const std::map<std::string, T> & map,
+        Dynamic * out)
+    {
+      *out = Dynamic::Dict();
+      typename std::map<std::string, T>::const_iterator
+          it = map.begin(), end = map.end();
+      for (; it != end; ++it)
+      {
+        (*out)[it->first] = Dynamic(it->second);
       }
     }
   };
