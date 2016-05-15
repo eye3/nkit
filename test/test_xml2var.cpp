@@ -416,6 +416,28 @@ namespace nkit_test
   }
 
   //---------------------------------------------------------------------------
+  NKIT_TEST_CASE(xml2var_attribute_as_key)
+  {
+    //CINFO(__FILE__);
+    std::string error;
+    std::string xml_path("./data/attribute_as_key_sample.xml");
+    std::string xml;
+    NKIT_TEST_ASSERT_WITH_TEXT(
+        text_file_to_string(xml_path, &xml, &error), error);
+
+    Dynamic mapping =
+        DLIST("/Record" << DDICT(
+                  "/Field -> @name" << "string"
+                )
+        );
+
+    Dynamic var = DynamicFromXml(xml, mapping, &error);
+    NKIT_TEST_ASSERT_WITH_TEXT(var, error);
+    NKIT_TEST_EQ(var[size_t(0)]["ARTIST"], Dynamic("Bob Dylan"));
+    NKIT_TEST_EQ(var[size_t(1)]["YEAR"], Dynamic(1988));
+  }
+
+  //---------------------------------------------------------------------------
   NKIT_TEST_CASE(xml2var_sandbox)
   {
     std::string error;

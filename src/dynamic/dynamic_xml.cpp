@@ -50,6 +50,42 @@ namespace nkit
     return builder->var();
   }
 
+  Dynamic DynamicFromAnyXmlFile(const std::string & path,
+      const std::string & options,
+      std::string * const root_name,
+      std::string * const error)
+  {
+    std::string xml;
+    if (!path.empty() && !text_file_to_string(path, &xml, error))
+      return Dynamic();
+
+    if (xml.empty())
+    {
+      *error = "Could not open file: '" + path + "'";
+      return Dynamic();
+    }
+
+    return DynamicFromAnyXml(xml, options, root_name, error);
+  }
+
+  Dynamic DynamicFromAnyXmlFile(const std::string & path,
+      const Dynamic & options,
+      std::string * const root_name,
+      std::string * const error)
+  {
+    std::string xml;
+    if (!path.empty() && !text_file_to_string(path, &xml, error))
+      return Dynamic();
+
+    if (xml.empty())
+    {
+      *error = "Could not open file: '" + path + "'";
+      return Dynamic();
+    }
+
+    return DynamicFromAnyXml(xml, options, root_name, error);
+  }
+
   Dynamic DynamicFromXml(const std::string & xml,
       const std::string & options,
       const std::string & mapping,

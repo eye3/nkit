@@ -29,6 +29,14 @@ namespace nkit
         const Dynamic & options,
         std::string * const root_name,
         std::string * const error);
+  Dynamic DynamicFromAnyXmlFile(const std::string & path,
+        const std::string & options,
+        std::string * const root_name,
+        std::string * const error);
+  Dynamic DynamicFromAnyXmlFile(const std::string & path,
+        const Dynamic & options,
+        std::string * const root_name,
+        std::string * const error);
   Dynamic DynamicFromXml(const std::string & xml,
       const Dynamic & options,
       const Dynamic & mapping,

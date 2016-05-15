@@ -22,6 +22,7 @@
 
 # Mercurial
 .hg*
+
 .settings
 .autotools
 .cproject
@@ -41,3 +42,4 @@ win
 src/nkit/detail/config.h
 build
 cygwin
+scripts

@@ -8,6 +8,7 @@
 #include "nkit/dynamic_getter.h"
 #include "nkit/expat_parser.h"
 #include "nkit/logger_brief.h"
+#include "nkit/tools.h"
 
 namespace nkit
 {
@@ -489,12 +490,17 @@ namespace nkit
 
     const std::string & key_name() const { return key_name_; }
 
-    void SetKey(const std::string & key) { key_name_ = key; }
+    void SetKey(const std::string & key, bool is_attribute)
+    {
+      key_name_ = key;
+      actual_key_name_ = key;
+      key_name_is_attribute_ = is_attribute;
+    }
 
     void SetOrInsertTo(const char * el, T & var_builder) const
     {
-      if (likely(key_name_ != S_STAR_))
-        target_->SetOrInsertTo(key_name_, var_builder);
+      if (likely(actual_key_name_ != S_STAR_))
+        target_->SetOrInsertTo(actual_key_name_, var_builder);
       else
         target_->SetOrInsertTo(el, var_builder);
     }
@@ -520,15 +526,27 @@ namespace nkit
         if (attribute_value)
           target_->OnText(attribute_value, strlen(attribute_value));
       }
+
+      if (key_name_is_attribute_)
+      {
+        const char * actual_key_name = find_attribute_value(attrs,
+            key_name_.c_str());
+        if (actual_key_name)
+          actual_key_name_ = actual_key_name;
+        else
+          actual_key_name_ = key_name_;
+      }
     }
 
     void OnExit(const char * el)
     {
       target_->OnExit(el);
-      if (!key_name_.empty())
+      if (!actual_key_name_.empty())
       {
-        target_->SetOrInsertTo(key_name_ == S_STAR_? el: key_name_.c_str(),
-                parent_target_);
+        target_->SetOrInsertTo(
+          (actual_key_name_ == S_STAR_) ? el: actual_key_name_.c_str(),
+          parent_target_
+        );
       }
     }
 
@@ -556,13 +574,16 @@ namespace nkit
       : path_(path)
       , target_(target)
       , parent_target_(NULL)
+      , key_name_is_attribute_(false)
     {}
 
   private:
     Path path_;
-    std::string key_name_;
     TargetPtr target_;
     Target<T> * parent_target_;
+    std::string key_name_;
+    bool key_name_is_attribute_;
+    std::string actual_key_name_;
   };
 
   //----------------------------------------------------------------------------
@@ -629,20 +650,6 @@ namespace nkit
     void OnEnter(const char ** attrs)
     {
       Target<T>::var_builder_.SetAttrKey(attrs);
-//      if (!Target<T>::options_->attrkey_.empty() && attrs[0])
-//      {
-//        T attr_builder(Target<T>::options_);
-//        attr_builder.InitAsDict();
-//        for (size_t i = 0; attrs[i] && attrs[i + 1]; ++(++i))
-//        {
-//          T value_builder(Target<T>::options_);
-//          value_builder.InitAsString(std::string(attrs[i + 1]));
-//          attr_builder.SetDictKeyValue(std::string(attrs[i]),
-//              value_builder.get());
-//        }
-//        Target<T>::var_builder_.SetDictKeyValue(Target<T>::options_->attrkey_,
-//                attr_builder.get());
-//      }
     }
 
     void OnExit(const char * el)
@@ -1378,6 +1385,7 @@ namespace nkit
         std::string path_spec, key;
         simple_split(pair->first, "->", &path_spec, &key);
         Path path(path_spec, str2id);
+        bool key_is_attribute = false;
         if (key.empty())
         {
           if (!path.attribute_name().empty())
@@ -1385,12 +1393,22 @@ namespace nkit
             key = path.attribute_name();
             if (key == S_STAR_)
             {
-              *error = "Attribute name can not be '*'";
+              *error = "Attribute name should not be '*'";
               return TargetItemPtr();
             }
           }
           else
             key = path.GetLastElementName(*str2id);
+        }
+        else if (starts_with(key, "@"))
+        {
+          key_is_attribute = true;
+          key.erase(0, 1);
+          if (key.empty())
+          {
+            *error = "Key alias should not be '@'";
+            return TargetItemPtr();
+          }
         }
 
         Path fool_path(parent_path / path);
@@ -1400,9 +1418,9 @@ namespace nkit
         if (!child_target_item)
           return TargetItemPtr();
 
-        child_target_item->SetKey(key);
+        child_target_item->SetKey(key, key_is_attribute);
 
-          target->PutTargetItem(child_target_item);
+        target->PutTargetItem(child_target_item);
       }
 
       TargetItemPtr target_item =
@@ -1485,7 +1503,6 @@ namespace nkit
     PathNode<T> * current_node_;
     detail::Options::Ptr options_;
     Path current_path_;
-    //TargetPtr root_target_;
     RootTargets root_targets_;
     bool first_node_;
     String2IdMap str2id_;
