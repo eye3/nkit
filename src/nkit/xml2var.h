@@ -649,6 +649,7 @@ namespace nkit
 
     void OnEnter(const char ** attrs)
     {
+      Clear();
       Target<T>::var_builder_.SetAttrKey(attrs);
     }
 

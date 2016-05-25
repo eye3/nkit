@@ -418,7 +418,6 @@ namespace nkit_test
   //---------------------------------------------------------------------------
   NKIT_TEST_CASE(xml2var_attribute_as_key)
   {
-    //CINFO(__FILE__);
     std::string error;
     std::string xml_path("./data/attribute_as_key_sample.xml");
     std::string xml;
@@ -441,24 +440,22 @@ namespace nkit_test
   NKIT_TEST_CASE(xml2var_sandbox)
   {
     std::string error;
-    std::string xml_path("./data/sample1251.xml");
+    std::string xml_path("./data/attribute_as_key_sample.xml");
     std::string xml;
     NKIT_TEST_ASSERT_WITH_TEXT(
         text_file_to_string(xml_path, &xml, &error), error);
 
-    std::string mapping_path("./data/academi_mapping.json");
-    std::string mapping;
-    NKIT_TEST_ASSERT_WITH_TEXT(
-        text_file_to_string(mapping_path, &mapping, &error), error);
+    Dynamic mapping =
+        DLIST("/Record" << DDICT(
+                  "/Field -> @name" << DDICT(
+                        "/ -> @name" << DDICT(
+                            "/ -> value" << "string"
+                          )
+                      )
+                )
+        );
 
-    std::string options;
-    std::string options_path("./data/options_attrkey.json");
-    NKIT_TEST_ASSERT_WITH_TEXT(
-        text_file_to_string(options_path, &options, &error), error);
-
-    Dynamic var = DynamicFromXml(xml, options, mapping, &error);
-    NKIT_TEST_ASSERT_WITH_TEXT(var, error);
-
+    Dynamic var = DynamicFromXml(xml, mapping, &error);
     CINFO(json_hr << var);
   }
 
