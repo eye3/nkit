@@ -515,6 +515,50 @@ namespace nkit_test
         options, data, &out, &error), error);
     NKIT_TEST_EQ(xml, out);
   }
+  //---------------------------------------------------------------------------
+  NKIT_TEST_CASE(xml2var_any_explicit_array)
+  {
+    const char * xml = "<?xml version='1.0' encoding='utf-8'?>"
+            "\n" "<root><status v='O'/></root>"
+            ;
+
+    Dynamic options = DDICT(
+      "trim" << true <<
+      "attrkey" << "$" <<
+      "textkey" << "_" <<
+      "explicit_array" << false
+    );
+
+    std::string root_name, error;
+    Dynamic data = DynamicFromAnyXml(xml, options, &root_name, &error);
+    NKIT_TEST_ASSERT_WITH_TEXT(data, error);
+    NKIT_TEST_ASSERT(data["status"].IsDict());
+    NKIT_TEST_EQ(root_name, "root");
+    CINFO(root_name << "\n" << data);
+
+    options["explicit_array"] = Dynamic(true);
+    data = DynamicFromAnyXml(xml, options, &root_name, &error);
+    NKIT_TEST_ASSERT_WITH_TEXT(data, error);
+    NKIT_TEST_ASSERT(data["status"].IsList());
+    NKIT_TEST_EQ(root_name, "root");
+    CINFO(root_name << "\n" << data);
+
+    xml = "<?xml version='1.0' encoding='utf-8'?>"
+          "\n" "<root><status v='O'/><status v='O'/></root>"
+          ;
+    data = DynamicFromAnyXml(xml, options, &root_name, &error);
+    NKIT_TEST_ASSERT_WITH_TEXT(data, error);
+    NKIT_TEST_ASSERT(data["status"].IsList());
+    NKIT_TEST_EQ(root_name, "root");
+    CINFO(root_name << "\n" << data);
+
+    options["explicit_array"] = Dynamic(false);
+    data = DynamicFromAnyXml(xml, options, &root_name, &error);
+    NKIT_TEST_ASSERT_WITH_TEXT(data, error);
+    NKIT_TEST_ASSERT(data["status"].IsList());
+    NKIT_TEST_EQ(root_name, "root");
+    CINFO(root_name << "\n" << data);
+  }
 
 } // namespace nkit_test
 
