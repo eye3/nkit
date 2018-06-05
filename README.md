@@ -80,7 +80,7 @@ This commands will configure, build and install release of nkit library
 if C++ compiler supports std::shared_ptr):
 
     ./bootstrap.sh --prefix=/path/to/installation/folder \
-    	--with-vx --release
+    	--with-xml --release
     make -C RelWithDebInfo-build
     make -C RelWithDebInfo-build install
 
@@ -105,7 +105,7 @@ This commands will create Microsoft Visual C++ 2012 solution for nkit library
     cd c:\path\to\nkit\root
     mkdir win
     cd win
-    cmake -G "Visual Studio 11" -DPREFIX=c:/path/to/install/folder -DYAJL_ROOT=c:/path/to/yajl/root -DYAJL_USE_DYN_LIBS=1 -DUSE_VX=1 -DEXPAT_ROOT=d:/path/to/expat/root ..
+    cmake -G "Visual Studio 11" -DPREFIX=c:/path/to/install/folder -DYAJL_ROOT=c:/path/to/yajl/root -DYAJL_USE_DYN_LIBS=1 -DUSE_XML=1 -DEXPAT_ROOT=d:/path/to/expat/root ..
     
 
 ## Usage
