@@ -516,5 +516,134 @@ namespace nkit_test
     NKIT_TEST_EQ(xml, out);
   }
 
+  //---------------------------------------------------------------------------
+  NKIT_TEST_CASE(xml2var_any_explicit_array)
+  {
+    const char * xml = "<?xml version='1.0' encoding='utf-8'?>"
+            "\n" "<root>"
+            "\n" "  <status v='0'/>"
+            "\n" "</root>"
+            ;
+//    const char * xml = "<?xml version='1.0' encoding='utf-8'?>"
+//            "\n" "<root>"
+//            "\n" "  <status v='0'/>"
+//            "\n" "  <status v='1'/>"
+//            "\n" "  <status v='2'/>"
+//            "\n" "  <status v='3'/>"
+//            "\n" "  <status v='4'/>"
+//            "\n" "</root>"
+//            ;
+
+    Dynamic options = DDICT(
+      "trim" << true <<
+      "attrkey" << "$" <<
+      "textkey" << "_" <<
+      "explicit_array" << false
+    );
+
+    std::string root_name, error;
+    Dynamic data = DynamicFromAnyXml(xml, options, &root_name, &error);
+    NKIT_TEST_ASSERT_WITH_TEXT(data, error);
+    CINFO(root_name << "\n" << data);
+    NKIT_TEST_ASSERT(data["status"].IsDict());
+    NKIT_TEST_EQ(root_name, "root");
+    NKIT_TEST_EQ(data["status"]["$"]["v"], Dynamic("0"));
+
+    options["explicit_array"] = Dynamic(true);
+    data = DynamicFromAnyXml(xml, options, &root_name, &error);
+    NKIT_TEST_ASSERT_WITH_TEXT(data, error);
+    CINFO(root_name << "\n" << data);
+    NKIT_TEST_ASSERT(data["status"].IsList());
+    NKIT_TEST_EQ(data["status"].size(), 1);
+    NKIT_TEST_EQ(data["status"][(const size_t )0]["$"]["v"], Dynamic("0"));
+    NKIT_TEST_EQ(root_name, "root");
+
+    xml = "<?xml version='1.0' encoding='utf-8'?>"
+          "\n" "<root><status v='0'/><status v='2'/></root>"
+          ;
+    data = DynamicFromAnyXml(xml, options, &root_name, &error);
+    NKIT_TEST_ASSERT_WITH_TEXT(data, error);
+    CINFO(root_name << "\n" << data);
+    NKIT_TEST_ASSERT(data["status"].IsList());
+    NKIT_TEST_EQ(data["status"].size(), 2);
+    NKIT_TEST_EQ(data["status"][(const size_t )0]["$"]["v"], Dynamic("0"));
+    NKIT_TEST_EQ(data["status"][(const size_t )1]["$"]["v"], Dynamic("2"));
+    NKIT_TEST_EQ(root_name, "root");
+
+    options["explicit_array"] = Dynamic(false);
+    data = DynamicFromAnyXml(xml, options, &root_name, &error);
+    NKIT_TEST_ASSERT_WITH_TEXT(data, error);
+    CINFO(root_name << "\n" << data);
+    NKIT_TEST_ASSERT(data["status"].IsList());
+    NKIT_TEST_EQ(data["status"].size(), 2);
+    NKIT_TEST_EQ(data["status"][(const size_t )0]["$"]["v"], Dynamic("0"));
+    NKIT_TEST_EQ(data["status"][(const size_t )1]["$"]["v"], Dynamic("2"));
+    NKIT_TEST_EQ(root_name, "root");
+  }
+
+  //---------------------------------------------------------------------------
+  NKIT_TEST_CASE(xml2var_true_false_variants)
+  {
+    const char * xml = "<?xml version='1.0' encoding='utf-8'?>"
+            "\n" "<root>"
+            "\n" "  <item>"
+            "\n" "    <boolean>True</boolean>"
+            "\n" "    <custom_boolean>Foo</custom_boolean>"
+            "\n" "  </item>"
+            "\n" "  <item>"
+            "\n" "    <boolean>False</boolean>"
+            "\n" "    <custom_boolean>Bar</custom_boolean>"
+            "\n" "  </item>"
+            "\n" "</root>"
+            ;
+
+    Dynamic mapping = DLIST("/item" << DDICT(
+              "/boolean" << "boolean|True" <<
+              "/custom_boolean" << "boolean|Foo"
+            ));
+    Dynamic mappings = DDICT("main" << mapping);
+
+    Dynamic options = DDICT(
+      "trim" << true <<
+      "attrkey" << "$" <<
+      "textkey" << "_" <<
+      "explicit_array" << false <<
+      "true_variants" << DLIST("Bar" << "True") <<
+      "false_variants" << DLIST("Foo" << "False")
+    );
+
+    std::string root_name, error;
+    Dynamic data = DynamicFromXml(xml, options, mapping, &error);
+    NKIT_TEST_ASSERT_WITH_TEXT(data, error);
+    NKIT_TEST_ASSERT(data.IsList());
+    NKIT_TEST_EQ(data[(const size_t )0]["boolean"],
+            Dynamic(true));
+    NKIT_TEST_EQ(data[(const size_t )0]["custom_boolean"],
+            Dynamic(false));
+    NKIT_TEST_EQ(data[(const size_t )1]["boolean"],
+            Dynamic(false));
+    NKIT_TEST_EQ(data[(const size_t )1]["custom_boolean"],
+            Dynamic(true));
+
+    options = DDICT(
+          "trim" << true <<
+          "attrkey" << "$" <<
+          "textkey" << "_" <<
+          "explicit_array" << false
+        );
+
+    data = DynamicFromXml(xml, options, mapping, &error);
+    NKIT_TEST_ASSERT_WITH_TEXT(data, error);
+    NKIT_TEST_ASSERT(data.IsList());
+    NKIT_TEST_EQ(data[(const size_t )0]["boolean"],
+            Dynamic(true));
+    NKIT_TEST_EQ(data[(const size_t )0]["custom_boolean"],
+            Dynamic(false));
+    NKIT_TEST_EQ(data[(const size_t )1]["boolean"],
+            Dynamic(false));
+    NKIT_TEST_EQ(data[(const size_t )1]["custom_boolean"],
+            Dynamic(false));
+  }
+
 } // namespace nkit_test
 

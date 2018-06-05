@@ -16,10 +16,6 @@
 if (UNIX OR APPLE AND NOT DEFINED PREFIX)
   include (CheckIncludeFiles)
   check_include_files(syslog.h HAVE_SYSLOG_H)
-  set(PREFIX /usr/local CACHE INTERNAl "nkit isntall prefix")
-  if (DEFINED ENV{PREFIX})
-    set(PREFIX $ENV{PREFIX} CACHE INTERNAL "nkit install prefix")
-  endif()
 endif()
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/nkit/detail/config.h.in"
@@ -41,12 +37,12 @@ if ((UNIX OR APPLE AND HAVE_SYSLOG_H) OR WIN32)
 endif()
 
 if (EXPAT_FOUND)
-    set(VX_SOURCES
+    set(XML_SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/dynamic/dynamic_xml.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/xml/xml2var.cpp
         )
 else()
-    set(VX_SOURCES "")
+    set(XML_SOURCES "")
 endif()
 
 add_library(${PROJECT_NAME}
@@ -60,14 +56,14 @@ add_library(${PROJECT_NAME}
             ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp
             ${CMAKE_CURRENT_SOURCE_DIR}/constants.cpp
             ${CMAKE_CURRENT_SOURCE_DIR}/version.cpp
-	        ${CMAKE_CURRENT_SOURCE_DIR}/encoding/transcode.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/encoding/transcode.cpp
             ${CMAKE_CURRENT_SOURCE_DIR}/../3rd/netbsd/strptime.cpp
             ${LOGGER_IMPL_SOURCES}
-            ${VX_SOURCES}
+            ${XML_SOURCES}
             )
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/nkit
-        DESTINATION ${PREFIX}/include
+        DESTINATION include
         PATTERN ".*" EXCLUDE
         PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
                     GROUP_EXECUTE GROUP_READ)
@@ -77,10 +73,10 @@ install(FILES ${CMAKE_SOURCE_DIR}/cmake_modules/FindYajl.cmake
         ${CMAKE_SOURCE_DIR}/cmake_modules/AddPrecompiledHeader.cmake
         ${CMAKE_SOURCE_DIR}/cmake_modules/Mercurial.cmake
         ${CMAKE_SOURCE_DIR}/cmake_modules/SetupCompilerOptions.cmake
-        DESTINATION ${PREFIX}/lib/nkit
+        DESTINATION lib/nkit
         PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ)
 
 install(TARGETS ${PROJECT_NAME}
-        RUNTIME DESTINATION ${PREFIX}/bin/
-        LIBRARY DESTINATION ${PREFIX}/lib/
-        ARCHIVE DESTINATION ${PREFIX}/lib/)
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib)

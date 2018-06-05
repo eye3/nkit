@@ -19,8 +19,9 @@ namespace nkit
       static const bool TRIM_DEFAULT;
       static const bool UNICODE_DEFAULT;
       static const bool ORDERED_DICT;
+      static const bool EXPLICIT_ARRAY_DEFAULT;
 
-      typedef NKIT_SHARED_PTR(Options)Ptr;
+      typedef NKIT_SHARED_PTR(Options) Ptr;
 
       static Ptr Create()
       {
@@ -53,6 +54,9 @@ namespace nkit
           .Get(".attrkey", &ret->attrkey_, S_EMPTY_)
           .Get(".textkey", &ret->textkey_, S_EMPTY_)
           .Get(".ordered_dict", &ret->ordered_dict_, ORDERED_DICT)
+          .Get(".explicit_array", &ret->explicit_array_, EXPLICIT_ARRAY_DEFAULT)
+          .Get(".true_variants", &ret->true_variants_, EMPTY_STRING_SET_)
+          .Get(".false_variants", &ret->false_variants_, EMPTY_STRING_SET_)
         ;
 
         if (!config.ok())
@@ -60,6 +64,9 @@ namespace nkit
           *error = config.error();
           return Ptr();
         }
+
+        ret->use_custom_bool_variants_ = !ret->false_variants_.empty() ||
+                !ret->false_variants_.empty();
 
         return ret;
       }
@@ -69,6 +76,8 @@ namespace nkit
         , white_spaces_(WHITE_SPACES)
         , unicode_(UNICODE_DEFAULT)
         , ordered_dict_(ORDERED_DICT)
+        , explicit_array_(EXPLICIT_ARRAY_DEFAULT)
+        , use_custom_bool_variants_(false)
       {}
 
       bool trim_;
@@ -77,6 +86,10 @@ namespace nkit
       bool ordered_dict_;
       std::string attrkey_;
       std::string textkey_;
+      bool explicit_array_;
+      std::set<std::string> true_variants_;
+      std::set<std::string> false_variants_;
+      bool use_custom_bool_variants_;
     };
   } // namespace detail
 
@@ -84,22 +97,27 @@ namespace nkit
   class VarBuilder: Uncopyable
   {
   public:
-    typedef NKIT_SHARED_PTR(VarBuilder<Policy>)Ptr;
+    typedef NKIT_SHARED_PTR(VarBuilder<Policy>) Ptr;
     typedef typename Policy::type type;
 
-    VarBuilder(const detail::Options::Ptr & options)
-      : p_(*options)
+    VarBuilder(const detail::Options & options)
+      : p_(options)
       , options_(options)
     {}
 
     void InitAsBoolean( std::string const & value )
     {
-      p_.InitAsBoolean(value);
+      bool v = false;
+      if (unlikely(options_.use_custom_bool_variants_))
+        v = options_.true_variants_.find(value) != options_.true_variants_.end();
+      else
+        v = nkit::bool_cast(value);
+      p_.InitAsBoolean(v);
     }
 
     void InitAsBooleanFormat( std::string const & value, const std::string & )
     {
-      p_.InitAsBoolean(value);
+      InitAsBoolean(value);
     }
 
     void InitAsInteger( std::string const & value )
@@ -166,14 +184,14 @@ namespace nkit
 
     void SetAttrKey(const char ** attrs)
     {
-      if (!options_->attrkey_.empty() && attrs[0])
+      if (!options_.attrkey_.empty() && attrs[0])
       {
-        VarBuilder<Policy> attr_builder(options_);
+        VarBuilder<Policy> & attr_builder = get_attr_builder();
         attr_builder.InitAsDict();
         for (size_t i = 0; attrs[i] && attrs[i + 1]; ++(++i))
         attr_builder.SetDictKeyValue(std::string(attrs[i]),
             std::string(attrs[i + 1]));
-        SetDictKeyValue(options_->attrkey_, attr_builder.get());
+        SetDictKeyValue(options_.attrkey_, attr_builder.get());
       }
     }
 
@@ -191,7 +209,7 @@ namespace nkit
 
     void SetDictKeyValue( std::string const & key, std::string const & var )
     {
-      VarBuilder<Policy> string_value_builder(options_);
+      VarBuilder<Policy> & string_value_builder = get_string_builder();
       string_value_builder.InitAsString(var);
       p_.SetDictKeyValue(key, string_value_builder.get());
     }
@@ -203,7 +221,7 @@ namespace nkit
 
     void AppendToDictKeyList( std::string const & key, std::string const & var )
     {
-      VarBuilder<Policy> string_value_builder(options_);
+      VarBuilder<Policy> & string_value_builder = get_string_builder();
       string_value_builder.InitAsString(var);
       p_.AppendToDictKeyList(key, string_value_builder.get());
     }
@@ -219,8 +237,25 @@ namespace nkit
     }
 
   private:
+    VarBuilder & get_attr_builder()
+    {
+      if (!attr_bulder_)
+        attr_bulder_ = Ptr(new VarBuilder(options_));
+      return *attr_bulder_;
+    }
+
+    VarBuilder & get_string_builder()
+    {
+      if (!string_bulder_)
+        string_bulder_ = Ptr(new VarBuilder(options_));
+      return *string_bulder_;
+    }
+
+  private:
     Policy p_;
-    detail::Options::Ptr options_;
+    const detail::Options & options_;
+    Ptr attr_bulder_;
+    Ptr string_bulder_;
   };
 
   //----------------------------------------------------------------------------
@@ -440,7 +475,7 @@ namespace nkit
   protected:
     Target(const detail::Options::Ptr & options)
       : options_(options)
-      , var_builder_(options)
+      , var_builder_(*options)
     {}
 
   protected:
@@ -792,7 +827,7 @@ namespace nkit
         const std::string & default_value,
         const std::string & format)
       : Target<T>(options)
-      , default_value_(options)
+      , default_value_(*options)
       , use_default_value_(true)
       , has_default_value_(true)
       , value_("")
@@ -803,7 +838,7 @@ namespace nkit
       const std::string * p_default_value = & default_value;
       if (Target<T>::options_->trim_)
       {
-        trimed_default_value = trim(default_value,
+        trimed_default_value = trim_copy(default_value,
             Target<T>::options_->white_spaces_);
         p_default_value = & trimed_default_value;
       }
@@ -817,7 +852,7 @@ namespace nkit
     ScalarTarget(const detail::Options::Ptr & options,
         const std::string & default_value)
       : Target<T>(options)
-      , default_value_(options)
+      , default_value_(*options)
       , use_default_value_(true)
       , has_default_value_(true)
       , value_("")
@@ -828,7 +863,7 @@ namespace nkit
 
     ScalarTarget(const detail::Options::Ptr & options)
       : Target<T>(options)
-      , default_value_(options)
+      , default_value_(*options)
       , use_default_value_(false)
       , has_default_value_(false)
       , value_("")
@@ -851,7 +886,7 @@ namespace nkit
       if (likely(!must_use_default_value()))
       {
         if (Target<T>::options_->trim_)
-          value_ = trim(value_, Target<T>::options_->white_spaces_);
+          trim(value_, Target<T>::options_->white_spaces_);
 
         if (format_.empty())
           (Target<T>::var_builder_.*InitByString)(value_);
@@ -1287,7 +1322,27 @@ namespace nkit
             &T::InitAsBoolean,
             &T::InitAsBooleanFormat> BooleanTarget;
         if (spec_list.size() >= 2)
-          target = BooleanTarget::Create(options, spec_list[1]);
+        {
+          std::string boolean_default(spec_list[1]);
+          if (options->use_custom_bool_variants_
+              && (options->true_variants_.find(boolean_default) ==
+                      options->true_variants_.end())
+              && (options->false_variants_.find(boolean_default) ==
+                      options->false_variants_.end())
+              )
+          {
+            *error = "Default value for boolean must one of those, defined in "
+                "'true_variants' or 'false_variants' options, but '" +
+                boolean_default + "' has been provided.\nPossible values:" +
+                "\n- true_variants: " +
+                join(options->true_variants_, ", ", "", "") +
+                "\n- false_variants: " +
+                join(options->false_variants_, ", ", "", "");
+            return TargetItemPtr();
+          }
+
+          target = BooleanTarget::Create(options, boolean_default);
+        }
         else
           target = BooleanTarget::Create(options);
       }
@@ -1560,14 +1615,14 @@ namespace nkit
 
     void Clear()
     {
-      root_var_builder_ = VarBuilderPtr(new T(options_));
+      root_var_builder_ = new_var_builder();
       first_ = true;
       root_name_.clear();
-      clear_stack(current_text_stack_);
+      current_text_stack_.Reset();
       clear_stack(is_simple_element_stack_);
       clear_stack(var_builder_stack_);
 
-      current_text_stack_.push(S_EMPTY_);
+      current_text_stack_.PushEmptyString();
       is_simple_element_stack_.push(false);
       root_var_builder_->InitAsDict();
       var_builder_stack_.push(root_var_builder_);
@@ -1598,26 +1653,27 @@ namespace nkit
       else
       {
         is_simple_element_stack_.top() = false;
-        VarBuilderPtr var_builder_(new T(options_));
+        VarBuilderPtr var_builder_ = new_var_builder();
         var_builder_->InitAsDict();
         if (has_attrs)
           var_builder_->SetAttrKey(attrs);
         is_simple_element_stack_.push(!has_attrs);
         var_builder_stack_.push(var_builder_);
-        current_text_stack_.push(S_EMPTY_);
+        current_text_stack_.PushEmptyString();
       }
       return true;
     }
 
     bool OnEndElement(const char * el)
     {
-      std::string & current_text = current_text_stack_.top();
       if (options_->trim_)
-        current_text.assign(trim(current_text, options_->white_spaces_));
+        current_text_stack_.TrimTopString(options_->white_spaces_);
+
+      const std::string & current_text = current_text_stack_.top();
 
       if (is_simple_element_stack_.top())
       {
-        var_builder_stack_.pop();
+        pop_var_builder_stack_();
         var_builder_stack_.top()->AppendToDictKeyList(el, current_text);
       }
       else
@@ -1625,19 +1681,19 @@ namespace nkit
         VarBuilderPtr last = var_builder_stack_.top();
         if (!current_text.empty())
           last->SetDictKeyValue(options_->textkey_, current_text);
-        var_builder_stack_.pop();
+        pop_var_builder_stack_();
         if (!var_builder_stack_.empty())
           var_builder_stack_.top()->AppendToDictKeyList(el, (*last).get());
       }
 
       is_simple_element_stack_.pop();
-      current_text_stack_.pop();
+      current_text_stack_.Pop();
       return true;
     }
 
     bool OnText(const char * text, int len)
     {
-      current_text_stack_.top().append(text, len);
+      current_text_stack_.AppendToTopString(text, len);
       return true;
     }
 
@@ -1646,6 +1702,81 @@ namespace nkit
       *error = error_;
     }
 
+    VarBuilderPtr new_var_builder()
+    {
+      if (var_builder_cache_.empty())
+        return VarBuilderPtr(new T(*options_));
+
+      VarBuilderPtr top = var_builder_cache_.top();
+      var_builder_cache_.pop();
+      return top;
+    }
+
+    void pop_var_builder_stack_()
+    {
+      VarBuilderPtr top = var_builder_stack_.top();
+      var_builder_stack_.pop();
+      var_builder_cache_.push(top);
+    }
+
+  //----------------------------------------------------------------------------
+  private:
+    class StringStack: Uncopyable
+    {
+    public:
+      void Reset()
+      {
+        clear_stack(stack_);
+        clear_stack(cache_);
+      }
+
+      void PushEmptyString()
+      {
+        if (cache_.empty())
+        {
+          top_ = Dynamic(S_EMPTY_);
+        }
+        else
+        {
+          top_ = cache_.top();
+          top_.Clear();
+          cache_.pop();
+        }
+
+        stack_.push(top_);
+      }
+
+      void Pop()
+      {
+        cache_.push(top_);
+
+        assert(!stack_.empty());
+        stack_.pop();
+
+        if (!stack_.empty())
+          top_ = stack_.top();
+      }
+
+      void AppendToTopString(const char * str, size_t len)
+      {
+        top_.Append(str, len);
+      }
+
+      void TrimTopString(const std::string & white_spaces)
+      {
+        top_.Trim(white_spaces);
+      }
+
+      const std::string & top() const
+      {
+        return top_.GetConstString();
+      }
+
+    private:
+      Dynamic top_;
+      std::stack<Dynamic> stack_;
+      std::stack<Dynamic> cache_;
+    };
   //----------------------------------------------------------------------------
   private:
     std::string error_;
@@ -1654,8 +1785,9 @@ namespace nkit
     bool first_;
     std::string root_name_;
     std::stack<VarBuilderPtr> var_builder_stack_;
+    std::stack<VarBuilderPtr> var_builder_cache_;
     std::stack<bool> is_simple_element_stack_;
-    std::stack<std::string> current_text_stack_;
+    StringStack current_text_stack_;
   }; // AnyXml2VarBuilder
 
 } // namespace nkit

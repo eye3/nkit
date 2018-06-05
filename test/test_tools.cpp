@@ -179,19 +179,19 @@ namespace nkit_test
     std::string str, etalon("etal \n \t \r on");
 
     str = " " + etalon;
-    NKIT_TEST_ASSERT(ltrim(str, " ") == etalon);
+    NKIT_TEST_ASSERT(ltrim_copy(str, " ") == etalon);
 
     str = "\n" + etalon;
-    NKIT_TEST_ASSERT(ltrim(str, "\n") == etalon);
+    NKIT_TEST_ASSERT(ltrim_copy(str, "\n") == etalon);
 
     str = "   \n" + etalon;
-    NKIT_TEST_ASSERT(ltrim(str, " \n") == etalon);
+    NKIT_TEST_ASSERT(ltrim_copy(str, " \n") == etalon);
 
     str = "   \n\t\r" + etalon;
-    NKIT_TEST_ASSERT(ltrim(str, " \n\r\t") == etalon);
+    NKIT_TEST_ASSERT(ltrim_copy(str, " \n\r\t") == etalon);
 
     str = "   \n\r" + etalon;
-    NKIT_TEST_ASSERT(ltrim(str, " \n") != etalon);
+    NKIT_TEST_ASSERT(ltrim_copy(str, " \n") != etalon);
   }
 
   NKIT_TEST_CASE(tools_rtrim)
@@ -199,39 +199,75 @@ namespace nkit_test
     std::string str, etalon("etal \n \t \r on");
 
     str = etalon + " ";
-    NKIT_TEST_ASSERT_WITH_TEXT(rtrim(str, " ") == etalon, rtrim(str, " "));
+    NKIT_TEST_ASSERT_WITH_TEXT(rtrim_copy(str, " ") == etalon,
+            rtrim_copy(str, " "));
 
     str = etalon + "\n";
-    NKIT_TEST_ASSERT(rtrim(str, "\n") == etalon);
+    NKIT_TEST_ASSERT(rtrim_copy(str, "\n") == etalon);
 
     str = etalon + "   \n";
-    NKIT_TEST_ASSERT(rtrim(str, " \n") == etalon);
+    NKIT_TEST_ASSERT(rtrim_copy(str, " \n") == etalon);
 
     str = etalon + "   \n\t\r";
-    NKIT_TEST_ASSERT(rtrim(str, " \n\r\t") == etalon);
+    NKIT_TEST_ASSERT(rtrim_copy(str, " \n\r\t") == etalon);
 
     str = etalon + "   \n\r";
-    NKIT_TEST_ASSERT(rtrim(str, " \n") != etalon);
+    NKIT_TEST_ASSERT(rtrim_copy(str, " \n") != etalon);
   }
+
+  NKIT_TEST_CASE(tools_trim_copy)
+  {
+    std::string str, etalon("etal \n \t \r on");
+
+    str = " " + etalon + " ";
+    NKIT_TEST_ASSERT_WITH_TEXT(trim_copy(str, " ") == etalon,
+            trim_copy(str, " "));
+
+    str = "\n" + etalon + "\n";
+    NKIT_TEST_ASSERT(trim_copy(str, "\n") == etalon);
+
+    str = "   \n" + etalon + "   \n";
+    NKIT_TEST_ASSERT(trim_copy(str, " \n") == etalon);
+
+    str = "   \n\t\r" + etalon + "   \n\t\r";
+    NKIT_TEST_ASSERT(trim_copy(str, " \n\r\t") == etalon);
+
+    str = "   \n\r" + etalon + "   \n\r";
+    NKIT_TEST_ASSERT(trim_copy(str, " \n") != etalon);
+  }
+
 
   NKIT_TEST_CASE(tools_trim)
   {
     std::string str, etalon("etal \n \t \r on");
 
     str = " " + etalon + " ";
-    NKIT_TEST_ASSERT_WITH_TEXT(trim(str, " ") == etalon, trim(str, " "));
+    trim(str, " ");
+    NKIT_TEST_EQ(str, etalon);
+
+    str = etalon + " ";
+    trim(str, " ");
+    NKIT_TEST_EQ(str, etalon);
+
+    str = " " + etalon;
+    trim(str, " ");
+    NKIT_TEST_EQ(str, etalon);
 
     str = "\n" + etalon + "\n";
-    NKIT_TEST_ASSERT(trim(str, "\n") == etalon);
+    trim(str, "\n");
+    NKIT_TEST_EQ(str, etalon);
 
     str = "   \n" + etalon + "   \n";
-    NKIT_TEST_ASSERT(trim(str, " \n") == etalon);
+    trim(str, " \n");
+    NKIT_TEST_EQ(str, etalon);
 
     str = "   \n\t\r" + etalon + "   \n\t\r";
-    NKIT_TEST_ASSERT(trim(str, " \n\r\t") == etalon);
+    trim(str, " \n\r\t");
+    NKIT_TEST_EQ(str, etalon);
 
     str = "   \n\r" + etalon + "   \n\r";
-    NKIT_TEST_ASSERT(trim(str, " \n") != etalon);
+    trim(str, " \n");
+    NKIT_TEST_ASSERT(str != etalon);
   }
 
 } // namespace nkit_test

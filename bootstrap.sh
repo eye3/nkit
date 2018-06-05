@@ -22,8 +22,7 @@ cleanup()
     unset EXPAT_ROOT
     unset USE_BOOST
     unset USE_REF_COUNT_PTR
-    unset USE_VX
-    unset PREFIX
+    unset USE_XML
 }
 
 
@@ -55,8 +54,8 @@ usage      :  $0 [-d|-rd|-r] [--with-boost=] [--use-boost]
 --with-boost            - force to use system Boost (if any)
 --boost-version         - force to use concrete boost version
 --use-refcount-ptr      - force NOT to use boost::shared_ptr or std::shared_ptr, use nkit::ref_count_ptr instead
---with-vx               - add 'vx' functionality support (needs EXPAT library)
---with-expat=           - path to non-system expat.
+--with-xml              - add 'xml' functionality support (needs EXPAT library)
+--expat-root=           - path to non-system expat.
 --with-pic              - set -fPIC flag for gcc (to use libnkit.a in dynamic libraries (*.so)
 --prefix=               - set install prefix[default '/usr/local']
 --cmake-flags=          - add cmake flag
@@ -71,7 +70,7 @@ examples
 
 ./bootstrap.sh --prefix=/path/to/installation/folder --with-boost=/path/to/boost --with-yajl=/path/to/yajl --debug
 ./bootstrap.sh --prefix=/path/to/installation/folder --with-boost --with-yajl=/path/to/yajl --release
-./bootstrap.sh --prefix=/path/to/installation/folder --with-yajl=/path/to/yajl --rdebug
+./bootstrap.sh --prefix=/path/to/installation/folder --with-yajl=/path/to/yajl --with-xml --rdebug
 
 
 Some influential environment variables:
@@ -91,7 +90,7 @@ Some influential environment variables:
 	BOOST_ROOT	      - Path to boost library (by default searches in 'sysroot')
 	YAJL_ROOT	      - Path to YAJL library (by default searches in 'sysroot')
 	EXPAT_ROOT	      - Path to EXPAT library (by default searches in 'sysroot')
-	USE_VX            - add 'vx' functionality support (needs EXPAT library)
+	USE_XML           - add 'xml' functionality support (needs EXPAT library)
 	USE_BOOST	      - Force using boost instead of C++11 (if there is C++11 support)
 	USE_REF_COUNT_PTR - Force NOT to use boost::shared_ptr or std::shared_ptr, use nkit::ref_count_ptr instead
 	CMAKE_FLAGS	      - cmake flags
@@ -136,17 +135,18 @@ for option; do
 		--use-refcount-ptr)
 			export USE_REF_COUNT_PTR=1
 			;;
-		--with-vx)
-			export USE_VX=1
+		--with-xml)
+			export USE_XML=1
 			;;
-		--with-expat=*)
-			export EXPAT_ROOT=`expr "x$option" : "x--with-expat=\(.*\)"`
+		--expat-root=*)
+			export EXPAT_ROOT=`expr "x$option" : "x--expat-root=\(.*\)"`
 			;;
 		--boost-version=*)
 			export BOOST_VERSION=`expr "x$option" : "x--boost-version=\(.*\)"`
 			;;
         --prefix=*)
-			export PREFIX=`expr "x$option" : "x--prefix=\(.*\)"`
+			# export PREFIX=`expr "x$option" : "x--prefix=\(.*\)"`
+			CMAKE_FLAGS="$CMAKE_FLAGS -DCMAKE_INSTALL_PREFIX=`expr "x$option" : "x--prefix=\(.*\)"`"
 			;;
 		--cmake-flags=*)
 			CMAKE_FLAGS="$CMAKE_FLAGS `expr "x$option" : "x--cmake-flags=\(.*\)"`"
@@ -172,11 +172,10 @@ mkdir -p $BUILD_ROOT/$BUILD_TYPE-build || \
   die "mkdir failed, path '$BUILD_ROOT/$BUILD_TYPE-build'"
 
 cd $BUILD_ROOT/$BUILD_TYPE-build
-$CMAKE "$CMAKE_FLAGS" "$REPO_ROOT" -DCMAKE_BUILD_TYPE=$BUILD_TYPE || \
+$CMAKE $CMAKE_FLAGS "$REPO_ROOT" -DCMAKE_BUILD_TYPE=$BUILD_TYPE || \
       (cd - && die "cmake failed, error code $?")
 cd -
 
 echo "bootstrap.sh done, type make -C $BUILD_TYPE-build"
 
 exit_success
-
