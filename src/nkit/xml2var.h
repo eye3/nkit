@@ -1408,7 +1408,7 @@ namespace nkit
       if (!child_target_item)
         return TargetItemPtr();
 
-        target->PutTargetItem(child_target_item);
+      target->PutTargetItem(child_target_item);
 
       TargetItemPtr target_item = TargetItem<T>::Create(fool_path,
           target);
